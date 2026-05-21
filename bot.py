@@ -74,7 +74,7 @@ MOVIES_EN = [
     {"name": "🎬 2. Chamber of Secrets", "file_id": "BAACAgQAAxkBAAIDW2nOlynvMgKOoF9hn7r8CcccUZo-AAKBBwACrMaBUM7959H4o01HOgQ", "caption": "🎬 Name: HP 2: Chamber of Secrets\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 3. Prisoner of Azkaban", "file_id": "BAACAgQAAxkBAAIDXWnOlz4dtzVGjgW6u9JUz1frSKKNAAKHBwACrMaBUKP9MbVImI-uOgQ", "caption": "🎬 Name: HP 3: Prisoner of Azkaban\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 4. Goblet of Fire", "file_id": "BAACAgQAAxkBAAIDX2nOl0-8b1wOF8VhdnLiVTmx2lQ0AAKOBwACrMaBUNmv6Ega62iuOgQ", "caption": "🎬 Name: HP 4: Goblet of Fire\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
-    {"name": "🎬 5. Order of the Phoenix", "file_id": "BAACAgQAAxkBAAIDYWnOl1-UJIPeUi9iwkH5xveOb1cBAAKVBwACrMaBUC7iNQH-PQokOgQ", "caption": "🎬 Name: HP 5: Order of the Phoenix\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
+    {"name": "🎬 5. Order of the Phoenix", "file_id": "BAACAgYWnOl1-UJIPeUi9iwkH5xveOb1cBAAKVBwACrMaBUC7iNQH-PQokOgQ", "caption": "🎬 Name: HP 5: Order of the Phoenix\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 6. Half-Blood Prince", "file_id": "BAACAgQAAxkBAAIDY2nOl28ipXgwucm7uiCsJ00NrHObAAKNCAACqwKBUHgSmGHyOYgROgQ", "caption": "🎬 Name: HP 6: Half-Blood Prince\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 7. Deathly Hallows 1", "file_id": "BAACAgQAAxkBAAIDZWnOl36nQLjV7TlugAMlJE6y1xFKAAKXCAACqwKBUMiAIxlbsJmOOgQ", "caption": "🎬 Name: HP 7: Deathly Hallows 1\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 8. Deathly Hallows 2", "file_id": "BAACAgQAAxkBAAIDZ2nOl41aUWcgKRzzP_r-suInRRSKAAKkCAACqwKBU733-s2FjB3OgQ", "caption": "🎬 Name: HP 8: Deathly Hallows 2\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
@@ -115,7 +115,6 @@ def check_sub(user_id):
         return (m_ch.status in valid) and (m_gr.status in valid)
     except Exception as e:
         logging.error(f"Tekshiruvda xato: {e}")
-        # Agar bot guruhda bo'lmasa yoki API xato bersa, har doim True qaytaramizki foydalanuvchi bloklanib qolmasin
         return True
 
 def main_menu():
@@ -304,11 +303,9 @@ def process_admin_and_text_replies(message):
     uid = message.from_user.id
     text = message.text
 
-    # Admin qadamlari tekshiruvi
     if uid == ADMIN_ID and uid in ADMIN_STATES:
         state_data = ADMIN_STATES[uid]
         
-        # 1. GetID kutish rejimi
         if state_data == "waiting_for_file":
             f_id = None
             if message.photo: f_id = message.photo[-1].file_id
@@ -322,7 +319,6 @@ def process_admin_and_text_replies(message):
             ADMIN_STATES.pop(uid, None)
             return
 
-        # 2. Reklama tarqatish rejimi
         elif state_data == "waiting_for_ad":
             users = load_data(USERS_FILE)
             count = 0
@@ -335,14 +331,12 @@ def process_admin_and_text_replies(message):
             ADMIN_STATES.pop(uid, None)
             return
 
-        # 3. SetWelcome matnini olish
         elif isinstance(state_data, dict) and state_data.get("state") == "waiting_for_welcome_text":
             if message.text:
                 ADMIN_STATES[uid] = {"state": "waiting_for_welcome_media", "txt": message.text}
                 bot.reply_to(message, "Endi kutib olish uchun media (rasm yoki video) yuboring, yoki 'yo'q' deb yozing:")
             return
 
-        # 4. SetWelcome mediani olish va tugatish
         elif isinstance(state_data, dict) and state_data.get("state") == "waiting_for_welcome_media":
             welcome_db = load_data(WELCOME_FILE)
             cid = str(message.chat.id)
@@ -357,7 +351,6 @@ def process_admin_and_text_replies(message):
             ADMIN_STATES.pop(uid, None)
             return
 
-    # --- ASOSIY REPLIES (KNOPKALAR BOSILGANDA) ---
     if text == "📚 Kitoblar":
         btn = types.InlineKeyboardMarkup(row_width=2).add(
             types.InlineKeyboardButton("📚 Hammasi birda (1-7)", callback_data="get_all_books"),
@@ -454,7 +447,6 @@ def handle_callbacks(callback):
             for i, m in enumerate(MOVIES_EN): btn.add(types.InlineKeyboardButton(m["name"], callback_data=f"get_men_{i}"))
         
         btn.add(types.InlineKeyboardButton("⬅️ Orqaga", callback_data="home"))
-        # BU YERDAGI callback_data ARGUMENTI TO'G'RILANDI
         bot.edit_message_text("Marhamat, tanlang:", chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=btn)
         return
 
@@ -479,15 +471,15 @@ def home():
     return "Hogwarts Bot muvaffaqiyatli ishlamoqda!"
 
 def run_flask():
+    # Render muhitidagi dinamik portni to'g'ri olish tartibi
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
 if __name__ == '__main__':
-    # Flaskni parallel oqimda (Thread) ishga tushiramiz
-    t = Thread(target=run_flask)
-    t.daemon = True
+    # 1. Flask serverni 'daemon=True' xususiyati bilan mutloq xavfsiz parallel fonda ochamiz
+    t = Thread(target=run_flask, daemon=True)
     t.start()
     
-    # Botni ishga tushirish
+    # 2. Botni asosiy rejimda ishga tushiramiz (skip_updates olib tashlandi, polling mustahkamlandi)
     logging.info("Bot polling rejimida muvaffaqiyatli ishga tushdi.")
-    bot.infinity_polling(skip_updates=True)
+    bot.infinity_polling()
