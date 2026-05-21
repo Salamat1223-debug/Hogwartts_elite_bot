@@ -43,8 +43,8 @@ BOOKS_EN = [
     {"name": "📖 4. Goblet of Fire", "file_id": "BQACAgUAAxkBAAIDP2nOlAzIskBV4m7d6OgD3G1o2FOEAAL7AwACn_N4VdM2NXmcWgR-OgQ", "caption": "📖 Name: Harry Potter 4\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "📖 5. Order of the Phoenix", "file_id": "BQACAgUAAxkBAAIDQWnOlB5zRwpHT1wOS9diXcxjCcogAAL5AwACn_N4VQGCfrTny6GKOgQ", "caption": "📖 Name: Harry Potter 5\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "📖 6. Half-Blood Prince", "file_id": "BQACAgUAAxkBAAIDQ2nOlDGDPZqe9r1QZbUUJDj4-L0UAAL6AwACn_N4VWeuyWoTm2SnOgQ", "caption": "📖 Name: Harry Potter 6\n📢 Channel: @harry_potter_fans_uz"},
-    {"name": "📖 7. Deathly Hallows 1", "file_id": "BQACAgUAAxkBAAIDRWnOlEOi6oyRRafs-Y9Yl1Lo19fjAAL8AwACn_N4VdOVKXxjV5MlOgQ", "caption": "📖 Name: Harry Potter 7\n📢 Channel: @harry_potter_fans_uz"},
-    {"name": "📖 8. Deathly Hallows 2", "file_id": "BQACAgUAAxkBAAIDRWnOlEOi6oyRRafs-Y9Yl1Lo19fjAAL8AwACn_N4VdOVKXxjV5MlOgQ", "caption": "📖 Name: Harry Potter 8\n📢 Channel: @harry_potter_fans_uz"},
+    {"name": "ZG 1", "file_id": "BQACAgUAAxkBAAIDRWnOlEOi6oyRRafs-Y9Yl1Lo19fjAAL8AwACn_N4VdOVKXxjV5MlOgQ", "caption": "📖 Name: Harry Potter 7\n📢 Channel: @harry_potter_fans_uz"},
+    {"name": "ZG 2", "file_id": "BQACAgUAAxkBAAIDRWnOlEOi6oyRRafs-Y9Yl1Lo19fjAAL8AwACn_N4VdOVKXxjV5MlOgQ", "caption": "📖 Name: Harry Potter 8\n📢 Channel: @harry_potter_fans_uz"},
 ]
 
 MOVIES_UZ = [
@@ -115,7 +115,8 @@ def check_sub(user_id):
         return (m_ch.status in valid) and (m_gr.status in valid)
     except Exception as e:
         logging.error(f"Tekshiruvda xato: {e}")
-        return False
+        # Agar bot guruhda bo'lmasa yoki API xato bersa, har doim True qaytaramizki foydalanuvchi bloklanib qolmasin
+        return True
 
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -154,8 +155,11 @@ def handle_punishment(message):
 
     if message.chat.type == 'private': return
     
-    sender_member = bot.get_chat_member(message.chat.id, sender.id)
-    is_admin = sender_member.status in ['administrator', 'creator']
+    try:
+        sender_member = bot.get_chat_member(message.chat.id, sender.id)
+        is_admin = sender_member.status in ['administrator', 'creator']
+    except:
+        is_admin = False
     
     if not is_admin:
         return bot.reply_to(message, f"🧙‍♂️ Kechirasiz {mention_sender}, sizda sehrli tayoqcha 🪄 yo'q! Avval sehrli tayoqchaga ega bo'ling.")
@@ -165,10 +169,15 @@ def handle_punishment(message):
 
     target = message.reply_to_message.from_user
     mention_target = get_mention(target)
-    target_member = bot.get_chat_member(message.chat.id, target.id)
+    
+    try:
+        target_member = bot.get_chat_member(message.chat.id, target.id)
+        is_target_admin = target_member.status in ['administrator', 'creator']
+    except:
+        is_target_admin = False
+        
     bot_obj = bot.get_me()
 
-    is_target_admin = target_member.status in ['administrator', 'creator']
     if is_target_admin or target.id == bot_obj.id:
         return bot.reply_to(message, f"🧙‍♂️ Kechirasiz, {mention_sender} lekin o'zingizni yoki boshqa bir sehrgar adminni jazolash taqiqlangan! Bu Hogwarts qonunlariga zid.")
 
@@ -289,7 +298,7 @@ def ad_start(message):
     bot.reply_to(message, "Reklama xabarini yuboring:")
     ADMIN_STATES[message.from_user.id] = "waiting_for_ad"
 
-# --- MATNLAR VA MULTIMEDIA ISHLOVCHI (ADMIN STATUSLARI UCHUN) ---
+# --- MATNLAR VA MULTIMEDIA ISHLOVCHI ---
 @bot.message_handler(content_types=['text', 'photo', 'video', 'document', 'audio', 'voice'])
 def process_admin_and_text_replies(message):
     uid = message.from_user.id
@@ -328,8 +337,9 @@ def process_admin_and_text_replies(message):
 
         # 3. SetWelcome matnini olish
         elif isinstance(state_data, dict) and state_data.get("state") == "waiting_for_welcome_text":
-            ADMIN_STATES[uid] = {"state": "waiting_for_welcome_media", "txt": message.text}
-            bot.reply_to(message, "Endi kutib olish uchun media (rasm yoki video) yuboring, yoki 'yo'q' deb yozing:")
+            if message.text:
+                ADMIN_STATES[uid] = {"state": "waiting_for_welcome_media", "txt": message.text}
+                bot.reply_to(message, "Endi kutib olish uchun media (rasm yoki video) yuboring, yoki 'yo'q' deb yozing:")
             return
 
         # 4. SetWelcome mediani olish va tugatish
@@ -412,11 +422,10 @@ def on_new_member(message):
             else: 
                 m = bot.send_message(cid, cap, reply_markup=btn)
             
-            # Xabarni 10 daqiqadan keyin o'chirish (Thread orqali kodingiz qotib qolmaydi)
             Thread(target=delete_after_delay, args=(message.chat.id, m.message_id, 600)).start()
 
 # --- CALLBACK TUGMALARIGA ISHLOV BERISH ---
-@bot.callback_query_handler(func=lambda c: c.data in ["b_uz", "b_en", "m_uz", "m_ru", "m_en", "home", "get_all_books"] or c.data.startswith("get_"))
+@bot.callback_query_handler(func=lambda c: True)
 def handle_callbacks(callback):
     d = callback.data
     
@@ -445,7 +454,8 @@ def handle_callbacks(callback):
             for i, m in enumerate(MOVIES_EN): btn.add(types.InlineKeyboardButton(m["name"], callback_data=f"get_men_{i}"))
         
         btn.add(types.InlineKeyboardButton("⬅️ Orqaga", callback_data="home"))
-        bot.edit_message_text("Marhamat, tanlang:", callback_data="home", chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=btn)
+        # BU YERDAGI callback_data ARGUMENTI TO'G'RILANDI
+        bot.edit_message_text("Marhamat, tanlang:", chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=btn)
         return
 
     if d.startswith("get_"):
@@ -473,8 +483,9 @@ def run_flask():
     app.run(host='0.0.0.0', port=port)
 
 if __name__ == '__main__':
-    # Flaskni parallel oqimda (Thread) ishga tushiramiz, u Render portini ushlab turadi
+    # Flaskni parallel oqimda (Thread) ishga tushiramiz
     t = Thread(target=run_flask)
+    t.daemon = True
     t.start()
     
     # Botni ishga tushirish
