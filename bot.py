@@ -15,6 +15,7 @@ from aiogram.types import (
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiohttp import web  # <-- Render portni yopib qo'ymasligi uchun qo'shildi
 
 # --- SOZLAMALAR ---
 API_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8669459130:AAEiW8ZLeYNuITToXN9vCURiQdS3u5o_r_U")
@@ -143,13 +144,12 @@ async def delete_after_delay(message: types.Message, delay: int):
     except:
         pass
 
-# --- JAZO TIZIMI (YANGILANGAN VA TUZATILGAN) ---
+# --- JAZO TIZIMI ---
 @dp.message_handler(commands=["mute", "ban", "unmute", "unban"])
 async def handle_punishment(message: types.Message):
     sender = message.from_user
     mention_sender = get_mention(sender)
 
-    # Botdan bloklash (Faqat shaxsiy chatda va bot egasi uchun)
     if message.chat.type == 'private' and sender.id == ADMIN_ID:
         if message.get_command() == "/ban":
             args = message.get_args()
@@ -172,7 +172,6 @@ async def handle_punishment(message: types.Message):
     
     sender_member = await message.chat.get_member(sender.id)
     
-    # 1. Admin emas odam buyruq ishlatsa
     if not sender_member.is_chat_admin():
         return await message.reply(f"🧙‍♂️ Kechirasiz {mention_sender}, sizda sehrli tayoqcha 🪄 yo'q! Avval sehrli tayoqchaga ega bo'ling.")
 
@@ -184,7 +183,6 @@ async def handle_punishment(message: types.Message):
     target_member = await message.chat.get_member(target.id)
     bot_obj = await bot.get_me()
 
-    # 2. Admin adminga yoki o'ziga buyruq bersa
     if target_member.is_chat_admin() or target.id == bot_obj.id:
         return await message.reply(f"🧙‍♂️ Kechirasiz, {mention_sender} lekin o'zingizni yoki boshqa bir sehrgar adminni jazolash taqiqlangan! Bu Hogwarts qonunlariga zid.")
 
@@ -193,7 +191,6 @@ async def handle_punishment(message: types.Message):
     
     try:
         if cmd == "/ban":
-            # 3. Ban xabari
             await message.chat.kick(target.id)
             await message.answer(f"🚫 {mention_target} ⛓ Hogwarts o'quvchisi yovuz yo'lga kirgani uchun Azkabanga ravona bo'ldi!")
         
@@ -202,8 +199,7 @@ async def handle_punishment(message: types.Message):
             await message.answer(f"🕊 {mention_target} Azkabandan ozod qilindi!")
 
         elif cmd == "/mute":
-            # 5. Mute vaqti va sababi mantiqi
-            mute_time = 5 # avtomatik 5 daqiqa
+            mute_time = 5
             reason = "Aniqlanmagan"
             
             if args:
@@ -216,8 +212,6 @@ async def handle_punishment(message: types.Message):
             
             until_date = int(time.time()) + (mute_time * 60)
             await message.chat.restrict(target.id, permissions=types.ChatPermissions(can_send_messages=False), until_date=until_date)
-            
-            # 4. Mute xabari
             await message.answer(f"🙊 {mention_target} Silencio afsuni ostida! {mute_time} daqiqaga ovozi o'chirildi.\n📜 Sabab: {reason}")
             
         elif cmd == "/unmute":
@@ -227,12 +221,11 @@ async def handle_punishment(message: types.Message):
     except Exception as e:
         await message.reply(f"❌ Xato: {str(e)}")
 
-# --- START VA TEKSHIRISH (TO'G'RILANDI) ---
+# --- START VA TEKSHIRISH ---
 @dp.message_handler(commands=["start"])
 async def start_cmd(message: types.Message):
     user = message.from_user
     
-    # --- GURUH UCHUN MAXSUS QISM ---
     if message.chat.type != 'private':
         bot_info = await bot.get_me()
         btn = InlineKeyboardMarkup().add(
@@ -244,7 +237,6 @@ async def start_cmd(message: types.Message):
             "Guruhda xalaqit bermaslik uchun menyularni shu yerda ochamiz! 🤫"
         )
         return await message.reply(txt, reply_markup=btn)
-    # --- GURUH QISMI TUGADI ---
 
     banned = load_data(BANNED_FILE)
     if str(user.id) in str(banned):
@@ -280,7 +272,7 @@ async def recheck_callback(callback: types.CallbackQuery):
         welcome_txt = f"Ajoyib! Sehrli olam eshiklari siz uchun ochiq, {get_mention(callback.from_user)}! ✨"
         await bot.send_message(callback.message.chat.id, welcome_txt, reply_markup=main_menu())
     else:
-        await callback.answer("Siz hali ham barcha shartlarni bajarmadingiz! Shoshiling, poyezd yo'lga tushmoqda! 🚂", show_alert=True)
+        await callback.answer("Siz hali ham bajaran barcha shartlarni bajarmadingiz! Shoshiling, poyezd yo'lga tushmoqda! 🚂", show_alert=True)
 
 # --- ADMIN FUNKSIYALARI ---
 @dp.message_handler(commands=["getid"], user_id=ADMIN_ID)
@@ -464,5 +456,24 @@ async def ad_process(message: types.Message, state: FSMContext):
     await message.answer(f"✅ Xabar {count} kishiga yuborildi.")
     await state.finish()
 
+# --- SOXTA VEB SERVER (RENDER PORT UCHUN MANTIQLAR) ---
+async def handle_render_port(request):
+    return web.Response(text="Hogwarts Bot ishlayapti!")
+
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get('/', handle_render_port)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 8080))  # Render bergan portni tinglaydi
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    logging.info(f"Veb-server {port} portida muvaffaqiyatli ishga tushirildi.")
+
 if __name__ == '__main__':
+    # Bot ishga tushishidan oldin veb-serverni loop ichiga qo'shamiz
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(start_web_server())
+    
+    # Aiogram botni polling rejimida ishga tushirish
     executor.start_polling(dp, skip_updates=True)
