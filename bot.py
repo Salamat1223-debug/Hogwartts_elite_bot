@@ -493,11 +493,25 @@ def keep_alive():
         # 10 daqiqa (600 soniya) kutib, keyin yana qayta signal yuboradi
         time.sleep(600)
 
+def run_bot():
+    logging.info("Bot polling oqimi alohida ishga tushmoqda...")
+    while True:
+        try:
+            # Bot cheksiz rejimda ishlaydi va aloqa uzilsa avtomatik qayta ulanadi
+            bot.infinity_polling(timeout=10, long_polling_timeout=5)
+        except Exception as e:
+            logging.error(f"Bot pollingda xatolik yuz berdi: {e}")
+            time.sleep(5)
+
 if __name__ == '__main__':
-    # 1. Flask serverni parallel fonda ochamiz
-    t_flask = Thread(target=run_flask, daemon=True)
-    t_flask.start()
+    # 1. Botni alohida fondagi oqimda (Thread) xavfsiz ishga tushiramiz
+    t_bot = Thread(target=run_bot, daemon=True)
+    t_bot.start()
     
-    # 2. O'z-o'zini uyg'otuvchi (Self-Ping) tizimini parallel fonda yurgizamiz
+    # 2. O'z-o'zini uyg'otuvchi ichki tizimni fonda yurgizamiz
     t_ping = Thread(target=keep_alive, daemon=True)
-    t_ping
+    t_ping.start()
+    
+    # 3. Flask serverni asosiy oqimda yurgizamiz (Render portni srazu o'qishi uchun)
+    logging.info("Flask veb-server asosiy portda ishga tushdi.")
+    run_flask()
