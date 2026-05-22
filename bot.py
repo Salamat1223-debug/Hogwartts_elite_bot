@@ -4,6 +4,7 @@ import os
 import random
 import time
 from threading import Thread
+import requests  # <-- O'z-o'zini uyg'otish so'rovlari uchun kerak
 from flask import Flask  # <-- Render o'chib qolmasligi uchun eng yengil veb-server
 import telebot
 from telebot import types
@@ -14,6 +15,9 @@ CHANNEL = "@SaIamatPirjanov"
 GROUP = "@SalamatPirjanov_chat"
 ADMIN_ID = 7821230725
 SHLYAPA_USER = "SalamatPirjanov"
+
+# Render sizga bergan havola (Bot o'zini o'zi uyg'otishi uchun)
+RENDER_URL = "https://hogwartts-elite-bot.onrender.com"
 
 logging.basicConfig(level=logging.INFO)
 bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
@@ -471,15 +475,29 @@ def home():
     return "Hogwarts Bot muvaffaqiyatli ishlamoqda!"
 
 def run_flask():
-    # Render muhitidagi dinamik portni to'g'ri olish tartibi
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
+# --- O'Z-O'ZINI UYG'OTISH (SELF-PING) TIZIMI ---
+def keep_alive():
+    """Bot uxlab qolmasligi uchun har 10 daqiqada Render URL manziliga signal yuboradi"""
+    time.sleep(20) # Bot to'liq yurgizilib olinishi uchun ozgina kutadi
+    logging.info("O'z-o'zini uyg'otish tizimi ishga tushdi.")
+    while True:
+        try:
+            response = requests.get(RENDER_URL)
+            logging.info(f"⚡️ Uyg'otish signali muvaffaqiyatli yuborildi: {response.status_code}")
+        except Exception as e:
+            logging.error(f"⚠️ Uyg'otishda xatolik yuz berdi: {e}")
+        
+        # 10 daqiqa (600 soniya) kutib, keyin yana qayta signal yuboradi
+        time.sleep(600)
+
 if __name__ == '__main__':
-    # 1. Flask serverni 'daemon=True' xususiyati bilan mutloq xavfsiz parallel fonda ochamiz
-    t = Thread(target=run_flask, daemon=True)
-    t.start()
+    # 1. Flask serverni parallel fonda ochamiz
+    t_flask = Thread(target=run_flask, daemon=True)
+    t_flask.start()
     
-    # 2. Botni asosiy rejimda ishga tushiramiz (skip_updates olib tashlandi, polling mustahkamlandi)
-    logging.info("Bot polling rejimida muvaffaqiyatli ishga tushdi.")
-    bot.infinity_polling()
+    # 2. O'z-o'zini uyg'otuvchi (Self-Ping) tizimini parallel fonda yurgizamiz
+    t_ping = Thread(target=keep_alive, daemon=True)
+    t_ping
