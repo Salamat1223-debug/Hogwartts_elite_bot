@@ -77,7 +77,7 @@ MOVIES_EN = [
     {"name": "🎬 2. Chamber of Secrets", "file_id": "BAACAgQAAxkBAAICL2oRV_ppWrRqkoMAAXc1Lw34961RUgACgQcAAqzGgVBdOFD_iBwOLDsE", "caption": "🎬 Name: HP 2: Chamber of Secrets\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 3. Prisoner of Azkaban", "file_id": "BAACAgQAAxkBAAICM2oRWZxfAAHXBWP0o5kRBMycCICq9QAChwcAAqzGgVDsBQVT8TAICDsE", "caption": "🎬 Name: HP 3: Prisoner of Azkaban\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 4. Goblet of Fire", "file_id": "BAACAgQAAxkBAAICN2oRWbarnoIsnvM0XIlTrvR_owfbAAKOBwACrMaBUDUXSbQwD0IDOwQ", "caption": "🎬 Name: HP 4: Goblet of Fire\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
-    {"name": "🎬 5. Order of the Phoenix", "file_id": "BAACAgQAAxkBAAICO2oRWcx9S0pQRS4ErbXGwkcCdZfNAAKVBwACrMaBUFprpknOUtC1OwQ", "caption": "🎬 Name: HP 5: Order of the Phoenix\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
+    {"name": "🎬 5. Order of the Phoenix", "file_id": "BAACAgOAAxkBAAICO2oRWcx9S0pQRS4ErbXGwkcCdZfNAAKVBwACrMaBUFprpknOUtC1OwQ", "caption": "🎬 Name: HP 5: Order of the Phoenix\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 6. Half-Blood Prince", "file_id": "BAACAgQAAxkBAAICP2oRWeSo58vRcf6VLnbTaHYcsMmqAAKNCAACqwKBUGyOaaeviG0COwQ", "caption": "🎬 Name: HP 6: Half-Blood Prince\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 7. Deathly Hallows 1", "file_id": "BAACAgQAAxkBAAICQ2oRWfs9uFR8DUVxXjpUNjN64qScAAKXCAACqwKBUMZ1LdCSfm44OwQ", "caption": "🎬 Name: HP 7: Deathly Hallows 1\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
     {"name": "🎬 8. Deathly Hallows 2", "file_id": "BAACAgQAAxkBAAICR2oRWhMkyoYUeG5OdS6Dh_bvObG9AAKkCAACqwKBUGsuMQMa_91TOwQ", "caption": "🎬 Name: HP 8: Deathly Hallows 2\n⏱ Time: 2.5 hours\n🌐 Lang: English\n🎞 Quality: HD\n📢 Channel: @harry_potter_fans_uz"},
@@ -167,7 +167,7 @@ def get_game_rules():
         "• /start_azkaban — O'yinni guruhda boshlash\n"
         "• /extend_azkaban — Ro'yxatdan o'tish vaqtini 30 soniyaga uzaytirish ⏳\n"
         "• /status_azkaban — O'yin holati va ishtirokchilar ro'yxati ✨\n"
-        "• /qoidalar — Qoidalarni ko'ramar\n\n"
+        "• /qoidalar — Qoidalarni ko'rmoq\n\n"
         "⏳ <b>Vaqt cheklovi:</b> Vazirlikka mahbuslarni topish uchun jami <b>10 daqiqa</b> vaqt beriladi! Aks holda mahbuslar qochib ketadi!"
     )
 
@@ -186,7 +186,7 @@ def show_game_status(message):
     txt = "🕵️‍♂️ <b>Azkaban Operatsiyasi — Joriy Holat:</b>\n\n"
     txt += f"🩸 Vazirlik urinishlari: <b>{session['attempts']} ta</b>\n"
     txt += f"👥 Jami qidiruvdagi mahbuslar: <b>{len(session['fugitives'])} ta</b>\n"
-    txt += f"🏃‍♂️ Ko'rinmas bo'lganlar: <b>{len(session['escaped_fugitives'])} ta</b>\n\n"
+    txt += f"RUN 🏃‍♂️ Ko'rinmas bo'lganlar: <b>{len(session['escaped_fugitives'])} ta</b>\n\n"
     
     txt += "🧙‍♂️ <b>Ro'yxatdan o'tgan sehrgarlar:</b>\n"
     for p_id, p_obj in session["players"].items():
@@ -199,7 +199,7 @@ def show_game_status(message):
             
     bot.send_message(chat_id, txt, parse_mode="HTML")
 
-# --- YANGI FUNKSIYALAR: VAQTNI UZAYTIRISH BUYRUG'I ---
+# --- VAQTNI UZAYTIRISH BUYRUG'I ---
 @bot.message_handler(commands=["extend_azkaban"])
 def extend_registration_time(message):
     chat_id = message.chat.id
@@ -235,11 +235,10 @@ def start_azkaban_game(message):
         "attempts": 2,
         "msg_counts": {},
         "start_time": 0,
-        "countdown": 45  # Dinamik teskari sanash vaqti
+        "countdown": 45  
     }
 
     bot_info = bot.get_me()
-    # Deep-linking orqali guruh ID sini bot shaxsiy xatiga uzatamiz
     join_url = f"https://t.me/{bot_info.username}?start=join_{chat_id}"
     
     kb = types.InlineKeyboardMarkup().add(
@@ -258,7 +257,6 @@ def start_azkaban_game(message):
     Thread(target=process_registration_countdown, args=(chat_id,)).start()
 
 def process_registration_countdown(chat_id):
-    # Dinamik tarzda vaqtni tekshirib kamaytirib borish (uzaytirish ish berishi uchun)
     while True:
         time.sleep(5)
         if chat_id not in AZKABAN_SESSIONS or AZKABAN_SESSIONS[chat_id]["status"] != "registration":
@@ -292,22 +290,20 @@ def process_registration_countdown(chat_id):
     session["status"] = "playing"
     session["start_time"] = time.time()
 
-    # Guruh havolasini olish (agar guruh public bo'lsa yoki username bo'lsa)
     group_chat = bot.get_chat(chat_id)
     group_link = f"https://t.me/{group_chat.username}" if group_chat.username else "https://t.me/c/" + str(abs(chat_id))[3:]
     
-    # Guruhga o'tish uchun maxsus inline tugma
     group_kb = types.InlineKeyboardMarkup().add(
         types.InlineKeyboardButton("⚔️ Guruhga qaytish (Tergov xonasi)", url=group_link)
     )
 
-    # --- 2-SHART: BARCHAGA SHAXSIY CHATDA ROLNI VA INLINE TUGMANI YUBORISH ---
+    # --- 2-DETAL TUZATILDI: BARCHAGA SHAXSIY CHATDA XABAR TO'G'RI VA ISMI BILAN BORADI ---
     for p_id, p_obj in session["players"].items():
         try:
             if p_id in chosen_fugitives:
                 session["msg_counts"][p_id] = 0
                 bot.send_message(
-                    f_id,
+                    p_id,  # f_id xatoligi p_id ga to'g'rilandi
                     f"👁‍🗨 <b>{p_obj.first_name}</b>, Qora Lord sizga yashirin topshiriq berdi!\n\n"
                     f"Siz <b>Azkaban qochqinisiz!</b> Guruhda o'zingizni aslo bildirmang. "
                     f"Maqsadingiz guruh suhbatiga aralashib, kamida 3 ta so'zdan iborat bo'lgan <b>7 ta xabar</b> yozish "
@@ -324,10 +320,10 @@ def process_registration_countdown(chat_id):
                     reply_markup=group_kb,
                     parse_mode="HTML"
                 )
-        except:
-            pass
+        except Exception as e:
+            logging.error(f"Rol yuborishda xato ({p_id}): {e}")
 
-    # --- 3-SHART: ISHTIROKCHILAR RO'YXATINI CHIQARISH ---
+    # --- ISHTIROKCHILAR RO'YXATINI CHIQARISH ---
     participants_list = "\n".join([f"• {get_mention(obj)}" for obj in session["players"].values()])
 
     bot.send_message(
@@ -381,15 +377,7 @@ def handle_punishment(message):
         target = message.reply_to_message.from_user
         session = AZKABAN_SESSIONS[chat_id]
 
-        try:
-            target_member = bot.get_chat_member(chat_id, target.id)
-            is_target_admin = target_member.status in ['administrator', 'creator'] or target.id == ADMIN_ID
-        except:
-            is_target_admin = False
-
-        if is_target_admin:
-            return bot.reply_to(message, f"🛡 <b>REVELIO RAD ETILDI!</b>\n\n{get_mention(target)} — Vazirlikning oliy prefekti/professori hisoblanadi. Ularni ta'qib qilish qonunan taqiqlanadi va urinishlar soni kamaytirilmaydi!")
-
+        # --- 1-DETAL TUZATILDI: ADMINGA REVELIO ISHLATILMASIN DEGAN CHEKLOV BUTUNLAY OLIB TASHLANDI ---
         if target.id not in session["players"]:
             return bot.reply_to(message, "❌ Bu shaxs o'yin ro'yxatidan o'tmagan, u oddiy Hogwarts mehmoni!")
 
@@ -544,7 +532,7 @@ def start_cmd(message):
     mention_user = get_mention(user)
     text_args = message.text.split()
 
-    # --- 1-SHART: DEEP LINKING ORQALI GURUHIDAN KELGAN SEHRGARNI RO'YXATGA OLISH ---
+    # --- DEEP LINKING ORQALI GURUHIDAN KELGAN SEHRGARNI RO'YXATGA OLISH ---
     if len(text_args) > 1 and text_args[1].startswith("join_"):
         try:
             g_id = int(text_args[1].replace("join_", ""))
@@ -562,7 +550,6 @@ def start_cmd(message):
                 f"🏰 <b>Muvaffaqiyatli qo'shildingiz!</b>\n\nHurmatli yosh sehrgar {mention_user}, siz Azkaban mahbuslarini qidirish bo'yicha maxsus guruh tarkibiga qo'shildingiz! "
                 f"Yaqin soniyalarda sizga maxfiy vazifangiz (rolingiz) yuboriladi. Tayyor turing! 🪄✨"
             )
-            # Guruhga kim qo'shilgani haqida kichik xabarnoma yuborish
             bot.send_message(g_id, f"🧙‍♂️ {mention_user} qidiruv guruhiga muvaffaqiyatli safarbar etildi!")
             return
         else:
