@@ -188,7 +188,7 @@ def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("📚 Sehrli Kutubxona"), types.KeyboardButton("🎬 Kino Zali"))
     markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Ittifoqlar Saralashi"))
-    markup.add(types.KeyboardButton("🦄 Patronus testi"))
+    markup.add(types.KeyboardButton("🦄 Patronusni aniqlash"))
     return markup
 
 def delete_after_delay(chat_id, message_id, delay=600):
