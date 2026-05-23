@@ -105,7 +105,7 @@ PROJECT_GROUPS = {
 # 🔮 SHLYAPA FRAZALARI (RANG-BARANGLIK UCHUN KENGAYTIRILDI)
 SHLYAPA_FRAZALARI = [
     "🧐 <i>Hmm... juda qiziq... Qalbingiz tubida chuqur yashiringan sirlarni ko'rmoqdaman...</i>",
-    "🧠 <i>Xotiralaringiz qatlamida ulkan salohiyat yotibdi! Qaysi burilish sizni buyuklikka olib boradi?</i>",
+    "🧠 <i>Xotiralaringiz qatlamida ulkan salohiyat yotibdi! Qaysi burilish sizni buyuklikka olib borami?</i>",
     "✨ <i>Ooo! Bu ongda shunchaki jasorat emas, balki g'ayritabiiy intilishlar zanjiri bor... Qayerga joylasam ekan?</i>",
     "🦅 <i>O'tkir zehn va fikrlash doirasi... Yoki do'stlar uchun har narsaga tayyor sodiq yurakmi?</i>",
     "⚡️ <i>Menga tik qarab turgan bu ko'zlarda qat'iyat uchqunlarini ko'ryapman... Shoshilmang, yaxshilab o'ylashim kerak...</i>",
@@ -113,7 +113,7 @@ SHLYAPA_FRAZALARI = [
     "🌌 <i>Ajabo! Bu sehrgarning kelajagi shunchalar yorqin va chalkashki, hatto men ham adashib ketishim munosib!</i>",
     "🐍 <i>Makr va ambitsiyami yoki olijanoblik va mardlik? Qalbingizda ikki buyuk kuch to'qnashmoqda...</i>",
     "📜 <i>Hogwarts tarixida sizdek murakkab xarakterli sehrgarlar juda kam bo'lgan... Keling, taqdiringizni ochamiz!</i>",
-    "🔮 <i>Yuragingizof urishi menga aniq yo'lni ko'rsatmoqda, siz munosib bo'lgan maskan...</i>"
+    "🔮 <i>Yuragingizning urishi menga aniq yo'lni ko'rsatmoqda, siz munosib bo'lgan maskan...</i>"
 ]
 
 # 🧪 MA'JUN TAYYORLASH HAQIDA HAQIQIY MA'LUMOTLAR
@@ -137,66 +137,20 @@ ALL_INGREDIENTS = [
     "Ikki shoxli kiyik shoxi", "Haqiqat guli", "Lavanda guli"
 ]
 
-# 🦄 PATRONUS TESTI SAVOLLARI VA XARAKTER BALLARI
-PATRONUS_TEST_QUESTIONS = [
-    {
-        "q": "🌌 SIZ UCHUN ENG BAXTLI XOTIRA NIMA?",
-        "options": [
-            {"t": "Do'stlar davrasida g'alaba qozonish", "b": {"jasorat": 3, "aql": 1}},
-            {"t": "Yashirincha ulkan maqsadga erishish", "b": {"ilon": 3, "jasorat": 1}},
-            {"t": "Yangi va qiyin bilimni kashf etish", "b": {"burgut": 3, "aql": 1}},
-            {"t": "Yaqinlar bilan tinchlikda o'tirish", "b": {"aql": 3, "burgut": 1}}
-        ]
-    },
-    {
-        "q": "🪄 QAYSI AFSUNNI BIRINCHI BO'LIB O'RGANAR EDINGIZ?",
-        "options": [
-            {"t": "Expecto Patronum — Himoya sehrini", "b": {"jasorat": 2, "aql": 2}},
-            {"t": "Avada Kedavra — Absolute qudratni", "b": {"ilon": 4}},
-            {"t": "Revelio — Sirlarni fosh etishni", "b": {"burgut": 3, "jasorat": 1}},
-            {"t": "Protego — Do'stlarimni asrashni", "b": {"aql": 3, "ilon": 1}}
-        ]
-    },
-    {
-        "q": "🌲 TAQIQLANGAN O'RMONDA QAYSI JONZOTNI UCHRATSANGIZ QO'RQMADINGIZ?",
-        "options": [
-            {"t": "Sentavrlar — Donishmand zonzotlar", "b": {"burgut": 3, "aql": 1}},
-            {"t": "Giperogrif — Mag'rur va jasur qush", "b": {"jasorat": 3, "burgut": 1}},
-            {"t": "Akromantula — Ulkan ayyor o'rgimchak", "b": {"ilon": 3}},
-            {"t": "Yakoron (Fluffy) — Sodiq uch boshli kuchuk", "b": {"aql": 3, "jasorat": 1}}
-        ]
-    },
-    {
-        "q": "🏆 CHEMPIONLAR KUBOGIDA QAYSI SIFATINGIZ BILAN G'ALABA QOZONASIZ?",
-        "options": [
-            {"t": "Hech qachon taslim bo'lmas jasoratim bilan", "b": {"jasorat": 3}},
-            {"t": "Raqiblarimning xatolaridan foydalangan makrim bilan", "b": {"ilon": 3}},
-            {"t": "Strategik reja va o'tkir aqlim bilan", "b": {"burgut": 3}},
-            {"t": "Tinimsiz mehnat va adolatli kurash bilan", "b": {"aql": 3}}
-        ]
-    },
-    {
-        "q": "🔮 SEHRLI TAYOQCHANGIZNING YURAGI NIMADAN IBORAT BO'LISHINI XOHLAR EDINGIZ?",
-        "options": [
-            {"t": "Feniks qushi pati (Nodir va qayta tug'iluvchi)", "b": {"jasorat": 2, "burgut": 2}},
-            {"t": "Ajdarho yurak tomiri (Qudratli va daxshatli)", "b": {"ilon": 3, "jasorat": 1}},
-            {"t": "Yakoron (Unicorn) tuki (Toza va barqaror)", "b": {"aql": 3}},
-            {"t": "Muqaddas daraxt po'stlog'i (Bilimga boy)", "b": {"burgut": 3}}
-        ]
-    }
+# 🦄 TASODIFIY PATRONUSLAR RO'YXATI (YANGI LOGIKA)
+RANDOM_PATRONUS_LIST = [
+    {"animal": "Baxmal Quyon (Hare) 🐇", "desc": "Bu Patronus juda chaqqon, sezgir va kutilmagan qarorlar qabul qila oladigan sehrgarlarga xosdir. Dushman koʻziga u kichik va zararsiz koʻrinishi mumkin, ammo uning tezligi, manyovrlari va aqlli harakatlari har qanday Dementorni sarosimaga solib qoʻyadi."},
+    {"animal": "Aslanzahr Quyosh Sheri (Lion) 🦁", "desc": "Jasorat, sadoqat va bamisoli olovli qalb timsoli. Bu Patronus oʻz egasining ichki kuchidan darak beradi. Sher Patronusi chiqqan sehrgarlar doʻstlarini himoya qilish uchun oxirigacha kurashadi va har qanday zulmatni parchalab tashlaydi."},
+    {"animal": "Yashirin Kurashchi — Boʻri (Wolf) 🐺", "desc": "Erkinlikni sevuvchi, yolgʻiz va ayni paytda oʻz toʻdasiga oʻta sadoqatli sehrgarlarning yoʻldoshi. Boʻri nihoyatda kuchli instinktlarga ega boʻlib, xavfni ancha uzoqdan his qiladi va kutilmagan zarba bera oladi."},
+    {"animal": "Donishmand Boyqush (Owl) 🦉", "desc": "Kuch faqat mushaklarda emas, aqldadir! Bu Patronus chuqur bilimga intiluvchi, strategik fikrlaydigan va sirli tabiatga ega sehrgarlarni tanlaydi. U Dementorlarning ruhan ezish xususiyatiga qarshi eng mustahkam aqliy qalqondir."},
+    {"animal": "Afsonaviy Feniks (Phoenix) 🦅", "desc": "Nihoyatda noyob va sehrli Patronus. Har qanday qiyinchilikdan soʻng qayta tugʻila oladigan, umidini hech qachon uzmaydigan insonlar timsoli. Feniks nuri Dementorlarni shunchaki haydamaydi, balki atrofga qaynoq hayotiy energiya tarqatadi."},
+    {"animal": "Chaqqon Tulki (Fox) 🦊", "desc": "Uddabronlik, ayyorlik va oʻtkir zehn belgisi. Tulki Patronusi anʼanaviy usullar ish bermagan joyda har doim noodatiy va aqlli yechim topa oladigan sehrgarlarning eng yaqin yordamchisidir."},
+    {"animal": "Ajdaho (Dragon) 🐉", "desc": "Cheksiz qudrat, ehtiros va asov tabiat belgisi. Bu Patronus juda kuchli va mag'rur sehrgarlarda namoyon bo'ladi. Uning kumushrang alandasi Dementorlar guruhini bir lahzada yo'q qilib yuborishga qodir!"},
+    {"animal": "Sodiq Olmaxon (Squirrel) 🐿", "desc": "Uddabronlik, harakatchanlik va ajoyib xotira ramzi. Kichkina bo'lishiga qaramay, u o'z tezligi va kutilmagan manyovrlari bilan dushmanning har qanday rejasini chippakka chiqara oladi."}
 ]
-
-PATRONUS_RESULTS = {
-    "jasorat": {"animal": "Bug'u (Stag) 🦌", "desc": "Sizning ichki kuchingiz yetakchilik, adolat va cheksiz jasoratga tayanadi! Huddi Garri Potter kabi yovuzlikka qarshi tik tura olasiz."},
-    "ilon": {"animal": "Bo'g'ma Ilon (Basilisk) 🐍", "desc": "Siz tabiatingizdan o'ta uzoqni ko'ra oladigan, har qanday vaziyatdan aql va makr bilan chiqadigan qudratli sehrgarsiz! Patronusingiz dushmanlarni muzlatadi."},
-    "burgut": {"animal": "Feniks Qushi (Phoenix) 🦅", "desc": "Eng nodir va afsonaviy Patronus! Siz har qanday qiyinchilik cheklovlaridan yonib, qayta tug'ila olasiz. Qalbingiz mutloq bilim manbaidir."},
-    "aql": {"animal": "Kumushrang Bo'ri (Wolf) 🐺", "desc": "Siz nihoyatda sadoqatli, oilaparvar va do'stlik ittifoqini dunyodagi hamma narsadan ustun qo'yadigan olijanob sehrgarsiz! Remus Lyupin kabi."}
-}
 
 # Guruhdagi majun o'yinlari seanslari bazasi
 POTION_GAMES = {}
-# Foydalanuvchilarning Patronus testi jarayonlari
-PATRONUS_TEST_SESSIONS = {}
 
 # --- BAZA FAYLLARI ---
 HOUSES_FILE = "user_houses.json"
@@ -428,7 +382,7 @@ def process_registration_countdown(chat_id):
         f"📋 <b>Tergovda qatnashayotgan sehrgarlar ro'yxati:</b>\n{participants_list}\n\n"
         f"Guruhda jami {p_count} ta sehrgardan <b>{len(chosen_fugitives)} ta yashirin mahbus</b> bor.\n"
         f"Ularni fosh etish uchun guruhda xabarga javoban (Reply) <code>/revelio</code> yozing.\n\n"
-        f"⚠️ Vazirlikda jami <b>{attempts} ta xato qilish</b> imkoniyati bor!\n"
+        f"⚠️ Vazirlikda jami <b>{attempts} ta xato quilting</b> imkoniyati bor!\n"
         f"⏳ Mahbuslarni fosh etish uchun sizga <b>10 daqiqa</b> vaqt berildi!",
         parse_mode="HTML"
     )
@@ -903,60 +857,39 @@ def process_admin_and_text_replies(message):
         time.sleep(2.5)
         bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id, parse_mode="HTML")
 
+    # --- TASODIFIY PATRONUS CHIQARISH LOGIKASI (YANGILANDI) ---
     elif text == "🦄 Patronus testi":
         uid_str = str(message.from_user.id)
         p_data = load_data(PATRONUS_FILE)
         
+        # Agar foydalanuvchi oldin aniqlagan bo'lsa, o'sha patronusini qaytaramiz
         if uid_str in p_data:
             saved = p_data[uid_str]
             return bot.send_message(
                 message.chat.id,
                 f"🪄 <b>Qadimiy taqiq afsuni!</b>\n\nSiz allaqachon o'z qalbingiz tubidagi Patronus jonzotini chaqirib bo'lgansiz! "
                 f"Sehrgarning tabiati va uning eng baxtli xotiralari o'zgarmasdir. Sizning Patronusingiz:\n\n"
-                f"✨ <b>{saved['animal']}</b>\n📜 <i>{saved['desc']}</i>\n\n"
+                f"✨ <b>{saved['animal']}</b>\n\n"
+                f"<blockquote><b>Xarakteristikasi:</b> {saved['desc']}</blockquote>\n\n"
                 f"⚡️ <i>«Expecto Patronum!» deganingizda, tayog'ingizdan faqat shu nur chiqadi!</i>",
                 parse_mode="HTML"
             )
             
-        PATRONUS_TEST_SESSIONS[uid] = {"current_q": 0, "scores": {"jasorat": 0, "ilon": 0, "burgut": 0, "aql": 0}}
-        send_patronus_question(message.chat.id, uid)
-
-def send_patronus_question(chat_id, user_id):
-    session = PATRONUS_TEST_SESSIONS[user_id]
-    q_idx = session["current_q"]
-    
-    if q_idx >= len(PATRONUS_TEST_QUESTIONS):
-        scores = session["scores"]
-        max_type = max(scores, key=scores.get)
-        result = PATRONUS_RESULTS[max_type]
-        
-        p_data = load_data(PATRONUS_FILE)
-        p_data[str(user_id)] = result
+        # Agar yangi bo'lsa, tayoqchani silkitish effekti bilan tasodifiy bittasini tanlaymiz
+        chosen = random.choice(RANDOM_PATRONUS_LIST)
+        p_data[uid_str] = chosen
         save_data(PATRONUS_FILE, p_data)
         
-        txt = (
-            f"⚡️ <b>EXPECTO PATRONUM!!!</b>\n\n"
-            f"Sizning eng yorqin baxtli xotirangiz tayoqchadan ulkan kumushrang to'lqin bo'lib otildi! "
-            f"U havoda mukammal shakl oldi. Sizning haqiqiy Patronusingiz:\n\n"
-            f"🦄 <b>{result['animal']}</b>\n"
-            f"📜 <b>Xarakteringiz ta'rifi:</b> {result['desc']}"
-        )
-        bot.send_message(chat_id, txt, parse_mode="HTML")
-        PATRONUS_TEST_SESSIONS.pop(user_id, None)
-        return
-
-    q_data = PATRONUS_TEST_QUESTIONS[q_idx]
-    kb = types.InlineKeyboardMarkup(row_width=1)
-    
-    opts = list(q_data["options"])
-    random.shuffle(opts)
-    
-    for i, opt in enumerate(opts):
-        kb.add(types.InlineKeyboardButton(opt["t"], callback_data=f"pat_ans_{user_id}_{i}"))
+        msg = bot.send_message(message.chat.id, "✨ <b>Sehrli tayoqchani silkitamiz...</b> ✨\n<i>Qani, diqqat qiling, kumushrang nur ichidan qanday jonivor chiqarkon...</i>")
+        time.sleep(2.5)
         
-    session["current_options"] = opts
-    
-    bot.send_message(chat_id, f"🔮 <b>{q_data['q']}</b>", reply_markup=kb, parse_mode="HTML")
+        txt = (
+            f"⚡️ <b>EXPECTO PATRONUM!!!</b> ⚡️\n\n"
+            f"🪄 <b>Sizning Patronusingiz: {chosen['animal']}</b>\n\n"
+            f"<blockquote><b>Xarakteristikasi:</b> {chosen['desc']}</blockquote>\n\n"
+            f"✨ <i>Ushbu jonivor endi sizni har qanday zulmat va Dementorlardan himoya qiladi!</i>"
+        )
+        bot.edit_message_text(txt, message.chat.id, msg.message_id, parse_mode="HTML")
 
 # --- WELCOME (YANGI AZOLAR KELGANDA) ---
 @bot.message_handler(content_types=['new_chat_members'])
@@ -1046,33 +979,6 @@ def handle_callbacks(callback):
                 else:
                     kb.add(types.InlineKeyboardButton(ing, callback_data=f"pot_{g_id}_{i}"))
             bot.edit_message_text(txt, g_id, callback.message.message_id, reply_markup=kb, parse_mode="HTML")
-        return
-
-    # --- PATRONUS TESTI INLINE JAVOBLAR LOGIKASI ---
-    if d.startswith("pat_ans_"):
-        _, u_id_str, o_idx_str = d.split("_")
-        u_id = int(u_id_str)
-        o_idx = int(o_idx_str)
-        
-        if callback.from_user.id != u_id:
-            return bot.answer_callback_query(callback.id, "🧙‍♂️ Siz boshqa sehrgarning ongini o'qiy olmaysiz!", show_alert=True)
-            
-        if u_id not in PATRONUS_TEST_SESSIONS:
-            return bot.answer_callback_query(callback.id, "Test muddati yakunlangan.", show_alert=True)
-            
-        session = PATRONUS_TEST_SESSIONS[u_id]
-        chosen_opt = session["current_options"][o_idx]
-        
-        for k, val in chosen_opt["b"].items():
-            session["scores"][k] += val
-            
-        session["current_q"] += 1
-        bot.answer_callback_query(callback.id)
-        
-        try: bot.delete_message(chat_id, callback.message.message_id)
-        except: pass
-        
-        send_patronus_question(chat_id, u_id)
         return
 
     if d == "get_all_books":
