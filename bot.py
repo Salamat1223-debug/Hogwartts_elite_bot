@@ -84,10 +84,10 @@ MOVIES_EN = [
 ]
 
 HOUSES_DETAILS = {
-    "Hufflepuff": {"emoji": "🦡", "kalit": "aql", "txt": "💭 E-eh, men ko'ryapman... \nSadoqat senda birinchi o'rinda. Mehnat qilishdan qo'rqmaysan, do'stlaring uchun joningni berishga tayyorsan."},
     "Gryffindor": {"emoji": "🦁", "kalit": "jasorat", "txt": "🦁 Yuraging to'la qo'rqmaslik. Sen xavf-xatarga tik boqishni bilasan. Jasurlik sening qoningda!"},
     "Slytherin": {"emoji": "🐍", "kalit": "ilon", "txt": "🐍 Buyuklikka intilish... Makr va aqlli munosabat. Sen maqsad sari hech narsadan to'xtamaysan!"},
-    "Ravenclaw": {"emoji": "🦅", "kalit": "burgut", "txt": "🦅 O'tkir zehn va bilimga chanqoqlik. Sening aqling har qanday jumboqni yecha oladi!"}
+    "Ravenclaw": {"emoji": "🦅", "kalit": "burgut", "txt": "🦅 O'tkir zehn va bilimga chanqoqlik. Sening aqling har qanday jumboqni yecha oladi!"},
+    "Hufflepuff": {"emoji": "🦡", "kalit": "aql", "txt": "💭 E-eh, men ko'ryapman... \nSadoqat senda birinchi o'rinda. Mehnat qilishdan qo'rqmaysan, do'stlaring uchun joningni berishga tayyorsan."}
 }
 
 # --- BAZA FAYLLARI ---
@@ -95,6 +95,7 @@ HOUSES_FILE = "user_houses.json"
 USERS_FILE = "users_list.json"
 WELCOME_FILE = "welcome_settings.json"
 BANNED_FILE = "banned_users.json"
+SCORES_FILE = "house_scores.json"  # <-- Fakultet ochkolari uchun yangi baza
 
 def load_data(file):
     if os.path.exists(file):
@@ -133,6 +134,23 @@ def delete_after_delay(chat_id, message_id, delay=600):
     except:
         pass
 
+# --- DUEL OCHKO FUNKSIYALARI ---
+def add_house_score(user_id, amount):
+    houses = load_data(HOUSES_FILE)
+    scores = load_data(SCORES_FILE)
+    
+    # Fakultetlar dastlabki ochkolarini o'rnatish
+    for h in HOUSES_DETAILS.keys():
+        if h not in scores: scores[h] = 0
+            
+    user_house = houses.get(str(user_id))
+    if user_house and user_house in scores:
+        scores[user_house] += amount
+        if scores[user_house] < 0: scores[user_house] = 0  # Ochko minusga tushib ketmasligi uchun
+        save_data(SCORES_FILE, scores)
+        return user_house, scores[user_house]
+    return None, 0
+
 # --- JAZO TIZIMI (HOGWARTS SEHRLI AFSUNLARI - VAZIRLIK USLUBIDA) ---
 @bot.message_handler(commands=["silencio", "avadakedavra", "finite", "revive"])
 def handle_punishment(message):
@@ -140,7 +158,6 @@ def handle_punishment(message):
     mention_sender = get_mention(sender)
     cmd = message.text.split()[0].lower()
 
-    # Shaxsiy chatda faqat asosiy admin (Jodu Vaziri) ishlata oladi
     if message.chat.type == 'private' and sender.id == ADMIN_ID:
         args = message.text.replace(message.text.split()[0], "").strip()
         if cmd == "/avadakedavra" and args:
@@ -158,14 +175,12 @@ def handle_punishment(message):
 
     if message.chat.type == 'private': return
     
-    # Guruhda buyruq bergan odam admin/moderatorligini tekshirish
     try:
         sender_member = bot.get_chat_member(message.chat.id, sender.id)
         is_admin = sender_member.status in ['administrator', 'creator']
     except:
         is_admin = False
     
-    # ✨ JODU VAZIRI TIZIMI: Agar ADMIN_ID buyruq bersa, adminlik tekshiruvi chetlab o'tiladi!
     is_vazir = (sender.id == ADMIN_ID)
     
     if not is_admin and not is_vazir:
@@ -177,7 +192,6 @@ def handle_punishment(message):
     target = message.reply_to_message.from_user
     mention_target = get_mention(target)
     
-    # 🔴 ASOSIY ADMIN IMMUNITETI (Jodu Vaziriga afsun qaytadi - daxlsiz!)
     if target.id == ADMIN_ID:
         return bot.reply_to(
             message, 
@@ -193,14 +207,12 @@ def handle_punishment(message):
         
     bot_obj = bot.get_me()
 
-    # Agar nishon admin bo'lsa, uni faqat Jodu Vaziri jazolay oladi (Boshqa adminlar jazololmaydi)
     if (is_target_admin or target.id == bot_obj.id) and not is_vazir:
         return bot.reply_to(message, f"🧙‍♂️ {mention_sender}, boshqa bir professor yoki prefektga qarshi duel e'lon qilish taqiqlangan! Hogwarts nizomiga amal qiling.")
 
     args = message.text.split()[1:]
     
     try:
-        # --- AVADA KEDAVRA (BAN) ---
         if cmd == "/avadakedavra":
             bot.ban_chat_member(message.chat.id, target.id)
             if is_vazir:
@@ -209,7 +221,6 @@ def handle_punishment(message):
                 txt = f"⚡️ <b>AVADA KEDAVRA!</b> \n\n{mention_target} yashil nur ichida g'oyib bo'ldi va Hogwarts guruhidan butunlay haydaldi! ⛓"
             bot.send_message(message.chat.id, txt)
         
-        # --- REVIVE (UNBAN) ---
         elif cmd == "/revive":
             bot.unban_chat_member(message.chat.id, target.id)
             if is_vazir:
@@ -218,22 +229,17 @@ def handle_punishment(message):
                 txt = f"🕊 <b>REVIVE!</b> \n\n{mention_target} qayta tiriltirildi va guruh darvozalari unga yana ochildi!"
             bot.send_message(message.chat.id, txt)
 
-        # --- SILENCIO (MUTE) ---
         elif cmd == "/silencio":
             mute_time = 5
             reason = "Tartibni buzish"
-            
             if args:
                 if args[0].isdigit():
                     mute_time = int(args[0])
-                    if len(args) > 1:
-                        reason = " ".join(args[1:])
-                else:
-                    reason = " ".join(args)
+                    if len(args) > 1: reason = " ".join(args[1:])
+                else: reason = " ".join(args)
             
             until_date = int(time.time()) + (mute_time * 60)
-            bot.restrict_chat_member(message.chat.id, target.id, until_date=until_date, 
-                                     permissions=types.ChatPermissions(can_send_messages=False))
+            bot.restrict_chat_member(message.chat.id, target.id, until_date=until_date, permissions=types.ChatPermissions(can_send_messages=False))
             
             if is_vazir:
                 txt = f"🤫 <b>VAZIRLIKNING MAXFIY SILENCIO BUYRUG'I!</b>\n\n🙊 Jodu Vazirining buyrug'iga asosan {mention_target}ning ovozi mutloq o'chirildi! U <b>{mute_time} daqiqa</b> davomida Sehrgarlar dunyosida og'iz ocha olmaydi!\n📜 <b>Vazir ko'rsatgan sabab:</b> <i>{reason}</i>"
@@ -241,10 +247,8 @@ def handle_punishment(message):
                 txt = f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}"
             bot.send_message(message.chat.id, txt)
             
-        # --- FINITE (UNMUTE) ---
         elif cmd == "/finite":
-            bot.restrict_chat_member(message.chat.id, target.id, 
-                                     permissions=types.ChatPermissions(can_send_messages=True, can_send_audios=True, can_send_documents=True, can_send_photos=True, can_send_videos=True, can_send_video_notes=True, can_send_voice_notes=True, can_send_polls=True, can_send_other_messages=True, can_add_web_page_previews=True))
+            bot.restrict_chat_member(message.chat.id, target.id, permissions=types.ChatPermissions(can_send_messages=True, can_send_audios=True, can_send_documents=True, can_send_photos=True, can_send_videos=True, can_send_video_notes=True, can_send_voice_notes=True, can_send_polls=True, can_send_other_messages=True, can_add_web_page_previews=True))
             if is_vazir:
                 txt = f"🔊 <b>FINITE INCANTATEM! (VAZIRLIK AFVI)</b>\n\n⚡️ Jodu Vazirining oliy irodasi bilan {mention_target} ustidagi cheklovlar bekor qilindi. Sadoqat bilan so'zlashga ruxsat berildi!"
             else:
@@ -253,6 +257,162 @@ def handle_punishment(message):
             
     except Exception as e:
         bot.reply_to(message, f"❌ Afsun amalga oshmadi, xatolik: {str(e)}")
+
+# --- ⚔️ HOGWARTS DUEL KLUBI (GURUH UCHUN MAXSUS O'YIN) ---
+@bot.message_handler(commands=["duel"])
+def initiate_duel(message):
+    if message.chat.type == 'private':
+        return bot.reply_to(message, "🏰 Yosh sehrgar, duellar faqat Hogwarts Katta Zalida (ya'ni guruhda) o'tkaziladi! Shaxsiy xonada duel taqiqlangan.")
+
+    sender = message.from_user
+    houses = load_data(HOUSES_FILE)
+
+    # Shlyapadan o'tganini tekshirish
+    if str(sender.id) not in houses:
+        return bot.reply_to(message, "⚠️ Duelga kirishdan oldin bot shaxsiyida 🎩 <b>Saralovchi shlyapa</b> orqali fakultetingizni aniqlashingiz shart!")
+
+    if not message.reply_to_message:
+        return bot.reply_to(message, "⚔️ Duelga chorlash uchun biror sehrgarning xabariga (Reply) qaratib <code>/duel</code> buyrug'ini yuboring!")
+
+    target = message.reply_to_message.from_user
+    
+    if target.id == sender.id:
+        return bot.reply_to(message, "🧙‍♂️ O'z-o'zingizga afsun yo'llay olmaysiz! Bu girt telbalik.")
+    
+    if target.is_bot:
+        return bot.reply_to(message, "🤖 Botlar sehrli tayoqchaga ega emas, ularga duel e'lon qilib bo'lmaydi!")
+
+    if str(target.id) not in houses:
+        return bot.reply_to(message, f"⚠️ {get_mention(target)} hali o'z fakultetini aniqlamagan! Uni duelga chorlab bo'lmaydi.")
+
+    s_house = houses[str(sender.id)]
+    t_house = houses[str(target.id)]
+    s_emoji = HOUSES_DETAILS[s_house]["emoji"]
+    t_emoji = HOUSES_DETAILS[t_house]["emoji"]
+
+    btn = types.InlineKeyboardMarkup().add(
+        types.InlineKeyboardButton("⚔️ Duelni Qabul Qilish", callback_data=f"accept_{sender.id}_{target.id}")
+    )
+    
+    txt = (
+        f"⚡️ <b>DUEL KLUBI CHAQIRIG'I!</b> ⚡️\n\n"
+        f"{s_emoji} <b>{s_house}</b> fakultetidan {get_mention(sender)} sehrli tayoqchasini chiqarib, "
+        f"{t_emoji} <b>{t_house}</b> fakulteti a'zosi {get_mention(target)}ga qarshi duel e'lon qildi!\n\n"
+        f"⏳ Raqib, tayoqchangni tayyorla va quyidagi tugmani bos!"
+    )
+    bot.send_message(message.chat.id, txt, reply_markup=btn)
+
+# --- DUEL JARAONI FUNKSIYASI (ALOHIDA OQIM) ---
+def execute_duel_rounds(chat_id, s_user, t_user):
+    houses = load_data(HOUSES_FILE)
+    s_house = houses[str(s_user.id)]
+    t_house = houses[str(t_user.id)]
+    s_emoji = HOUSES_DETAILS[s_house]["emoji"]
+    t_emoji = HOUSES_DETAILS[t_house]["emoji"]
+
+    msg = bot.send_message(chat_id, f"🪄 <b>Duelyantlar joylarini egallashdi. Duel boshlanmoqda...</b>")
+    time.sleep(2)
+
+    hujum_sehrlari = ["Expelliarmus", "Stupefy", "Sectumsempra", "Crucio", "Impedimenta"]
+    himoya_sehrlari = ["Protego", "Evanesco", "Avis"]
+
+    s_wins = 0
+    t_wins = 0
+
+    for round_num in range(1, 4):
+        bot.edit_message_text(f"⚔️ <b>{round_num}-RAUND BOSHLANDI!</b>\n\nTayyorlaning...", chat_id, msg.message_id)
+        time.sleep(2)
+
+        # Tasodifiy kim hujum qilishi
+        attacker = random.choice([s_user, t_user])
+        defender = t_user if attacker == s_user else s_user
+        
+        att_emoji = s_emoji if attacker == s_user else t_emoji
+        def_emoji = t_emoji if attacker == s_user else s_emoji
+
+        sehr = random.choice(hujum_sehrlari)
+        omad = random.choice(["hit", "blocked", "missed"])
+
+        if omad == "hit":
+            round_txt = f"🔴 <b>{round_num}-Raund natijasi:</b>\n\n{att_emoji} {get_mention(attacker)} shiddat bilan tayoqchasini siltadi va <b>\"{sehr}!\"</b> afsunini yo'lladi! {def_emoji} {get_mention(defender)} himoyalanishga ulgurmadi va daxshatli zarbaga uchradi! 🔥"
+            if attacker == s_user: s_wins += 1
+            else: t_wins += 1
+        elif omad == "blocked":
+            def_sehr = random.choice(himoya_sehrlari)
+            round_txt = f"🔵 <b>{round_num}-Raund natijasi:</b>\n\n{att_emoji} {get_mention(attacker)} raqibiga <b>\"{sehr}!\"</b> afsunini otdi! Biroq {def_emoji} {get_mention(defender)} daxshatli tezlikda <b>\"{def_sehr}!\"</b> himoya qalqonini qo'yib, zarbani qaytardi! 🛡️"
+        else:
+            round_txt = f"🟡 <b>{round_num}-Raund natijasi:</b>\n\n{att_emoji} {get_mention(attacker)} bor kuchi bilan <b>\"{sehr}!\"</b> deb baqirdi, ammo uning tayoqchasi sirg'alib afsun nishonga tegmasdan havoga uchib ketdi! 💨"
+
+        bot.edit_message_text(round_txt, chat_id, msg.message_id)
+        time.sleep(3.5)
+
+    # G'olibni aniqlash
+    if s_wins > t_wins:
+        winner, loser = s_user, t_user
+        w_house, l_house = s_house, t_house
+        w_emoji, l_emoji = s_emoji, t_emoji
+    elif t_wins > s_wins:
+        winner, loser = t_user, s_user
+        w_house, l_house = t_house, s_house
+        w_emoji, l_emoji = t_emoji, s_emoji
+    else:
+        # Durang bo'lsa tasodifiy g'olib (sehrgarlikda baribir kimdir yutadi)
+        winner, loser = random.choice([(s_user, t_user), (t_user, s_user)])
+        w_house = houses[str(winner.id)]
+        l_house = houses[str(loser.id)]
+        w_emoji = s_emoji if winner == s_user else t_emoji
+        l_emoji = t_emoji if winner == s_user else s_emoji
+
+    # Ochkolarni hisoblash
+    w_h_name, w_score = add_house_score(winner.id, 10)
+    l_h_name, l_score = add_house_score(loser.id, -5)
+
+    final_txt = (
+        f"🏆 <b>DUEL YAKUNLANDI!</b> 🏆\n\n"
+        f"Shafqatsiz jangda {w_emoji} <b>{get_mention(winner)}</b> g'olib chiqdi! Uning munosib harakatlari uchun {w_emoji} <b>{w_house}</b> fakultetiga <b>+10 ochko</b> taqdim etildi!\n\n"
+        f"Mag'lub: {l_emoji} {get_mention(loser)} ({l_house} <b>-5 ochko</b> yo'qotdi!)\n\n"
+        f"⛓ <i>Mag'lub bo'lgan sehrgarning tayoqchasi shikastlangani sababli, u 1 daqiqaga ovoz o'chirish (Silencio) afsuni ostida qoladi!</i>"
+    )
+    bot.send_message(chat_id, final_txt)
+    
+    # Yutqazgan odamni 1 daqiqaga mute qilish (Adolat tarozisi)
+    try:
+        until_date = int(time.time()) + 60
+        bot.restrict_chat_member(chat_id, loser.id, until_date=until_date, permissions=types.ChatPermissions(can_send_messages=False))
+    except:
+        pass
+
+# --- 📜 VAZIRLIK NIZOMI VA REYTING ---
+@bot.message_handler(commands=["nizom", "duel_nizomi"])
+def duel_rules(message):
+    txt = (
+        f"📜 <b>SEHRGARLAR VAZIRLIGI TOMONIDAN TASDIQLANGAN DUEL NIZOMI</b> 📜\n\n"
+        f"1. Guruhda istalgan a'zoning xabariga <b>Reply</b> qilib <code>/duel</code> yozish orqali uni jangga chorlash mumkin.\n"
+        f"2. Duelda ishtirok etish uchun ikkala sehrgar ham shaxsiy chatda 🎩 <b>Saralovchi shlyapa</b>dan o'tgan bo'lishi shart.\n"
+        f"3. Duel 3 ta tasodifiy raunddan iborat bo'ladi va har bir raund daxshatli afsunlar bilan kechadi.\n"
+        f"4. G'olib sehrgarning fakultetiga <b>+10 ochko</b> qo'shiladi, mag'lubdan esa <b>-5 ochko</b> chegiriladi.\n"
+        f"5. Mag'lub bo'lgan sehrgarning tayoqchasi singani sababli bot tomonidan 1 daqiqaga shovqin ko'tarmaslik (<b>Silencio</b>) jazosi beriladi.\n\n"
+        f"🏆 Amaldagi reytingni ko'rish buyrug'i: <code>/reyting</code>"
+    )
+    bot.reply_to(message, txt)
+
+@bot.message_handler(commands=["reyting"])
+def show_reyting(message):
+    scores = load_data(SCORES_FILE)
+    
+    # Bo'sh bo'lsa nollash
+    for h in HOUSES_DETAILS.keys():
+        if h not in scores: scores[h] = 0
+            
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    
+    txt = f"🏆 <b>HOGWARTS FAKULTETLAR KUBOGI REYTINGI</b> 🏆\n\n"
+    for idx, (house, score) in enumerate(sorted_scores, 1):
+        emoji = HOUSES_DETAILS[house]["emoji"]
+        txt += f"{idx}. {emoji} <b>{house}</b>: {score} ochko\n"
+        
+    txt += f"\n🪄 <i>Navbatdagi duel guruh va fakultetlar taqdirini o'zgartirishi mumkin! O'z fakultetingiz uchun kurashing!</i>"
+    bot.reply_to(message, txt)
 
 # --- START VA TEKSHIRISH ---
 @bot.message_handler(commands=["start"])
@@ -458,6 +618,32 @@ def on_new_member(message):
 def handle_callbacks(callback):
     d = callback.data
     
+    # ⚔️ DUELNI QABUL QILISH MANTIQI
+    if d.startswith("accept_"):
+        _, s_id, t_id = d.split("_")
+        s_id = int(s_id)
+        t_id = int(t_id)
+        
+        # Faqat chaqirilgan odam qabul qila olishi sharti
+        if callback.from_user.id != t_id:
+            return bot.answer_callback_query(callback.id, "🧙‍♂️ Sizni duelga chaqirishmagan! O'zgalar jangiga aralashmang.", show_alert=True)
+            
+        try:
+            bot.delete_message(callback.message.chat.id, callback.message.message_id)
+        except:
+            pass
+            
+        # Duelyantlar ob'ektini olish
+        try:
+            s_user = bot.get_chat_member(callback.message.chat.id, s_id).user
+            t_user = callback.from_user
+            
+            # Duelni alohida oqimda (Thread) boshlash (time.sleep guruhni qotirib qo'ymasligi uchun)
+            Thread(target=execute_duel_rounds, args=(callback.message.chat.id, s_user, t_user)).start()
+        except Exception as e:
+            bot.send_message(callback.message.chat.id, f"❌ Duelni boshlashda xatolik: {e}")
+        return
+
     if d == "get_all_books":
         bot.send_document(callback.message.chat.id, ALL_IN_ONE_BOOK["file_id"], caption=ALL_IN_ONE_BOOK["caption"])
         bot.answer_callback_query(callback.id)
