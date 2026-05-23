@@ -84,10 +84,10 @@ MOVIES_EN = [
 ]
 
 HOUSES_DETAILS = {
-    "Hufflepuff": {"emoji": "🦡", "kalit": "aql", "txt": "💭 E-eh, men ko'ryapman... \nSadoqat senda birinchi o'rinda. Mehnat qilishdan qo'rqmaysan, do'stlaring uchun joningni berishga tayyorsan."},
-    "Gryffindor": {"emoji": "🦁", "kalit": "jasorat", "txt": "🦁 Yuraging to'la qo'rqmaslik. Sen xavf-xatarga tik boqishni bilasan. Jasurlik sening qoningda!"},
-    "Slytherin": {"emoji": "🐍", "kalit": "ilon", "txt": "🐍 Buyuklikka intilish... Makr va aqlli munosabat. Sen maqsad sari hech narsadan to'xtamaysan!"},
-    "Ravenclaw": {"emoji": "🦅", "kalit": "burgut", "txt": "🦅 O'tkir zehn va bilimga chanqoqlik. Sening aqling har qanday jumboqni yecha oladi!"}
+    "Gryffindor": {"emoji": "🦁", "kalit": "jasorat", "txt": "🦁 <b>Saralovchi Shlyapa pichirlamoqda:</b>\n\n<i>«Yuraging to'la qo'rqmaslik va olijanoblik. Sen xavf-xatarga tik boqishni bilasan, adolat uchun kurashishdan tolgan emassan. Jasurlik sening qoningda, yosh sehrgar!»</i>"},
+    "Slytherin": {"emoji": "🐍", "kalit": "ilon", "txt": "🐍 <b>Saralovchi Shlyapa pichirlamoqda:</b>\n\n<i>«Buyuklikka bo'lgan so'nmas intilish... O'tkir makr, g'urur va har qanday vaziyatdan aql bilan chiqib keta olish munosabati. Sen maqsad sari hech narsadan to'xtamaysan, senga buyuk kelajak yarashadi!»</i>"},
+    "Ravenclaw": {"emoji": "🦅", "kalit": "burgut", "txt": "🦅 <b>Saralovchi Shlyapa pichirlamoqda:</b>\n\n<i>«O'tkir zehn, donolik va bilimga bo'lgan cheksiz chanqoqlik. Sening noodatiy fikrlashing va zukkoliging har qanday qiyin jumboqni osongina yechishga qodir. Bilim sening eng qudratli qurolingdir!»</i>"},
+    "Hufflepuff": {"emoji": "🦡", "kalit": "aql", "txt": "🦡 <b>Saralovchi Shlyapa pichirlamoqda:</b>\n\n<i>«E-eh, men senda eng buyuk fazilatni ko'ryapman... Sadoqat, mehnatsevarlik va tenglik senda birinchi o'rinda. Mehnat qilishdan aslo qo'rqmaysan, do'stlaring va yaqinlaring uchun chin dildan qayg'urasan!»</i>"}
 }
 
 # 🔮 SEHRLI ITTIFOQLAR BAZASI (FENIKS JAMIYATI VA AJAL KASOFATLARI)
@@ -102,12 +102,33 @@ PROJECT_GROUPS = {
     }
 }
 
+# 🦄 PATRONUS SHAKLLARI BAZASI
+PATRONUS_SHAPES = [
+    {"animal": "Bug'u (Stag)", "emoji": "🦌", "desc": "Sizning ichki kuchingiz yetakchilik, himoya va cheksiz jasoratga tayanadi. Huddi Jeyms va Garri Potter kabi!"},
+    {"animal": "Eshshak kiyik (Doe)", "emoji": "🦌", "desc": "Sizning Patronusingiz toza muhabbat, sadoqat va abadiy g'amxo'rlik timsolidir. Severus Sneyp va Lili Potter kabi."},
+    {"animal": "Bo'ri (Wolf)", "emoji": "🐺", "desc": "Siz tabiatingizdan sadoqatli, oilaparvar va ittifoqni qadrlovchi sehrgarsiz. Remus Lyupin kabi."},
+    {"animal": "Ot (Horse)", "emoji": "🐎", "desc": "Erkinlik, quvvat va sodda, lekin o'ta qat'iy xarakter egasisiz. Jinni Vizli kabi."},
+    {"animal": "Suvsar (Otter)", "emoji": "🦦", "desc": "Zukkolik, qiziquvchanlik va har qanday vaziyatda to'g'ri qaror topa olish qobiliyati. Germiona Greynjer kabi."},
+    {"animal": "Feniks qushi (Phoenix)", "emoji": "🦅", "desc": "Eng nodir Patronus! Siz har qanday qiyinchilikdan qayta tug'ila olasiz va qalbingiz o'ta toza. Albus Dumbledore kabi!"},
+    {"animal": "Mushuk (Cat)", "emoji": "🐈", "desc": "Kuzatuvchan, ehtiyotkor va qat'iy tartib-intizomni sevuvchi sehrgarsiz. Professor Makgonagall kabi."}
+]
+
+# 🧪 MA'JUN TAYYORLASH DARSBOB MATNLARI
+POTIONS_LIST = [
+    {"name": "Omad Sharbati (Felix Felicis)", "emoji": "🧪✨", "desc": "Oltin rangda tovlanuvchi bu sharbat sizga bugun barcha ishlaringizda mutloq omad keltiradi! 24 soat davomida omad siz tomonda!"},
+    {"name": "Amortensiya (Sevgi ma'juni)", "emoji": "🧪💖", "desc": "O'ziga xos marvariddek yaltirashga ega va spiralsimon bug' chiqaruvchi eng qudratli sevgi ma'juni! Ehtiyot bo'ling!"},
+    {"name": "Ko'p qiyofali ma'jun (Polyjuice Potion)", "emoji": "🧪🎭", "desc": "Siz ma'junni to'g'ri tayyorladingiz! Endi unga biror sehrgarning sochini qo'shib, 1 soat davomida uning qiyofasiga kirishingiz mumkin."},
+    {"name": "Tinchlik malhami (Draught of Peace)", "emoji": "🧪🌀", "desc": "Asabiylik va xavotirni zumda so'ndiruvchi kumushrang mayin sharbat. Imtihonlar oldidan juda foydali."},
+    {"name": "Tirik o'lim damlamasi (Draught of Living Death)", "emoji": "🧪💤", "desc": "O'ta qudratli uyqu dori. Ichgan odamni hayot belgilari bilinmaydigan darajada chuqur uyquga ketkazadi."}
+]
+
 # --- BAZA FAYLLARI ---
 HOUSES_FILE = "user_houses.json"
 GROUPS_FILE = "user_project_groups.json"
 USERS_FILE = "users_list.json"
 WELCOME_FILE = "welcome_settings.json"
 BANNED_FILE = "banned_users.json"
+PATRONUS_FILE = "user_patronus.json"  # <-- Yangi Patronus bazasi
 
 def load_data(file):
     if os.path.exists(file):
@@ -137,6 +158,7 @@ def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("📚 Kitoblar"), types.KeyboardButton("🎬 Kinolar"))
     markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Saralash"))
+    markup.add(types.KeyboardButton("🦄 Patronus testi"), types.KeyboardButton("🧪 Ma'jun tayyorlash"))
     return markup
 
 def delete_after_delay(chat_id, message_id, delay=600):
@@ -297,13 +319,12 @@ def process_registration_countdown(chat_id):
         types.InlineKeyboardButton("⚔️ Guruhga qaytish (Tergov xonasi)", url=group_link)
     )
 
-    # --- 2-DETAL TUZATILDI: BARCHAGA SHAXSIY CHATDA XABAR TO'G'RI VA ISMI BILAN BORADI ---
     for p_id, p_obj in session["players"].items():
         try:
             if p_id in chosen_fugitives:
                 session["msg_counts"][p_id] = 0
                 bot.send_message(
-                    p_id,  # f_id xatoligi p_id ga to'g'rilandi
+                    p_id,  
                     f"👁‍🗨 <b>{p_obj.first_name}</b>, Qora Lord sizga yashirin topshiriq berdi!\n\n"
                     f"Siz <b>Azkaban qochqinisiz!</b> Guruhda o'zingizni aslo bildirmang. "
                     f"Maqsadingiz guruh suhbatiga aralashib, kamida 3 ta so'zdan iborat bo'lgan <b>7 ta xabar</b> yozish "
@@ -323,7 +344,6 @@ def process_registration_countdown(chat_id):
         except Exception as e:
             logging.error(f"Rol yuborishda xato ({p_id}): {e}")
 
-    # --- ISHTIROKCHILAR RO'YXATINI CHIQARISH ---
     participants_list = "\n".join([f"• {get_mention(obj)}" for obj in session["players"].values()])
 
     bot.send_message(
@@ -377,7 +397,6 @@ def handle_punishment(message):
         target = message.reply_to_message.from_user
         session = AZKABAN_SESSIONS[chat_id]
 
-        # --- 1-DETAL TUZATILDI: ADMINGA REVELIO ISHLATILMASIN DEGAN CHEKLOV BUTUNLAY OLIB TASHLANDI ---
         if target.id not in session["players"]:
             return bot.reply_to(message, "❌ Bu shaxs o'yin ro'yxatidan o'tmagan, u oddiy Hogwarts mehmoni!")
 
@@ -532,7 +551,6 @@ def start_cmd(message):
     mention_user = get_mention(user)
     text_args = message.text.split()
 
-    # --- DEEP LINKING ORQALI GURUHIDAN KELGAN SEHRGARNI RO'YXATGA OLISH ---
     if len(text_args) > 1 and text_args[1].startswith("join_"):
         try:
             g_id = int(text_args[1].replace("join_", ""))
@@ -628,7 +646,6 @@ def process_admin_and_text_replies(message):
     text = message.text
     chat_id = message.chat.id
 
-    # --- O'YIN ICHIDAGI XABARLARNI HISOBLASH TIZIMI ---
     if message.chat.type != 'private' and chat_id in AZKABAN_SESSIONS:
         session = AZKABAN_SESSIONS[chat_id]
         if session["status"] == "playing" and uid in session["fugitives"]:
@@ -719,7 +736,7 @@ def process_admin_and_text_replies(message):
             save_data(HOUSES_FILE, data)
         
         h = HOUSES_DETAILS[data[uid_str]]
-        msg = bot.send_message(message.chat.id, "🧐 <b>Shlyapa ko'zlaringizga tikilib o'ylamoqda...</b>")
+        msg = bot.send_message(message.chat.id, "🧐 <b>Shlyapa ko'zlaringizga tikilib o'ylamoqda... Siz haqingizdagi xotiralarni titkilamoqda...</b>")
         time.sleep(2)
         
         final_text = f"{h['txt']}\n\nSiz munosib bo'lgan fakultet: {h['emoji']} <b>{data[uid_str]}</b>\n🔑 Kirish afsuni: <code>{h['kalit']}</code>"
@@ -731,16 +748,76 @@ def process_admin_and_text_replies(message):
         g_data = load_data(GROUPS_FILE)
         if uid_str in g_data:
             current_g = g_data[uid_str]
-            return bot.reply_to(message, f"Siz allaqachon saralangan ittifoqdasiz: <b>{current_g}</b>")
+            return bot.reply_to(message, f"Siz allaqachon sehrli ittifoqqa saralangansiz: <b>{current_g}</b>")
         
         selected_group = random.choice(list(PROJECT_GROUPS.keys()))
         g_data[uid_str] = selected_group
         save_data(GROUPS_FILE, g_data)
         
         g_info = PROJECT_GROUPS[selected_group]
-        msg = bot.send_message(message.chat.id, "🔮 Ko'zgu tahlil qilmoqda...")
+        msg = bot.send_message(message.chat.id, "🔮 <b>Sehrli Ko'zgu porlab, sizning ichki dunyongizni tahlil qilmoqda...</b>")
         time.sleep(2)
         bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id)
+
+    # --- QO'SHIMCHA 1: PATRONUS TESTI (ANTI-CHEAT BILAN) ---
+    elif text == "🦄 Patronus testi":
+        uid_str = str(message.from_user.id)
+        p_data = load_data(PATRONUS_FILE)
+        
+        if uid_str in p_data:
+            # Aldashga qarshi chora: testni qayta topshira olmaydi, faqat o'zinikini ko'radi
+            saved = p_data[uid_str]
+            return bot.send_message(
+                message.chat.id,
+                f"🪄 <b>Siz allaqachon Patronus afsuningizni chaqirgansiz!</b>\n\n"
+                f"Sizning xotiralaringiz va qalbingizga bog'langan hayvon: {saved['emoji']} <b>{saved['animal']}</b>\n"
+                f"📜 <i>{saved['desc']}</i>\n\n"
+                f"⚡️ <i>«Expecto Patronum!» jodusini takrorlaganingizda kumushrang nur aynan shu shaklni oladi.</i>"
+            )
+            
+        msg = bot.send_message(message.chat.id, "🪄 <b>«Expecto Patronum!» afsuni uchun eng baxtli xotirangizni eslang... Qalbingiz siri ochilmoqda...</b>")
+        time.sleep(2)
+        
+        chosen_patronus = random.choice(PATRONUS_SHAPES)
+        p_data[uid_str] = chosen_patronus
+        save_data(PATRONUS_FILE, p_data)
+        
+        final_pat_text = (
+            f"⚡️ <b>PATRONUS MUVAFFAQIYATLI CHAQIRILDI!</b>\n\n"
+            f"Tayoqchangiz uchidan otilib chiqqan yorqin kumushrang nur asta-sekin shakllandi. Sizning Patronusingiz: "
+            f"{chosen_patronus['emoji']} <b>{chosen_patronus['animal']}</b>!\n\n"
+            f"📜 <b>Ta'rif:</b> {chosen_patronus['desc']}"
+        )
+        bot.edit_message_text(final_pat_text, message.chat.id, msg.message_id)
+
+    # --- QO'SHIMCHA 2: MA'JUN TAYYORLASH DARSI ---
+    elif text == "🧪 Ma'jun tayyorlash":
+        msg = bot.send_message(
+            message.chat.id, 
+            "🧪 <b>Siz Professor Sneypning Ma'junlar darsiga kirdingiz.</b>\n"
+            "Qozon ostiga olov yoqildi, ingredientlar tayyorlanmoqda... ⏳"
+        )
+        time.sleep(2)
+        
+        # Tasodifiy qoida buzilishi yoki portlash ehtimoli (20%)
+        if random.random() < 0.20:
+            fail_text = (
+                "💥 <b>BOOOOOOOM!!!</b>\n\n"
+                "Siz qozon haroratini noto'g'ri sozladingiz yoki ingredientlarni teskari ketma-ketlikda soldingiz! "
+                "Qozoningiz qattiq g g'o'ldiradi va dahshatli kuch bilan portlab ketdi! 🪂\n\n"
+                "🧹 <i>Tezda buralib turgan quyuq tutunlar tarqalmasidan oldin darsxonani tozalang, Professor Sneyp ko'rib qolsa fakultetingizdan ochkoni ayovsiz chegirib tashlaydi!</i>"
+            )
+            bot.edit_message_text(fail_text, message.chat.id, msg.message_id)
+        else:
+            chosen_potion = random.choice(POTIONS_LIST)
+            success_text = (
+                f"🧪 <b>MA'JUN TAYYOR! (Muvaffaqiyatli dars)</b>\n\n"
+                f"Ehtiyotkorlik bilan aralashtirish va qat'iy qoidalarga rioya qilish natijasida siz mukammal "
+                f"<b>{chosen_potion['name']}</b> {chosen_potion['emoji']} tayyorlashga muvaffaq bo'ldingiz!\n\n"
+                f"📜 <b>Xususiyati:</b> {chosen_potion['desc']}\n\n"
+                f"✨ Professor Sneyp sizga norozi qarab qo'ydi, lekin ma'jun sifatiga e'tiroz bildira olmadi. Fakultetingizga +10 ball!"
+            )
+            bot.edit_message_text(success_text, message.chat.id, msg.message_id)
 
 # --- WELCOME (YANGI AZOLAR KELGANDA) ---
 @bot.message_handler(content_types=['new_chat_members'])
