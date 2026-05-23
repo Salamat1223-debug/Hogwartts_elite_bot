@@ -11,8 +11,8 @@ from telebot import types
 
 # --- SOZLAMALAR ---
 API_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8669459130:AAEiW8ZLeYNuITToXN9vCURiQdS3u5o_r_U")
-CHANNEL = "@SaIamatPirjanov"
-GROUP = "@SalamatPirjanov_chat"
+CHANNEL = "@harry_potter_fans_uz"
+GROUP = "@hogwarts_elite"
 ADMIN_ID = 7821230725
 SHLYAPA_USER = "SalamatPirjanov"
 
