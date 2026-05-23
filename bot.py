@@ -1,4 +1,4 @@
-import json
+Import json
 import logging
 import os
 import random
@@ -113,7 +113,7 @@ SHLYAPA_FRAZALARI = [
     "🌌 <i>Ajabo! Bu sehrgarning kelajagi shunchalar yorqin va chalkashki, hatto men ham adashib ketishim munosib!</i>",
     "🐍 <i>Makr va ambitsiyami yoki olijanoblik va mardlik? Qalbingizda ikki buyuk kuch to'qnashmoqda...</i>",
     "📜 <i>Hogwarts tarixida sizdek murakkab xarakterli sehrgarlar juda kam bo'lgan... Keling, taqdiringizni ochamiz!</i>",
-    "🔮 <i>Yuragingiz၏ urishi menga aniq yo'lni ko'rsatmoqda, siz munosib bo'lgan maskan...</i>"
+    "🔮 <i>Yuragingizning urishi menga aniq yo'lni ko'rsatmoqda, siz munosib bo'lgan maskan...</i>"
 ]
 
 # 🧪 MA'JUN TAYYORLASH HAQIDA HAQIQIY MA'LUMOTLAR
@@ -140,7 +140,7 @@ ALL_INGREDIENTS = [
 # 🦄 PATRONUS TESTI SAVOLLARI VA XARAKTER BALLARI
 PATRONUS_TEST_QUESTIONS = [
     {
-        "q": "🌌 SIZ UCHUN ENG BAXTLI XOTIRA NIMA?",
+        "q": "🌌 SIZ UCHUN ENGB AXTLI XOTIRA NIMA?",
         "options": [
             {"t": "Do'stlar davrasida g'alaba qozonish", "b": {"jasorat": 3, "aql": 1}},
             {"t": "Yashirincha ulkan maqsadga erishish", "b": {"ilon": 3, "jasorat": 1}},
@@ -230,12 +230,11 @@ def check_sub(user_id):
         logging.error(f"Tekshiruvda xato: {e}")
         return True
 
-# [TUZATISH - 4.punkt] Menyudan "Ma'jun darsi (Qoida)" olib tashlandi
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("📚 Sehrli Kutubxona"), types.KeyboardButton("🎬 Kino Zali"))
     markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Ittifoqlar Saralashi"))
-    markup.add(types.KeyboardButton("🦄 Patronus testi"))
+    markup.add(types.KeyboardButton("🦄 Patronus testi"), types.KeyboardButton("🧪 Ma'jun darsi (Qoida)"))
     return markup
 
 def delete_after_delay(chat_id, message_id, delay=600):
@@ -503,7 +502,7 @@ def handle_punishment(message):
                     chat_id,
                     f"💀 <b>Vazirlik mag'lub bo'ldi!</b> 💀\n\n"
                     f"Siz begunoh sehrgarlarni ta'qib qilib, afsun kuchini tugatdingiz. "
-                    f"Haqiqiy mahbuslar: {all_f_mentions} tunda guruhni tark etib, butunlay g'oyib bo'lysishti!",
+                    f"Haqiqiy mahbuslar: {all_f_mentions} tunda guruhni tark etib, butunlay g'oyib bo'lishdi!",
                     parse_mode="HTML"
                 )
                 AZKABAN_SESSIONS.pop(chat_id, None)
@@ -604,7 +603,7 @@ def handle_punishment(message):
                                      permissions=types.ChatPermissions(can_send_messages=False))
             
             if is_vazir:
-                txt = f"🤫 <b>VAZIRLIKNING MAXFIY SILENCIO BUYRUG'I!</b>\n\n🙊 Jodu Vazirining buyrug'iga asosan {mention_target}ning ovozi mutloq o'chirildi! U <b>{mute_time} daqiqa</b> davomida Sehrgarlar dünyosida og'iz ocha olmaydi!\n📜 <b>Vazir ko'rsatgan sabab:</b> <i>{reason}</i>"
+                txt = f"🤫 <b>VAZIRLIKNING MAXFIY SILENCIO BUYRUG'I!</b>\n\n🙊 Jodu Vazirining buyrug'iga asosan {mention_target}ning ovozi mutloq o'chirildi! U <b>{mute_time} daqiqa</b> davomida Sehrgarlar dunyosida og'iz ocha olmaydi!\n📜 <b>Vazir ko'rsatgan sabab:</b> <i>{reason}</i>"
             else:
                 txt = f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}"
             bot.send_message(message.chat.id, txt)
@@ -705,14 +704,17 @@ def start_cmd(message):
         else:
             return bot.send_message(message.chat.id, "❌ Afsuski, bu o'yinga ro'yxatdan o'tish muddati tugagan yoki o'yin topilmadi.")
 
-    # [TUZATISH - 1.punkt] Guruhda start bosganda chiqadigan maxsus matn
     if message.chat.type != 'private':
-        txt = (
-            f"Hurmatli yosh sehrgar {mention_user}! ⚡\n\n"
-            f"Sehrli menyulardan foydalanish uchun men bilan shaxsiy chatda suhbatlashishingizni so'rayman. "
-            f"Katta Zalda shovqin ko'tarmaslik uchun shaxsiy xonaga o'tamiz! 🤫"
+        bot_info = bot.get_me()
+        btn = types.InlineKeyboardMarkup().add(
+            types.InlineKeyboardButton("🏰 Shaxsiy minoraga kirish", url=f"https://t.me/{bot_info.username}?start=start")
         )
-        return bot.reply_to(message, txt, parse_mode="HTML")
+        txt = (
+            f"⚡️ <b>Salom, olijanob sehrgar {mention_user}!</b>\n\n"
+            f"Hogwartsning oliy sehrli menyulari va interaktiv darslaridan to'liq foydalanish uchun "
+            f"quyidagi tugma orqali men bilan <b>shaxsiy chatga (Direct)</b> o'tishingizni so'rayman! 🪄✨"
+        )
+        return bot.reply_to(message, txt, reply_markup=btn, parse_mode="HTML")
 
     banned = load_data(BANNED_FILE)
     if str(user.id) in str(banned):
@@ -737,11 +739,10 @@ def start_cmd(message):
         )
         return bot.send_message(message.chat.id, txt, reply_markup=btn, parse_mode="HTML")
     
-    # [TUZATISH - 2.punkt] Shaxsiy chatda start bosilgandagi maxsus matn
     welcome_txt = (
-        f"Salom, {user.first_name} ! Hogwartsga xush kelibsiz! ✨\n\n"
-        f"Men sizga eng nodir sehrli kitoblar va kinolarni topishda yordam beraman. "
-        f"Agar hali qaysi fakultetda o'qishingizni bilmasangiz, Saralovchi shlyapa buyrug'ingizga muntazir! 🎩"
+        f"🔮 <b>Hogwarts Oliy Maktabiga Xush Kelibsiz, {mention_user}!</b> ⚡️\n\n"
+        f"Katta zal eshiklari siz uchun ochiq. Men sizga afsonaviy sehrli kitoblar xazinasi, unutilmas kino zallari "
+        f"hamda o'z qobiliyatingizni sinash uchun interaktiv darsliklarni taqdim etaman. Tayoqchangizni tayyorlang! ✨🪄"
     )
     bot.send_message(message.chat.id, welcome_txt, reply_markup=main_menu(), parse_mode="HTML")
 
@@ -924,12 +925,15 @@ def process_admin_and_text_replies(message):
         PATRONUS_TEST_SESSIONS[uid] = {"current_q": 0, "scores": {"jasorat": 0, "ilon": 0, "burgut": 0, "aql": 0}}
         send_patronus_question(chat_id, uid)
 
+    elif text == "🧪 Ma'jun darsi (Qoida)":
+        show_potion_rules(message)
+
 def send_patronus_question(chat_id, user_id):
     session = PATRONUS_TEST_SESSIONS[user_id]
     q_idx = session["current_q"]
     
-    # [TUZATISH - 5.punkt] 5-savoldan keyin xarakterga moslab javob berish mantiqi saqlangan
     if q_idx >= len(PATRONUS_TEST_QUESTIONS):
+        # Test tugadi, eng yuqori ballni hisoblash
         scores = session["scores"]
         max_type = max(scores, key=scores.get)
         result = PATRONUS_RESULTS[max_type]
@@ -953,13 +957,16 @@ def send_patronus_question(chat_id, user_id):
     q_data = PATRONUS_TEST_QUESTIONS[q_idx]
     kb = types.InlineKeyboardMarkup(row_width=1)
     
+    # Variantlarni chalkashtirib chiqarish (Hamma akkauntda bir xil ko'rinmasligi uchun)
     opts = list(q_data["options"])
     random.shuffle(opts)
     
     for i, opt in enumerate(opts):
         kb.add(types.InlineKeyboardButton(opt["t"], callback_data=f"pat_ans_{user_id}_{i}"))
         
+    # Shaxsiy seansga tanlangan variantlar ballarini vaqtincha biriktirish
     session["current_options"] = opts
+    
     bot.send_message(user_id, f"🔮 <b>{q_data['q']}</b>", reply_markup=kb, parse_mode="HTML")
 
 # --- WELCOME (YANGI AZOLAR KELGANDA) ---
@@ -990,7 +997,7 @@ def handle_callbacks(callback):
     d = callback.data
     chat_id = callback.message.chat.id
     
-    # --- [TUZATISH - 3.punkt] MA'JUN TAYYORLASH MANTIQLI TUZATILDI (3 TA TO'G'RI VARIANT KETMA-KETLIGI) ---
+    # --- MA'JUN TAYYORLASH GURUH LOGIKASI ---
     if d.startswith("pot_"):
         _, g_id_str, idx_str = d.split("_")
         g_id = int(g_id_str)
@@ -1028,7 +1035,7 @@ def handle_callbacks(callback):
             return
             
         if current_step == 3:
-            # 3 ta masalliq ham to'g'ri bo'lganda damlama tayyor
+            # G'ALABA MUVAFFAQIYATLI TAYYORLANDI
             bot.answer_callback_query(callback.id, "✅ Muvaffaqiyatli bosqich!", show_alert=False)
             success_text = (
                 f"🧪 <b>MUVAFFAQIYATLI MA'JUN! DARS TUGADI!</b>\n\n"
@@ -1047,6 +1054,7 @@ def handle_callbacks(callback):
                 f"Hozirgi holat: Jami 3 tadan {current_step} ta masalliq to'g'ri solindi.\n"
                 f"Ketma-ketlikni buzmang, keyingi to'g'ri masalliqni tanlang!"
             )
+            # Inline klaviaturani qayta chiqarish (tanlanganlarni belgilash)
             kb = types.InlineKeyboardMarkup(row_width=3)
             for i, ing in enumerate(game["pool"]):
                 if ing in game["selected"]:
@@ -1056,7 +1064,7 @@ def handle_callbacks(callback):
             bot.edit_message_text(txt, g_id, callback.message.message_id, reply_markup=kb, parse_mode="HTML")
         return
 
-    # --- [TUZATISH - 5.punkt] PATRONUS TESTI INLINE JAVOBLAR LOGIKASI (SAVOL QABUL QILIB KEYINGISIGA O'TISH) ---
+    # --- PATRONUS TESTI INLINE JAVOBLAR LOGIKASI ---
     if d.startswith("pat_ans_"):
         _, u_id_str, o_idx_str = d.split("_")
         u_id = int(u_id_str)
