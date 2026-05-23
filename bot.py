@@ -104,7 +104,7 @@ PROJECT_GROUPS = {
 
 # --- BAZA FAYLLARI ---
 HOUSES_FILE = "user_houses.json"
-GROUPS_FILE = "user_project_groups.json" # <-- Loyiha ittifoqlari uchun yangi baza
+GROUPS_FILE = "user_project_groups.json"
 USERS_FILE = "users_list.json"
 WELCOME_FILE = "welcome_settings.json"
 BANNED_FILE = "banned_users.json"
@@ -136,7 +136,7 @@ def check_sub(user_id):
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("📚 Kitoblar"), types.KeyboardButton("🎬 Kinolar"))
-    markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Saralash")) # <-- Mutanosiblik saqlanib, tugma joylashtirildi
+    markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Saralash"))
     return markup
 
 def delete_after_delay(chat_id, message_id, delay=600):
@@ -153,7 +153,6 @@ def handle_punishment(message):
     mention_sender = get_mention(sender)
     cmd = message.text.split()[0].lower()
 
-    # Shaxsiy chatda faqat asosiy admin (Jodu Vaziriga) ishlata oladi
     if message.chat.type == 'private' and sender.id == ADMIN_ID:
         args = message.text.replace(message.text.split()[0], "").strip()
         if cmd == "/avadakedavra" and args:
@@ -171,14 +170,12 @@ def handle_punishment(message):
 
     if message.chat.type == 'private': return
     
-    # Guruhda buyruq bergan odam admin/moderatorligini tekshirish
     try:
         sender_member = bot.get_chat_member(message.chat.id, sender.id)
         is_admin = sender_member.status in ['administrator', 'creator']
     except:
         is_admin = False
     
-    # ✨ JODU VAZIRI TIZIMI: Agar ADMIN_ID buyruq bersa, adminlik tekshiruvi chetlab o'tiladi!
     is_vazir = (sender.id == ADMIN_ID)
     
     if not is_admin and not is_vazir:
@@ -190,7 +187,6 @@ def handle_punishment(message):
     target = message.reply_to_message.from_user
     mention_target = get_mention(target)
     
-    # 🔴 ASOSIY ADMIN IMMUNITETI (Jodu Vaziriga afsun qaytadi - daxlsiz!)
     if target.id == ADMIN_ID:
         return bot.reply_to(
             message, 
@@ -206,14 +202,12 @@ def handle_punishment(message):
         
     bot_obj = bot.get_me()
 
-    # Agar nishon admin bo'lsa, uni faqat Jodu Vaziri jazolay oladi (Boshqa adminlar jazololmaydi)
     if (is_target_admin or target.id == bot_obj.id) and not is_vazir:
         return bot.reply_to(message, f"🧙‍♂️ {mention_sender}, boshqa bir professor yoki prefektga qarshi duel e'lon qilish taqiqlangan! Hogwarts nizomiga amal qiling.")
 
     args = message.text.split()[1:]
     
     try:
-        # --- AVADA KEDAVRA (BAN) ---
         if cmd == "/avadakedavra":
             bot.ban_chat_member(message.chat.id, target.id)
             if is_vazir:
@@ -222,7 +216,6 @@ def handle_punishment(message):
                 txt = f"⚡️ <b>AVADA KEDAVRA!</b> \n\n{mention_target} yashil nur ichida g'oyib bo'ldi va Hogwarts guruhidan butunlay haydaldi! ⛓"
             bot.send_message(message.chat.id, txt)
         
-        # --- REVIVE (UNBAN) ---
         elif cmd == "/revive":
             bot.unban_chat_member(message.chat.id, target.id)
             if is_vazir:
@@ -231,7 +224,6 @@ def handle_punishment(message):
                 txt = f"🕊 <b>REVIVE!</b> \n\n{mention_target} qayta tiriltirildi va guruh darvozalari unga yana ochildi!"
             bot.send_message(message.chat.id, txt)
 
-        # --- SILENCIO (MUTE) ---
         elif cmd == "/silencio":
             mute_time = 5
             reason = "Tartibni buzish"
@@ -254,7 +246,6 @@ def handle_punishment(message):
                 txt = f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}"
             bot.send_message(message.chat.id, txt)
             
-        # --- FINITE (UNMUTE) ---
         elif cmd == "/finite":
             bot.restrict_chat_member(message.chat.id, target.id, 
                                      permissions=types.ChatPermissions(can_send_messages=True, can_send_audios=True, can_send_documents=True, can_send_photos=True, can_send_videos=True, can_send_video_notes=True, can_send_voice_notes=True, can_send_polls=True, can_send_other_messages=True, can_add_web_page_previews=True))
@@ -271,6 +262,7 @@ def handle_punishment(message):
 @bot.message_handler(commands=["start"])
 def start_cmd(message):
     user = message.from_user
+    mention_user = get_mention(user) # Foydalanuvchi ismini olish va formatlash
     
     if message.chat.type != 'private':
         bot_info = bot.get_me()
@@ -278,7 +270,7 @@ def start_cmd(message):
             types.InlineKeyboardButton("🏰 Shaxsiy chatga o'tish", url=f"https://t.me/{bot_info.username}?start=start")
         )
         txt = (
-            f"Hurmatli yosh sehrgar {get_mention(user)}! ⚡\n\n"
+            f"Hurmatli yosh sehrgar {mention_user}! ⚡\n\n"
             "Sehrli menyulardan foydalanish uchun men bilan <b>shaxsiy chatda</b> suhbatlashishingizni so'rayman. "
             "Katta Zalda shovqin ko'tarmaslik uchun shaxsiy xonaga o'tamiz! 🤫"
         )
@@ -300,11 +292,11 @@ def start_cmd(message):
             types.InlineKeyboardButton("👥 Hogwarts Guruhi", url=f"https://t.me/{GROUP[1:]}"),
             types.InlineKeyboardButton("✅ Aloqani tekshirish", callback_data="recheck_sub")
         )
-        txt = f"Xush kelibsan, yosh sehrgar {get_mention(user)}! ⚡\n\nHogwarts darvozalari ochilishi uchun avval quyidagi guruh va kanalda qayddan o'tishingiz kerak. Aks holda, Platforma 9 ¾ ga kira olmaysiz va poyezd ketib qoladi! 🚂"
+        txt = f"Xush kelibsan, yosh sehrgar {mention_user}! ⚡\n\nHogwarts darvozalari ochilishi uchun avval quyidagi guruh va kanalda qayddan o'tishingiz kerak. Aks holda, Platforma 9 ¾ ga kira olmaysiz va poyezd ketib qoladi! 🚂"
         return bot.send_message(message.chat.id, txt, reply_markup=btn)
     
     welcome_txt = (
-        f"Salom, {get_mention(user)}! Hogwartsga xush kelibsiz! ✨\n\n"
+        f"Salom, {mention_user}! Hogwartsga xush kelibsiz! ✨\n\n"
         "Men sizga eng nodir sehrli kitoblar va kinolarni topishda yordam beraman. "
         "Agar hali qaysi fakultetda o'qishingizni bilmasangiz, Saralovchi shlyapa buyrug'ingizga muntazir! 🎩"
     )
@@ -319,7 +311,7 @@ def recheck_callback(callback):
         welcome_txt = f"Ajoyib! Sehrli olam eshiklari siz uchun ochildi, marhamat {get_mention(callback.from_user)}! ✨"
         bot.send_message(callback.message.chat.id, welcome_txt, reply_markup=main_menu())
     else:
-        bot.answer_callback_query(callback.id, "Siz hali ham balla shartlarni bajarmadingiz! Shoshiling, poyezd yo'lga tushmoqda! 🚂", show_alert=True)
+        bot.answer_callback_query(callback.id, "Siz hali ham barcha shartlarni bajarmadingiz! Shoshiling, poyezd yo'lga tushmoqda! 🚂", show_alert=True)
 
 # --- ADMIN FUNKSIYALARI ---
 @bot.message_handler(commands=["getid"])
@@ -337,7 +329,7 @@ def set_welcome_start(message):
 @bot.message_handler(commands=["admins"])
 def admin_panel(message):
     if message.from_user.id != ADMIN_ID: return
-    txt = ("🧙‍♂️ <b>Jodu Vaziri Panel:</b>\n\n/send - Barcha sehrgarlarga bayonot (reklama)\n/getid - Artefakt ID sini olish\n/setwelcome - Kutib olishni sozlash\n/ban [ID] - Botdan butunlay haydash")
+    txt = ("🧙‍♂️ <b>Jodu Vaziri Paneli:</b>\n\n/send - Barcha sehrgarlarga bayonot (reklama)\n/getid - Artefakt ID sini olish\n/setwelcome - Kutib olishni sozlash\n/ban [ID] - Botdan butunlay haydash")
     bot.send_message(message.chat.id, txt)
 
 @bot.message_handler(commands=["send"])
@@ -440,7 +432,6 @@ def process_admin_and_text_replies(message):
         )
         bot.edit_message_text(final_text, message.chat.id, msg.message_id, reply_markup=shlyapa_btn)
 
-    # 🌀 LOYIHA ITTIFOQLARI UCHUN INTEGRATSIYA QILINGAN SEHRLI SARALASH TIZIMI
     elif text == "🌀 Saralash":
         uid_str = str(message.from_user.id)
         g_data = load_data(GROUPS_FILE)
