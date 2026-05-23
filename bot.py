@@ -133,7 +133,7 @@ def delete_after_delay(chat_id, message_id, delay=600):
     except:
         pass
 
-# --- JAZO TIZIMI (HOGWARTS SEHRLI AFSUNLARI) ---
+# --- JAZO TIZIMI (HOGWARTS SEHRLI AFSUNLARI - VAZIRLIK USLUBIDA) ---
 @bot.message_handler(commands=["silencio", "avadakedavra", "finite", "revive"])
 def handle_punishment(message):
     sender = message.from_user
@@ -165,7 +165,10 @@ def handle_punishment(message):
     except:
         is_admin = False
     
-    if not is_admin:
+    # ✨ JODU VAZIRI TIZIMI: Agar ADMIN_ID buyruq bersa, adminlik tekshiruvi chetlab o'tiladi!
+    is_vazir = (sender.id == ADMIN_ID)
+    
+    if not is_admin and not is_vazir:
         return bot.reply_to(message, f"🧙‍♂️ Kechirasiz {mention_sender}, siz hali oddiy o'quvchisiz! Bunday oliy darajali sehrlarni faqat professorlar ishlata oladi! 🪄")
 
     if not message.reply_to_message:
@@ -174,12 +177,12 @@ def handle_punishment(message):
     target = message.reply_to_message.from_user
     mention_target = get_mention(target)
     
-    # 🔴 ASOSIY ADMIN IMMUNITETI (SEHR ORQAGA QAYTADI)
+    # 🔴 ASOSIY ADMIN IMMUNITETI (Jodu Vaziriga afsun qaytadi - daxlsiz!)
     if target.id == ADMIN_ID:
         return bot.reply_to(
             message, 
-            f"🛡 <b>PROTEGO HORRIBILIS!</b> \n\n{mention_sender}, siz hozirgina Jodu Vaziriga qarshi afsun ishlatishga urindingiz! "
-            f"Sizning afsuningiz vazirlikning qadimiy himoya qalqoniga urilib, o'zingizga qaytdi! ⚡️"
+            f"🛡 <b>PROTEGO HORRIBILIS!</b> \n\n{mention_sender}, siz hozirgina <b>Jodu Vazirining</b> shaxsan o'ziga qarshi afsun ishlatishga urindingiz! "
+            f"Sizning ojiz afsuningiz vazirlikning qadimiy daxlsiz himoya qalqoniga urilib, dahshatli kuch bilan o'zingizga qaytdi! ⚡️"
         )
 
     try:
@@ -190,7 +193,8 @@ def handle_punishment(message):
         
     bot_obj = bot.get_me()
 
-    if is_target_admin or target.id == bot_obj.id:
+    # Agar nishon admin bo'lsa, uni faqat Jodu Vaziri jazolay oladi (Boshqa adminlar jazololmaydi)
+    if (is_target_admin or target.id == bot_obj.id) and not is_vazir:
         return bot.reply_to(message, f"🧙‍♂️ {mention_sender}, boshqa bir professor yoki prefektga qarshi duel e'lon qilish taqiqlangan! Hogwarts nizomiga amal qiling.")
 
     args = message.text.split()[1:]
@@ -199,12 +203,20 @@ def handle_punishment(message):
         # --- AVADA KEDAVRA (BAN) ---
         if cmd == "/avadakedavra":
             bot.ban_chat_member(message.chat.id, target.id)
-            bot.send_message(message.chat.id, f"⚡️ <b>AVADA KEDAVRA!</b> \n\n{mention_target} yashil nur ichida g'oyib bo'ldi va Hogwarts guruhidan butunlay haydaldi! ⛓")
+            if is_vazir:
+                txt = f"⚖️ <b>SEHRGARLAR VAZIRLIGI OLIY FARMONI!</b>\n\n🦅 Shaxsan <b>Jodu Vazirining</b> muhrlangan buyrug'iga binoan, {mention_target} qora sehrgarlikda va tartibni buzishda ayblanib, daxshatli <b>AVADA KEDAVRA</b> afsuni ostida yashil nur ichida yo'q qilindi va Hogwarts guruhidan abadiy badarg'a etildi! ⛓⚡️"
+            else:
+                txt = f"⚡️ <b>AVADA KEDAVRA!</b> \n\n{mention_target} yashil nur ichida g'oyib bo'ldi va Hogwarts guruhidan butunlay haydaldi! ⛓"
+            bot.send_message(message.chat.id, txt)
         
         # --- REVIVE (UNBAN) ---
         elif cmd == "/revive":
             bot.unban_chat_member(message.chat.id, target.id)
-            bot.send_message(message.chat.id, f"🕊 <b>REVIVE!</b> \n\n{mention_target} qayta tiriltirildi va guruh darvozalari unga yana ochildi!")
+            if is_vazir:
+                txt = f"📜 <b>SEHRGARLAR VAZIRLIGI AFV ETISH BAYONOTI!</b>\n\n🕊 <b>Jodu Vazirining</b> daxlsiz rahm-shafqati bilan, {mention_target} ustidagi barcha qora sehrlar olib tashlandi! <b>REVIVE</b> afsuni kuchga kirdi va Hogwarts darvozalari u uchun qayta ochildi! ✨"
+            else:
+                txt = f"🕊 <b>REVIVE!</b> \n\n{mention_target} qayta tiriltirildi va guruh darvozalari unga yana ochildi!"
+            bot.send_message(message.chat.id, txt)
 
         # --- SILENCIO (MUTE) ---
         elif cmd == "/silencio":
@@ -222,13 +234,22 @@ def handle_punishment(message):
             until_date = int(time.time()) + (mute_time * 60)
             bot.restrict_chat_member(message.chat.id, target.id, until_date=until_date, 
                                      permissions=types.ChatPermissions(can_send_messages=False))
-            bot.send_message(message.chat.id, f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}")
+            
+            if is_vazir:
+                txt = f"🤫 <b>VAZIRLIKNING MAXFIY SILENCIO BUYRUG'I!</b>\n\n🙊 Jodu Vazirining buyrug'iga asosan {mention_target}ning ovozi mutloq o'chirildi! U <b>{mute_time} daqiqa</b> davomida Sehrgarlar dunyosida og'iz ocha olmaydi!\n📜 <b>Vazir ko'rsatgan sabab:</b> <i>{reason}</i>"
+            else:
+                txt = f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}"
+            bot.send_message(message.chat.id, txt)
             
         # --- FINITE (UNMUTE) ---
         elif cmd == "/finite":
             bot.restrict_chat_member(message.chat.id, target.id, 
                                      permissions=types.ChatPermissions(can_send_messages=True, can_send_audios=True, can_send_documents=True, can_send_photos=True, can_send_videos=True, can_send_video_notes=True, can_send_voice_notes=True, can_send_polls=True, can_send_other_messages=True, can_add_web_page_previews=True))
-            bot.send_message(message.chat.id, f"🔊 <b>FINITE INCANTATEM!</b> \n\n{mention_target} ustidagi afsun yechildi. Shovqin solmasdan gapirishi mumkin.")
+            if is_vazir:
+                txt = f"🔊 <b>FINITE INCANTATEM! (VAZIRLIK AFVI)</b>\n\n⚡️ Jodu Vazirining oliy irodasi bilan {mention_target} ustidagi cheklovlar bekor qilindi. Sadoqat bilan so'zlashga ruxsat berildi!"
+            else:
+                txt = f"🔊 <b>FINITE INCANTATEM!</b> \n\n{mention_target} ustidagi afsun yechildi. Shovqin solmasdan gapirishi mumkin."
+            bot.send_message(message.chat.id, txt)
             
     except Exception as e:
         bot.reply_to(message, f"❌ Afsun amalga oshmadi, xatolik: {str(e)}")
