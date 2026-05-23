@@ -64,7 +64,7 @@ MOVIES_UZ = [
 MOVIES_RU = [
     {"name": "🎬 1. Философский камень", "file_id": "BAACAgIAAxkBAAICD2oRVoVgqczt0zh2ZLvb0WSxJlktAAIoCgACMf9ZS0p7sgsK2RVBOwQ", "caption": "🎬 Название: ГП 1: Философский камень\n⏱ Время: 2.5 часа\n🌐 Язык: Русский\n🎞 Качество: HD\n📢 Написание: @harry_potter_fans_uz"},
     {"name": "🎬 2. Тайная комната", "file_id": "BAACAgIAAxkBAAICE2oRVqhWj-EE5I4qJ_ZNHsM3FGL7AAImCgACMf9ZSzgm9-awc9oUOwQ", "caption": "🎬 Название: ГП 2: Тайная комната\n⏱ Время: 2.5 часа\n🌐 Язык: Русский\n🎞 Качество: HD\n📢 Написание: @harry_potter_fans_uz"},
-    {"name": "🎬 3. Узник Азкабана", "file_id": "BAACAgIAAxkBAAICF2oRVsY83X5ynrcgTqvHXFE83TVwAAInCgACMf9ZS-gYbIiUq-JnOwQ", "caption": "🎬 Название: ГП 3: Узник Азкабана\n⏱ Время: 2.5 часа\n🌐 Язык: Русский\n🎞 Качество: HD\n📢 Написание: @harry_potter_fans_uz"},
+    {"name": "🎬 3. Узник Азкабана", "file_id": "BAACAgIAAxkBAAICF2oRVsY83X5ynrcgTqvHXFE83TVwAAInCgACMf9ZS-gYbIiUq-JnOwQ", "caption": "🎬 Название: ГП 3: Уzник Азкабана\n⏱ Время: 2.5 часа\n🌐 Язык: Русский\n🎞 Качество: HD\n📢 Написание: @harry_potter_fans_uz"},
     {"name": "🎬 4. Кубок огня", "file_id": "BAACAgIAAxkBAAICG2oRVuKS1Tf-ZuwSjckC7oVKKM_bAAIjCgACMf9ZSwVaW6AlXUfEOwQ", "caption": "🎬 Название: ГП 4: Кубок огня\n⏱ Время: 2.5 часа\n🌐 Язык: Русский\n🎞 Качество: HD\n📢 Написание: @harry_potter_fans_uz"},
     {"name": "🎬 5. Орден Феникса", "file_id": "BAACAgQAAxkBAAICH2oRVwUjorH6X-Rv4T83YsPefwOwAAKgDAAC2L_JUNzUWrpxRUZwOwQ", "caption": "🎬 Название: Орден Феникса\n⏱ Время: 2.5 часа\n🌐 Язык: Русский\n🎞 Качество: HD\n📢 Написание: @harry_potter_fans_uz"},
     {"name": "🎬 6. Принц-полукровка (Bo'sh)", "file_id": "", "caption": "🎬 Bu qism tez orada yuklanadi!"},
@@ -94,33 +94,109 @@ HOUSES_DETAILS = {
 PROJECT_GROUPS = {
     "Feniks Jamiyati": {
         "emoji": "⚡️",
-        "txt": "🕊 <b>ALBUS DUMBLEDORE FARMONI BILAN:</b>\n\nSiz yorug'lik va adolat timsoli bo'lgan <b>Feniks Jamiyati</b> (Order of the Phoenix) safiga munosib ko'rildingiz! ⚡️\nYuragingizdagi ezgulik va yorqin kelajakka bo'lgan ishonch sizni Albus Dumbledore boshchiligidagi buyuk ittifoqqa boshladi. Loyihalarda yorug'lik kuchini ko'rsating!"
+        "txt": "🦅 <b>ALBUS DUMBLEDORENING OLIY FARMONI BILAN:</b>\n\nSiz yorug'lik, adolat va qat'iyat timsoli bo'lgan muqaddas <b>Feniks Jamiyati</b> (Order of the Phoenix) safiga loyiq deb topildingiz! ⚡️🕊\n\nYuragingizdagi qat'iy ezgulik va zulmatni parchalovchi yorug'lik kuchi sizni ushbu buyuk ittifoqqa yetakladi. Qiyinchiliklar oldida chekinmang, Albus Dumbledore ishonchini oqlang va loyihalarda haqiqiy yorug'lik sehrini ko'rsating! 🪄✨"
     },
     "Ajal Kasofatlari": {
         "emoji": "💀",
-        "txt": "🔥 <b>LORD VOLDEMORTNING SEHRLI BUYRUG'I BILAN:</b>\n\nSiz eng qudratli va cheksiz kuchga intiluvchi <b>Ajal Kasofatlari</b> (Death Eaters) ittifoqiga saralandingiz! 💀🔥\nSizning mardligingiz, yashirin makringiz va buyuklikka bo'lgan so'nmas chanqog'ingiz Qora Lord saflarida aks etdi. Eng qiyin topshiriqlar va qudrat endi siz tomonda!"
+        "txt": "🔥 <b>LORD VOLDEMORTNING DAXSHATLI BUYRUG'I BILAN:</b>\n\nSiz eng qudratli, mag'rur va cheksiz kuch-qudratga intiluvchi daxshatli <b>Ajal Kasofatlari</b> (Death Eaters) ittifoqi safiga kiritildingiz! 💀🐍\n\nSizning o'tkir makringiz, daxshatli mardligingiz va buyuklikka bo'lgan so'nmas chanqog'ingiz Qora Lordning e'tiborini tortdi. Eng murakkab vazifalar, daxshatli sehrlar va haqiqiy quvvat endi siz tomonda! Unutmang, qora muhr sizning bilagingizda mangu porlaydi! 🔥😈"
     }
 }
 
-# 🦄 PATRONUS SHAKLLARI BAZASI
-PATRONUS_SHAPES = [
-    {"animal": "Bug'u (Stag)", "emoji": "🦌", "desc": "Sizning ichki kuchingiz yetakchilik, himoya va cheksiz jasoratga tayanadi. Huddi Jeyms va Garri Potter kabi!"},
-    {"animal": "Eshshak kiyik (Doe)", "emoji": "🦌", "desc": "Sizning Patronusingiz toza muhabbat, sadoqat va abadiy g'amxo'rlik timsolidir. Severus Sneyp va Lili Potter kabi."},
-    {"animal": "Bo'ri (Wolf)", "emoji": "🐺", "desc": "Siz tabiatingizdan sadoqatli, oilaparvar va ittifoqni qadrlovchi sehrgarsiz. Remus Lyupin kabi."},
-    {"animal": "Ot (Horse)", "emoji": "🐎", "desc": "Erkinlik, quvvat va sodda, lekin o'ta qat'iy xarakter egasisiz. Jinni Vizli kabi."},
-    {"animal": "Suvsar (Otter)", "emoji": "🦦", "desc": "Zukkolik, qiziquvchanlik va har qanday vaziyatda to'g'ri qaror topa olish qobiliyati. Germiona Greynjer kabi."},
-    {"animal": "Feniks qushi (Phoenix)", "emoji": "🦅", "desc": "Eng nodir Patronus! Siz har qanday qiyinchilikdan qayta tug'ila olasiz va qalbingiz o'ta toza. Albus Dumbledore kabi!"},
-    {"animal": "Mushuk (Cat)", "emoji": "🐈", "desc": "Kuzatuvchan, ehtiyotkor va qat'iy tartib-intizomni sevuvchi sehrgarsiz. Professor Makgonagall kabi."}
+# 🔮 SHLYAPA FRAZALARI (RANG-BARANGLIK UCHUN KENGAYTIRILDI)
+SHLYAPA_FRAZALARI = [
+    "🧐 <i>Hmm... juda qiziq... Qalbingiz tubida chuqur yashiringan sirlarni ko'rmoqdaman...</i>",
+    "🧠 <i>Xotiralaringiz qatlamida ulkan salohiyat yotibdi! Qaysi burilish sizni buyuklikka olib boradi?</i>",
+    "✨ <i>Ooo! Bu ongda shunchaki jasorat emas, balki g'ayritabiiy intilishlar zanjiri bor... Qayerga joylasam ekan?</i>",
+    "🦅 <i>O'tkir zehn va fikrlash doirasi... Yoki do'stlar uchun har narsaga tayyor sodiq yurakmi?</i>",
+    "⚡️ <i>Menga tik qarab turgan bu ko'zlarda qat'iyat uchqunlarini ko'ryapman... Shoshilmang, yaxshilab o'ylashim kerak...</i>",
+    "🪄 <i>Sehr tayog'ingiz kuchi qayerda eng yuqori cho'qqiga chiqa olishini his qilyapman...</i>",
+    "🌌 <i>Ajabo! Bu sehrgarning kelajagi shunchalar yorqin va chalkashki, hatto men ham adashib ketishim munosib!</i>",
+    "🐍 <i>Makr va ambitsiyami yoki olijanoblik va mardlik? Qalbingizda ikki buyuk kuch to'qnashmoqda...</i>",
+    "📜 <i>Hogwarts tarixida sizdek murakkab xarakterli sehrgarlar juda kam bo'lgan... Keling, taqdiringizni ochamiz!</i>",
+    "🔮 <i>Yuragingizning urishi menga aniq yo'lni ko'rsatmoqda, siz munosib bo'lgan maskan...</i>"
 ]
 
-# 🧪 MA'JUN TAYYORLASH DARSBOB MATNLARI
-POTIONS_LIST = [
-    {"name": "Omad Sharbati (Felix Felicis)", "emoji": "🧪✨", "desc": "Oltin rangda tovlanuvchi bu sharbat sizga bugun barcha ishlaringizda mutloq omad keltiradi! 24 soat davomida omad siz tomonda!"},
-    {"name": "Amortensiya (Sevgi ma'juni)", "emoji": "🧪💖", "desc": "O'ziga xos marvariddek yaltirashga ega va spiralsimon bug' chiqaruvchi eng qudratli sevgi ma'juni! Ehtiyot bo'ling!"},
-    {"name": "Ko'p qiyofali ma'jun (Polyjuice Potion)", "emoji": "🧪🎭", "desc": "Siz ma'junni to'g'ri tayyorladingiz! Endi unga biror sehrgarning sochini qo'shib, 1 soat davomida uning qiyofasiga kirishingiz mumkin."},
-    {"name": "Tinchlik malhami (Draught of Peace)", "emoji": "🧪🌀", "desc": "Asabiylik va xavotirni zumda so'ndiruvchi kumushrang mayin sharbat. Imtihonlar oldidan juda foydali."},
-    {"name": "Tirik o'lim damlamasi (Draught of Living Death)", "emoji": "🧪💤", "desc": "O'ta qudratli uyqu dori. Ichgan odamni hayot belgilari bilinmaydigan darajada chuqur uyquga ketkazadi."}
+# 🧪 MA'JUN TAYYORLASH HAQIDA HAQIQIY MA'LUMOTLAR
+POTIONS_DATA = [
+    {"name": "Felix Felicis (Omad Sharbati)", "emoji": "🧪✨", "ingredients": ["Oltin kukuni", "Zuluk sharbati", "Feniks ko'zyoshi"], "desc": "Sizga 24 soat davomida mutloq omad taqdim etadi!"},
+    {"name": "Amortentia (Sevgi ma'juni)", "emoji": "🧪💖", "ingredients": ["Marvarid kukuni", "Yalpiz ekstrakti", "Yal tirgich suv"], "desc": "Dunyodagi eng kuchli va xavfli sevgi ma'juni!"},
+    {"name": "Polyjuice Potion (Ko'p qiyofali ma'jun)", "emoji": "🧪🎭", "ingredients": ["Alrauna ildizi", "Ikki shoxli kiyik shoxi", "Suv o'tlari"], "desc": "Istalgan odamning qiyofasiga kirish imkonini beradi!"},
+    {"name": "Veritaserum (Haqiqat zardobi)", "emoji": "🧪💧", "ingredients": ["Haqiqat guli", "Tilsimli shabnam", "Ilon tili"], "desc": "Ushbu rangsiz suyuqlikni ichgan odam faqat haqiqatni gapiradi!"},
+    {"name": "Draught of Peace (Tinchlik malhami)", "emoji": "🧪🌀", "ingredients": ["Lavanda guli", "Yul g'unajin toshi", "Kumush kukuni"], "desc": "Asabiylik va vahimani zumda yo'qotuvchi sharbat."},
+    {"name": "Draught of Living Death (Tirik o'lim damlamasi)", "emoji": "🧪💤", "ingredients": ["Asfodela ildizi", "Shuvoq o'ti EXTRA", "Gallyus sharbati"], "desc": "Odamni hayot belgilari bilinmaydigan chuqur uyquga ketkazadi!"},
+    {"name": "Skele-Gro (Suyak o'stiruvchi damlama)", "emoji": "🧪🦴", "ingredients": ["Ajdarho qon kukuni", "Chayon zahri", "Botqoq guli"], "desc": "Yo'qotilgan yoki singan suyaklarni tun bo'yi qayta o'stiradi!"},
+    {"name": "Elixir of Life (Hayot eliksiri)", "emoji": "🧪💎", "ingredients": ["Falsafiy tosh bo'lagi", "Sof buloq suvi", "Oltin shabnam"], "desc": "Falsafiy toshdan tayyorlanadigan mangu hayot eliksiri!"},
+    {"name": "Pepperup Potion (Isituvchi sharbat)", "emoji": "🧪🔥", "ingredients": ["Qizil garmidori", "Zanjabil ildizi", "Gryffindor olovi"], "desc": "Chunonam isitadiki, odamning quloqlaridan 2 soat davomida tutun chiqadi!"},
+    {"name": "Wolfsbane Potion (Bo'ri dori)", "emoji": "🧪🐺", "ingredients": ["Ko'k bo'ri guli", "Kumush eritmasi", "Tun guli ekstrakti"], "desc": "Bo'ri-odamlarga to'lin oyda o'z aqlini saqlab qolishga yordam beradi!"}
 ]
+
+# ALL INGREDIENTS LIST (9 DISTINCT ITEMS)
+ALL_INGREDIENTS = [
+    "Oltin kukuni", "Zuluk sharbati", "Feniks ko'zyoshi", 
+    "Marvarid kukuni", "Yalpiz ekstrakti", "Alrauna ildizi",
+    "Ikki shoxli kiyik shoxi", "Haqiqat guli", "Lavanda guli"
+]
+
+# 🦄 PATRONUS TESTI SAVOLLARI VA XARAKTER BALLARI
+PATRONUS_TEST_QUESTIONS = [
+    {
+        "q": "🌌 SIZ UCHUN ENGB AXTLI XOTIRA NIMA?",
+        "options": [
+            {"t": "Do'stlar davrasida g'alaba qozonish", "b": {"jasorat": 3, "aql": 1}},
+            {"t": "Yashirincha ulkan maqsadga erishish", "b": {"ilon": 3, "jasorat": 1}},
+            {"t": "Yangi va qiyin bilimni kashf etish", "b": {"burgut": 3, "aql": 1}},
+            {"t": "Yaqinlar bilan tinchlikda o'tirish", "b": {"aql": 3, "burgut": 1}}
+        ]
+    },
+    {
+        "q": "🪄 QAYSI AFSUNNI BIRINCHI BO'LIB O'RGANAR EDINGIZ?",
+        "options": [
+            {"t": "Expecto Patronum — Himoya sehrini", "b": {"jasorat": 2, "aql": 2}},
+            {"t": "Avada Kedavra — Absolute qudratni", "b": {"ilon": 4}},
+            {"t": "Revelio — Sirlarni fosh etishni", "b": {"burgut": 3, "jasorat": 1}},
+            {"t": "Protego — Do'stlarimni asrashni", "b": {"aql": 3, "ilon": 1}}
+        ]
+    },
+    {
+        "q": "🌲 TAQIQLANGAN O'RMONDA QAYSI JONZOTNI UCHRATSANGIZ QO'RQMADINGIZ?",
+        "options": [
+            {"t": "Sentavrlar — Donishmand zonzotlar", "b": {"burgut": 3, "aql": 1}},
+            {"t": "Giperogrif — Mag'rur va jasur qush", "b": {"jasorat": 3, "burgut": 1}},
+            {"t": "Akromantula — Ulkan ayyor o'rgimchak", "b": {"ilon": 3}},
+            {"t": "Yakoron (Fluffy) — Sodiq uch boshli kuchuk", "b": {"aql": 3, "jasorat": 1}}
+        ]
+    },
+    {
+        "q": "🏆 CHEMPIONLAR KUBOGIDA QAYSI SIFATINGIZ BILAN G'ALABA QOZONASIZ?",
+        "options": [
+            {"t": "Hech qachon taslim bo'lmas jasoratim bilan", "b": {"jasorat": 3}},
+            {"t": "Raqiblarimning xatolaridan foydalangan makrim bilan", "b": {"ilon": 3}},
+            {"t": "Strategik reja va o'tkir aqlim bilan", "b": {"burgut": 3}},
+            {"t": "Tinimsiz mehnat va adolatli kurash bilan", "b": {"aql": 3}}
+        ]
+    },
+    {
+        "q": "🔮 SEHRLI TAYOQCHANGIZNING YURAGI NIMADAN IBORAT BO'LISHINI XOHLAR EDINGIZ?",
+        "options": [
+            {"t": "Feniks qushi pati (Nodir va qayta tug'iluvchi)", "b": {"jasorat": 2, "burgut": 2}},
+            {"t": "Ajdarho yurak tomiri (Qudratli va daxshatli)", "b": {"ilon": 3, "jasorat": 1}},
+            {"t": "Yakoron (Unicorn) tuki (Toza va barqaror)", "b": {"aql": 3}},
+            {"t": "Muqaddas daraxt po'stlog'i (Bilimga boy)", "b": {"burgut": 3}}
+        ]
+    }
+]
+
+PATRONUS_RESULTS = {
+    "jasorat": {"animal": "Bug'u (Stag) 🦌", "desc": "Sizning ichki kuchingiz yetakchilik, adolat va cheksiz jasoratga tayanadi! Huddi Garri Potter kabi yovuzlikka qarshi tik tura olasiz."},
+    "ilon": {"animal": "Bo'g'ma Ilon (Basilisk) 🐍", "desc": "Siz tabiatingizdan o'ta uzoqni ko'ra oladigan, har qanday vaziyatdan aql va makr bilan chiqadigan qudratli sehrgarsiz! Patronusingiz dushmanlarni muzlatadi."},
+    "burgut": {"animal": "Feniks Qushi (Phoenix) 🦅", "desc": "Eng nodir va afsonaviy Patronus! Siz har qanday qiyinchilik cheklovlaridan yonib, qayta tug'ila olasiz. Qalbingiz mutloq bilim manbaidir."},
+    "aql": {"animal": "Kumushrang Bo'ri (Wolf) 🐺", "desc": "Siz nihoyatda sadoqatli, oilaparvar va do'stlik ittifoqini dunyodagi hamma narsadan ustun qo'yadigan olijanob sehrgarsiz! Remus Lyupin kabi."}
+}
+
+# Guruhdagi majun o'yinlari seanslari bazasi
+POTION_GAMES = {}
+# Foydalanuvchilarning Patronus testi jarayonlari
+PATRONUS_TEST_SESSIONS = {}
 
 # --- BAZA FAYLLARI ---
 HOUSES_FILE = "user_houses.json"
@@ -128,7 +204,7 @@ GROUPS_FILE = "user_project_groups.json"
 USERS_FILE = "users_list.json"
 WELCOME_FILE = "welcome_settings.json"
 BANNED_FILE = "banned_users.json"
-PATRONUS_FILE = "user_patronus.json"  # <-- Yangi Patronus bazasi
+PATRONUS_FILE = "user_patronus.json"
 
 def load_data(file):
     if os.path.exists(file):
@@ -156,9 +232,9 @@ def check_sub(user_id):
 
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("📚 Kitoblar"), types.KeyboardButton("🎬 Kinolar"))
-    markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Saralash"))
-    markup.add(types.KeyboardButton("🦄 Patronus testi"), types.KeyboardButton("🧪 Ma'jun tayyorlash"))
+    markup.add(types.KeyboardButton("📚 Sehrli Kutubxona"), types.KeyboardButton("🎬 Kino Zali"))
+    markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Ittifoqlar Saralashi"))
+    markup.add(types.KeyboardButton("🦄 Patronus testi"), types.KeyboardButton("🧪 Ma'jun darsi (Qoida)"))
     return markup
 
 def delete_after_delay(chat_id, message_id, delay=600):
@@ -544,6 +620,61 @@ def handle_punishment(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Afsun amalga oshmadi, xatolik: {str(e)}")
 
+# --- MA'JUN O'YINI UCHUN GURUH BUYRUQLARI ---
+@bot.message_handler(commands=["potion"])
+def start_group_potion(message):
+    chat_id = message.chat.id
+    if message.chat.type == "private":
+        return bot.reply_to(message, "🧪 <b>Ushbu murakkab majun darsi faqat Hogwarts prefektlar guruhida amalga oshiriladi!</b>\nGuruhda /potion buyrug'ini yuboring.", parse_mode="HTML")
+    
+    user = message.from_user
+    potion = random.choice(POTIONS_DATA)
+    
+    # 9 ta ingredientdan 3 tasi to'g'ri, qolgan 6 tasi tasodifiy aralash
+    correct_ingredients = potion["ingredients"]
+    pool = list(correct_ingredients)
+    while len(pool) < 9:
+        fake = random.choice(ALL_INGREDIENTS)
+        if fake not in pool:
+            pool.append(fake)
+    random.shuffle(pool)
+    
+    POTION_GAMES[chat_id] = {
+        "user_id": user.id,
+        "potion_name": potion["name"],
+        "emoji": potion["emoji"],
+        "correct": correct_ingredients,
+        "selected": [],
+        "pool": pool,
+        "desc": potion["desc"]
+    }
+    
+    kb = types.InlineKeyboardMarkup(row_width=3)
+    for i, ing in enumerate(pool):
+        kb.add(types.InlineKeyboardButton(ing, callback_data=f"pot_{chat_id}_{i}"))
+        
+    txt = (
+        f"🧪 {get_mention(user)} <b>Professor Sneypning Ma'junlar darsida yangi vazifa oldi!</b>\n\n"
+        f"Tayyorlanishi kerak bo'lgan sehrli dori: <b>{potion['name']}</b> {potion['emoji']}\n"
+        f"⚠️ <b>Vazifa:</b> Quyidagi ingredientlar ichidan <b>to'g'ri 3 tasini to'g'ri tartibda</b> ketma-ket tanlang. "
+        f"Aks holda qozon portlab ketadi! 🔥"
+    )
+    bot.send_message(chat_id, txt, reply_markup=kb, parse_mode="HTML")
+
+@bot.message_handler(commands=["potion_rules"])
+def show_potion_rules(message):
+    txt = (
+        "🧪 <b>Hogwarts Ma'junlar Darsi — Qoidalar</b>\n\n"
+        "Ushbu sehrli dars faqat guruh interfeysida o'ynaladi! 🪐\n\n"
+        "🎯 <b>O'yin tartibi:</b>\n"
+        "1️⃣ O'yinchi <code>/potion</code> buyrug'ini berganida unga maxsus kitobiy damlama nomi topshiriladi.\n"
+        "2️⃣ Pastda <b>9 ta inline tugma</b> orqali masalliqlar chalkashtirib ko'rsatiladi.\n"
+        "3️⃣ O'yinchi damlamaning asliga mos ravishda <b>3 ta to'g'ri masalliqni ketma-ket</b> solishi shart.\n"
+        "4️⃣ Agar ketma-ketlik buzilsa yoki xato masalliq qo'shilsa — qozon dahshatli olov bilan portlaydi!\n"
+        "5️⃣ To'g'ri tayyorlangan har bir ma'jun uchun fakultetingizga faxriy ballar yoziladi. ✨"
+    )
+    bot.reply_to(message, txt, parse_mode="HTML")
+
 # --- START VA TEKSHIRISH ---
 @bot.message_handler(commands=["start"])
 def start_cmd(message):
@@ -576,10 +707,14 @@ def start_cmd(message):
     if message.chat.type != 'private':
         bot_info = bot.get_me()
         btn = types.InlineKeyboardMarkup().add(
-            types.InlineKeyboardButton("🏰 Shaxsiy chatga o'tish", url=f"https://t.me/{bot_info.username}?start=start")
+            types.InlineKeyboardButton("🏰 Shaxsiy minoraga kirish", url=f"https://t.me/{bot_info.username}?start=start")
         )
-        txt = f"Hurmatli yosh sehrgar {mention_user}! ⚡\n\nSehrli menyulardan foydalanish uchun men bilan <b>shaxsiy chatda</b> suhbatlashishingizni so'rayman."
-        return bot.reply_to(message, txt, reply_markup=btn)
+        txt = (
+            f"⚡️ <b>Salom, olijanob sehrgar {mention_user}!</b>\n\n"
+            f"Hogwartsning oliy sehrli menyulari va interaktiv darslaridan to'liq foydalanish uchun "
+            f"quyidagi tugma orqali men bilan <b>shaxsiy chatga (Direct)</b> o'tishingizni so'rayman! 🪄✨"
+        )
+        return bot.reply_to(message, txt, reply_markup=btn, parse_mode="HTML")
 
     banned = load_data(BANNED_FILE)
     if str(user.id) in str(banned):
@@ -593,15 +728,23 @@ def start_cmd(message):
     is_subscribed = check_sub(user.id)
     if not is_subscribed:
         btn = types.InlineKeyboardMarkup(row_width=1).add(
-            types.InlineKeyboardButton("📢 Vazirlik Kanali", url=f"https://t.me/{CHANNEL[1:]}"),
-            types.InlineKeyboardButton("👥 Hogwarts Guruhi", url=f"https://t.me/{GROUP[1:]}"),
-            types.InlineKeyboardButton("✅ Aloqani tekshirish", callback_data="recheck_sub")
+            types.InlineKeyboardButton("🦅 Oliy Sehrgarlar Vazirligi", url=f"https://t.me/{CHANNEL[1:]}"),
+            types.InlineKeyboardButton("🏰 Hogwarts Elite Ittifoqi", url=f"https://t.me/{GROUP[1:]}"),
+            types.InlineKeyboardButton("✅ Shartlarni tekshirish afsuni", callback_data="recheck_sub")
         )
-        txt = f"Xush kelibsan, {mention_user}! ⚡\nHogwarts darvozalari ochilishi uchun avval quyidagi guruh va kanalda qayddan o'tishingiz kerak."
-        return bot.send_message(message.chat.id, txt, reply_markup=btn)
+        txt = (
+            f"⚡️ <b>Hogwarts darvozalariga xush kelibsiz, {mention_user}!</b>\n\n"
+            f"Qadimiy tilsimlar va darvoza himoyachilari sizni ichkariga qo'yishi uchun dastlab quyidagi "
+            f"rasmiy guruh va kanallarda qayddan o'tishingiz talab etiladi! Darvozani ochish uchun afsun tugmasini bosing! 🪄🔑"
+        )
+        return bot.send_message(message.chat.id, txt, reply_markup=btn, parse_mode="HTML")
     
-    welcome_txt = f"Salom, {mention_user}! Hogwartsga xush kelibsiz! ✨\nMen sizga eng nodir sehrli kitoblar va kinolarni topishda yordam beraman."
-    bot.send_message(message.chat.id, welcome_txt, reply_markup=main_menu())
+    welcome_txt = (
+        f"🔮 <b>Hogwarts Oliy Maktabiga Xush Kelibsiz, {mention_user}!</b> ⚡️\n\n"
+        f"Katta zal eshiklari siz uchun ochiq. Men sizga afsonaviy sehrli kitoblar xazinasi, unutilmas kino zallari "
+        f"hamda o'z qobiliyatingizni sinash uchun interaktiv darsliklarni taqdim etaman. Tayoqchangizni tayyorlang! ✨🪄"
+    )
+    bot.send_message(message.chat.id, welcome_txt, reply_markup=main_menu(), parse_mode="HTML")
 
 @bot.callback_query_handler(func=lambda c: c.data == "recheck_sub")
 def recheck_callback(callback):
@@ -609,10 +752,10 @@ def recheck_callback(callback):
     if is_subscribed:
         try: bot.delete_message(callback.message.chat.id, callback.message.message_id)
         except: pass
-        welcome_txt = f"Ajoyib! Sehrli olam eshiklari siz uchun ochildi, marhamat {get_mention(callback.from_user)}! ✨"
-        bot.send_message(callback.message.chat.id, welcome_txt, reply_markup=main_menu())
+        welcome_txt = f"🔮 <b>Aloqa muvaffaqiyatli! Sehrli olam darvozalari g'ildirab ochildi, marhamat {get_mention(callback.from_user)}!</b> ✨🪄"
+        bot.send_message(callback.message.chat.id, welcome_txt, reply_markup=main_menu(), parse_mode="HTML")
     else:
-        bot.answer_callback_query(callback.id, "Siz hali barcha shartlarni bajarmadinigiz!", show_alert=True)
+        bot.answer_callback_query(callback.id, "🚫 Tilsim kuchga kirmadi! Guruh va kanalga to'liq a'zo bo'ling!", show_alert=True)
 
 # --- ADMIN FUNKSIYALARI ---
 @bot.message_handler(commands=["getid"])
@@ -710,23 +853,23 @@ def process_admin_and_text_replies(message):
             ADMIN_STATES.pop(uid, None)
             return
 
-    if text == "📚 Kitoblar":
+    if text == "📚 Sehrli Kutubxona":
         btn = types.InlineKeyboardMarkup(row_width=2).add(
-            types.InlineKeyboardButton("📚 Hammasi birda (1-7)", callback_data="get_all_books"),
-            types.InlineKeyboardButton("🇺🇿 O'zbekcha tarjima", callback_data="b_uz"),
-            types.InlineKeyboardButton("🇬🇧 Original inglizcha", callback_data="b_en"),
-            types.InlineKeyboardButton("⬅️ Orqaga", callback_data="home")
+            types.InlineKeyboardButton("📚 Barcha Qismlar (1-7)", callback_data="get_all_books"),
+            types.InlineKeyboardButton("🇺🇿 O'zbekcha Tarjimalar", callback_data="b_uz"),
+            types.InlineKeyboardButton("🇬🇧 Original English", callback_data="b_en"),
+            types.InlineKeyboardButton("⬅️ Bosh Menyu", callback_data="home")
         )
-        bot.send_message(message.chat.id, "Kerakli bo'limni tanlang:", reply_markup=btn)
+        bot.send_message(message.chat.id, "📖 <b>Hogwarts qadimiy qo'lyozmalar bo'limi. Kerakli jildni tanlang:</b>", reply_markup=btn, parse_mode="HTML")
         
-    elif text == "🎬 Kinolar":
+    elif text == "🎬 Kino Zali":
         btn = types.InlineKeyboardMarkup(row_width=2).add(
-            types.InlineKeyboardButton("🇺🇿 O'zbekcha", callback_data="m_uz"),
-            types.InlineKeyboardButton("🇷🇺 Ruscha", callback_data="m_ru"),
-            types.InlineKeyboardButton("🇬🇧 Inglizcha", callback_data="m_en"),
-            types.InlineKeyboardButton("⬅️ Orqaga", callback_data="home")
+            types.InlineKeyboardButton("🇺🇿 O'zbekcha Dublyaj", callback_data="m_uz"),
+            types.InlineKeyboardButton("🇷🇺 Ruscha Tarjima", callback_data="m_ru"),
+            types.InlineKeyboardButton("🇬🇧 Original English", callback_data="m_en"),
+            types.InlineKeyboardButton("⬅️ Bosh Menyu", callback_data="home")
         )
-        bot.send_message(message.chat.id, "Tilni tanlang:", reply_markup=btn)
+        bot.send_message(message.chat.id, "🎬 <b>Ommaviy ko'rish zali. Tasvirlar tilini muhrlang:</b>", reply_markup=btn, parse_mode="HTML")
 
     elif text == "🎩 Saralovchi shlyapa":
         uid_str = str(message.from_user.id)
@@ -736,88 +879,95 @@ def process_admin_and_text_replies(message):
             save_data(HOUSES_FILE, data)
         
         h = HOUSES_DETAILS[data[uid_str]]
-        msg = bot.send_message(message.chat.id, "🧐 <b>Shlyapa ko'zlaringizga tikilib o'ylamoqda... Siz haqingizdagi xotiralarni titkilamoqda...</b>")
-        time.sleep(2)
+        # Tasodifiy fraza olish
+        rand_phrase = random.choice(SHLYAPA_FRAZALARI)
+        
+        msg = bot.send_message(message.chat.id, f"🎩 <b>{rand_phrase}</b>")
+        time.sleep(2.5)
         
         final_text = f"{h['txt']}\n\nSiz munosib bo'lgan fakultet: {h['emoji']} <b>{data[uid_str]}</b>\n🔑 Kirish afsuni: <code>{h['kalit']}</code>"
-        shlyapa_btn = types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("🎩 Shlyapaga borish", url=f"https://t.me/{SHLYAPA_USER}"))
-        bot.edit_message_text(final_text, message.chat.id, msg.message_id, reply_markup=shlyapa_btn)
+        shlyapa_btn = types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("🎩 Shlyapa Minorasiga o'tish", url=f"https://t.me/{SHLYAPA_USER}"))
+        bot.edit_message_text(final_text, message.chat.id, msg.message_id, reply_markup=shlyapa_btn, parse_mode="HTML")
 
-    elif text == "🌀 Saralash":
+    elif text == "🌀 Ittifoqlar Saralashi":
         uid_str = str(message.from_user.id)
         g_data = load_data(GROUPS_FILE)
         if uid_str in g_data:
             current_g = g_data[uid_str]
-            return bot.reply_to(message, f"Siz allaqachon sehrli ittifoqqa saralangansiz: <b>{current_g}</b>")
+            return bot.reply_to(message, f"🔮 <b>Sehrli ko'zgu rad etdi!</b> Siz allaqachon oliy ittifoq safiga biriktirilgansiz: <b>{current_g}</b>", parse_mode="HTML")
         
         selected_group = random.choice(list(PROJECT_GROUPS.keys()))
         g_data[uid_str] = selected_group
         save_data(GROUPS_FILE, g_data)
         
         g_info = PROJECT_GROUPS[selected_group]
-        msg = bot.send_message(message.chat.id, "🔮 <b>Sehrli Ko'zgu porlab, sizning ichki dunyongizni tahlil qilmoqda...</b>")
-        time.sleep(2)
-        bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id)
+        msg = bot.send_message(message.chat.id, "🔮 <b>Sehrli Ko'zgu porlab, sizning ichki qon hislatlaringizni tahlil qilmoqda...</b>")
+        time.sleep(2.5)
+        bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id, parse_mode="HTML")
 
-    # --- QO'SHIMCHA 1: PATRONUS TESTI (ANTI-CHEAT BILAN) ---
+    # --- INLINE SAVOLLI PATRONUS TESTI (ANTI-CHEAT) ---
     elif text == "🦄 Patronus testi":
         uid_str = str(message.from_user.id)
         p_data = load_data(PATRONUS_FILE)
         
         if uid_str in p_data:
-            # Aldashga qarshi chora: testni qayta topshira olmaydi, faqat o'zinikini ko'radi
             saved = p_data[uid_str]
             return bot.send_message(
                 message.chat.id,
-                f"🪄 <b>Siz allaqachon Patronus afsuningizni chaqirgansiz!</b>\n\n"
-                f"Sizning xotiralaringiz va qalbingizga bog'langan hayvon: {saved['emoji']} <b>{saved['animal']}</b>\n"
-                f"📜 <i>{saved['desc']}</i>\n\n"
-                f"⚡️ <i>«Expecto Patronum!» jodusini takrorlaganingizda kumushrang nur aynan shu shaklni oladi.</i>"
+                f"🪄 <b>Qadimiy taqiq afsuni!</b>\n\nSiz allaqachon o'z qalbingiz tubidagi Patronus jonzotini chaqirib bo'lgansiz! "
+                f"Sehrgarning tabiati va uning eng baxtli xotiralari o'zgarmasdir. Sizning Patronusingiz:\n\n"
+                f"✨ <b>{saved['animal']}</b>\n📜 <i>{saved['desc']}</i>\n\n"
+                f"⚡️ <i>«Expecto Patronum!» deganingizda, tayog'ingizdan faqat shu nur chiqadi!</i>",
+                parse_mode="HTML"
             )
             
-        msg = bot.send_message(message.chat.id, "🪄 <b>«Expecto Patronum!» afsuni uchun eng baxtli xotirangizni eslang... Qalbingiz siri ochilmoqda...</b>")
-        time.sleep(2)
+        # Testni yangi boshlash, ballarni nollash
+        PATRONUS_TEST_SESSIONS[uid] = {"current_q": 0, "scores": {"jasorat": 0, "ilon": 0, "burgut": 0, "aql": 0}}
+        send_patronus_question(chat_id, uid)
+
+    elif text == "🧪 Ma'jun darsi (Qoida)":
+        show_potion_rules(message)
+
+def send_patronus_question(chat_id, user_id):
+    session = PATRONUS_TEST_SESSIONS[user_id]
+    q_idx = session["current_q"]
+    
+    if q_idx >= len(PATRONUS_TEST_QUESTIONS):
+        # Test tugadi, eng yuqori ballni hisoblash
+        scores = session["scores"]
+        max_type = max(scores, key=scores.get)
+        result = PATRONUS_RESULTS[max_type]
         
-        chosen_patronus = random.choice(PATRONUS_SHAPES)
-        p_data[uid_str] = chosen_patronus
+        # Bazaga saqlash (Anti-cheat)
+        p_data = load_data(PATRONUS_FILE)
+        p_data[str(user_id)] = result
         save_data(PATRONUS_FILE, p_data)
         
-        final_pat_text = (
-            f"⚡️ <b>PATRONUS MUVAFFAQIYATLI CHAQIRILDI!</b>\n\n"
-            f"Tayoqchangiz uchidan otilib chiqqan yorqin kumushrang nur asta-sekin shakllandi. Sizning Patronusingiz: "
-            f"{chosen_patronus['emoji']} <b>{chosen_patronus['animal']}</b>!\n\n"
-            f"📜 <b>Ta'rif:</b> {chosen_patronus['desc']}"
+        txt = (
+            f"⚡️ <b>EXPECTO PATRONUM!!!</b>\n\n"
+            f"Sizning eng yorqin baxtli xotirangiz tayoqchadan ulkan kumushrang to'lqin bo'lib otildi! "
+            f"U havoda mukammal shakl oldi. Sizning haqiqiy Patronusingiz:\n\n"
+            f"🦄 <b>{result['animal']}</b>\n"
+            f"📜 <b>Xarakteringiz ta'rifi:</b> {result['desc']}"
         )
-        bot.edit_message_text(final_pat_text, message.chat.id, msg.message_id)
+        bot.send_message(user_id, txt, parse_mode="HTML")
+        PATRONUS_TEST_SESSIONS.pop(user_id, None)
+        return
 
-    # --- QO'SHIMCHA 2: MA'JUN TAYYORLASH DARSI ---
-    elif text == "🧪 Ma'jun tayyorlash":
-        msg = bot.send_message(
-            message.chat.id, 
-            "🧪 <b>Siz Professor Sneypning Ma'junlar darsiga kirdingiz.</b>\n"
-            "Qozon ostiga olov yoqildi, ingredientlar tayyorlanmoqda... ⏳"
-        )
-        time.sleep(2)
+    q_data = PATRONUS_TEST_QUESTIONS[q_idx]
+    kb = types.InlineKeyboardMarkup(row_width=1)
+    
+    # Variantlarni chalkashtirib chiqarish (Hamma akkauntda bir xil ko'rinmasligi uchun)
+    opts = list(q_data["options"])
+    random.shuffle(opts)
+    
+    for i, opt in enumerate(opts):
+        kb.add(types.InlineKeyboardButton(opt["t"], callback_data=f"pat_ans_{user_id}_{i}"))
         
-        # Tasodifiy qoida buzilishi yoki portlash ehtimoli (20%)
-        if random.random() < 0.20:
-            fail_text = (
-                "💥 <b>BOOOOOOOM!!!</b>\n\n"
-                "Siz qozon haroratini noto'g'ri sozladingiz yoki ingredientlarni teskari ketma-ketlikda soldingiz! "
-                "Qozoningiz qattiq g g'o'ldiradi va dahshatli kuch bilan portlab ketdi! 🪂\n\n"
-                "🧹 <i>Tezda buralib turgan quyuq tutunlar tarqalmasidan oldin darsxonani tozalang, Professor Sneyp ko'rib qolsa fakultetingizdan ochkoni ayovsiz chegirib tashlaydi!</i>"
-            )
-            bot.edit_message_text(fail_text, message.chat.id, msg.message_id)
-        else:
-            chosen_potion = random.choice(POTIONS_LIST)
-            success_text = (
-                f"🧪 <b>MA'JUN TAYYOR! (Muvaffaqiyatli dars)</b>\n\n"
-                f"Ehtiyotkorlik bilan aralashtirish va qat'iy qoidalarga rioya qilish natijasida siz mukammal "
-                f"<b>{chosen_potion['name']}</b> {chosen_potion['emoji']} tayyorlashga muvaffaq bo'ldingiz!\n\n"
-                f"📜 <b>Xususiyati:</b> {chosen_potion['desc']}\n\n"
-                f"✨ Professor Sneyp sizga norozi qarab qo'ydi, lekin ma'jun sifatiga e'tiroz bildira olmadi. Fakultetingizga +10 ball!"
-            )
-            bot.edit_message_text(success_text, message.chat.id, msg.message_id)
+    # Shaxsiy seansga tanlangan variantlar ballarini vaqtincha biriktirish
+    session["current_options"] = opts
+    
+    bot.send_message(user_id, f"🔮 <b>{q_data['q']}</b>", reply_markup=kb, parse_mode="HTML")
 
 # --- WELCOME (YANGI AZOLAR KELGANDA) ---
 @bot.message_handler(content_types=['new_chat_members'])
@@ -847,6 +997,101 @@ def handle_callbacks(callback):
     d = callback.data
     chat_id = callback.message.chat.id
     
+    # --- MA'JUN TAYYORLASH GURUH LOGIKASI ---
+    if d.startswith("pot_"):
+        _, g_id_str, idx_str = d.split("_")
+        g_id = int(g_id_str)
+        idx = int(idx_str)
+        
+        if g_id not in POTION_GAMES:
+            return bot.answer_callback_query(callback.id, "❌ Bu ma'jun darsi muddati o'tgan yoki yakunlangan!", show_alert=True)
+            
+        game = POTION_GAMES[g_id]
+        if callback.from_user.id != game["user_id"]:
+            return bot.answer_callback_query(callback.id, "🧙‍♂️ Bu darslik faqat /potion buyrug'ini bergan sehrgarga tegishli!", show_alert=True)
+            
+        chosen_item = game["pool"][idx]
+        if chosen_item in game["selected"]:
+            return bot.answer_callback_query(callback.id, "⚠️ Bu ingredient qozonga solingan!", show_alert=True)
+            
+        game["selected"].append(chosen_item)
+        current_step = len(game["selected"])
+        
+        # Ketma-ketlikni tekshirish
+        correct_needed = game["correct"][current_step - 1]
+        
+        if chosen_item != correct_needed:
+            # PORTLASH!
+            bot.answer_callback_query(callback.id, "💥 XATO INGREDIENT!", show_alert=False)
+            fail_text = (
+                f"💥 <b>BOOOOOOOOM!!!</b>\n\n"
+                f"{get_mention(callback.from_user)} qozonga noto'g'ri masalliq yoki ketma-ketlikni aralashtirib yubordi! "
+                f"Qozon dahshatli yashil nur bilan portlab ketdi! 🪂\n\n"
+                f"🧪 <b>Aslida nima solish kerak edi:</b> {', '.join(game['correct'])}\n"
+                f"🧹 <i>Professor Sneyp sizga g'azab bilan qaramoqda. Fakultetingizdan 15 ball chegirildi!</i>"
+            )
+            bot.edit_message_text(fail_text, g_id, callback.message.message_id, parse_mode="HTML")
+            POTION_GAMES.pop(g_id, None)
+            return
+            
+        if current_step == 3:
+            # G'ALABA MUVAFFAQIYATLI TAYYORLANDI
+            bot.answer_callback_query(callback.id, "✅ Muvaffaqiyatli bosqich!", show_alert=False)
+            success_text = (
+                f"🧪 <b>MUVAFFAQIYATLI MA'JUN! DARS TUGADI!</b>\n\n"
+                f"{get_mention(callback.from_user)} qat'iy qoidalarga rioya qilib, eng yuqori aniqlikda "
+                f"<b>{game['potion_name']}</b> {game['emoji']} tayyorlashga erishdi!\n\n"
+                f"📜 <b>Xususiyati:</b> {game['desc']}\n"
+                f"✨ <i>Professor Sneyp daftarga yozib qo'ydi: Fakultetingizga mukammal tayyorlov uchun +20 ball!</i>"
+            )
+            bot.edit_message_text(success_text, g_id, callback.message.message_id, parse_mode="HTML")
+            POTION_GAMES.pop(g_id, None)
+        else:
+            # Keyingi bosqich so'rovi
+            bot.answer_callback_query(callback.id, f"ingredient {current_step}/3 solindi", show_alert=False)
+            txt = (
+                f"🧪 {get_mention(callback.from_user)} <b>dorini tayyorlashda davom etmoqda...</b>\n"
+                f"Hozirgi holat: Jami 3 tadan {current_step} ta masalliq to'g'ri solindi.\n"
+                f"Ketma-ketlikni buzmang, keyingi to'g'ri masalliqni tanlang!"
+            )
+            # Inline klaviaturani qayta chiqarish (tanlanganlarni belgilash)
+            kb = types.InlineKeyboardMarkup(row_width=3)
+            for i, ing in enumerate(game["pool"]):
+                if ing in game["selected"]:
+                    kb.add(types.InlineKeyboardButton(f"📥 {ing}", callback_data="dummy"))
+                else:
+                    kb.add(types.InlineKeyboardButton(ing, callback_data=f"pot_{g_id}_{i}"))
+            bot.edit_message_text(txt, g_id, callback.message.message_id, reply_markup=kb, parse_mode="HTML")
+        return
+
+    # --- PATRONUS TESTI INLINE JAVOBLAR LOGIKASI ---
+    if d.startswith("pat_ans_"):
+        _, u_id_str, o_idx_str = d.split("_")
+        u_id = int(u_id_str)
+        o_idx = int(o_idx_str)
+        
+        if callback.from_user.id != u_id:
+            return bot.answer_callback_query(callback.id, "🧙‍♂️ Siz boshqa sehrgarning ongini o'qiy olmaysiz!", show_alert=True)
+            
+        if u_id not in PATRONUS_TEST_SESSIONS:
+            return bot.answer_callback_query(callback.id, "Test muddati yakunlangan.", show_alert=True)
+            
+        session = PATRONUS_TEST_SESSIONS[u_id]
+        chosen_opt = session["current_options"][o_idx]
+        
+        # Ballarni qo'shish
+        for k, val in chosen_opt["b"].items():
+            session["scores"][k] += val
+            
+        session["current_q"] += 1
+        bot.answer_callback_query(callback.id)
+        
+        try: bot.delete_message(u_id, callback.message.message_id)
+        except: pass
+        
+        send_patronus_question(u_id, u_id)
+        return
+
     if d == "get_all_books":
         bot.send_document(callback.message.chat.id, ALL_IN_ONE_BOOK["file_id"], caption=ALL_IN_ONE_BOOK["caption"])
         bot.answer_callback_query(callback.id)
@@ -855,7 +1100,7 @@ def handle_callbacks(callback):
     if d == "home":
         try: bot.delete_message(callback.message.chat.id, callback.message.message_id)
         except: pass
-        bot.send_message(callback.message.chat.id, "Xizmatlar:", reply_markup=main_menu())
+        bot.send_message(callback.message.chat.id, "📜 <b>Hogwarts minorasi xizmatlari qayta tiklandi:</b>", reply_markup=main_menu(), parse_mode="HTML")
         return
     
     if d in ["b_uz", "b_en", "m_uz", "m_ru", "m_en"]:
@@ -870,8 +1115,8 @@ def handle_callbacks(callback):
             for i, m in enumerate(MOVIES_RU): btn.add(types.InlineKeyboardButton(m["name"], callback_data=f"get_mru_{i}"))
         elif d == "m_en":
             for i, m in enumerate(MOVIES_EN): btn.add(types.InlineKeyboardButton(m["name"], callback_data=f"get_men_{i}"))
-        btn.add(types.InlineKeyboardButton("⬅️ Orqaga", callback_data="home"))
-        bot.edit_message_text("Tomni tanlang:", chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=btn)
+        btn.add(types.InlineKeyboardButton("⬅️ Bosh Menyu", callback_data="home"))
+        bot.edit_message_text("📖 <b>Kerakli tomni tanlang:</b>", chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=btn, parse_mode="HTML")
         return
 
     if d.startswith("get_"):
