@@ -133,30 +133,32 @@ def delete_after_delay(chat_id, message_id, delay=600):
     except:
         pass
 
-# --- JAZO TIZIMI (HOGWARTS QONUNLARIGA MOSLANGAN) ---
-@bot.message_handler(commands=["mute", "ban", "unmute", "unban"])
+# --- JAZO TIZIMI (HOGWARTS SEHRLI AFSUNLARI) ---
+@bot.message_handler(commands=["silencio", "avadakedavra", "finite", "revive"])
 def handle_punishment(message):
     sender = message.from_user
     mention_sender = get_mention(sender)
+    cmd = message.text.split()[0].lower()
 
+    # Shaxsiy chatda faqat asosiy admin (Jodu Vaziri) ishlata oladi
     if message.chat.type == 'private' and sender.id == ADMIN_ID:
-        cmd = message.text.split()[0]
-        args = message.text.replace(cmd, "").strip()
-        if cmd == "/ban" and args:
+        args = message.text.replace(message.text.split()[0], "").strip()
+        if cmd == "/avadakedavra" and args:
             banned = load_data(BANNED_FILE)
             if not isinstance(banned, list): banned = []
             banned.append(args)
             save_data(BANNED_FILE, list(set(banned)))
-            return bot.reply_to(message, f"🚫 <code>{args}</code> ID'li kishi qora sehrgarlikda ayblanib, botdan butunlay haydaldi!")
-        elif cmd == "/unban" and args:
+            return bot.reply_to(message, f"🚫 <code>{args}</code> ID'li shaxs qora sehrgarlikda ayblanib, Avada Kedavra jodusi bilan botdan butunlay yo'q qilindi!")
+        elif cmd == "/revive" and args:
             banned = load_data(BANNED_FILE)
             if args in banned:
                 banned.remove(args)
                 save_data(BANNED_FILE, banned)
-                return bot.reply_to(message, f"🕊 <code>{args}</code> Azkabandan ozod qilindi, unga ikkinchi imkoniyat berildi!")
+                return bot.reply_to(message, f"🕊 <code>{args}</code> tiriltirildi (Revive) va unga botdan qayta foydalanishga ruxsat berildi!")
 
     if message.chat.type == 'private': return
     
+    # Guruhda buyruq bergan odam admin/moderatorligini tekshirish
     try:
         sender_member = bot.get_chat_member(message.chat.id, sender.id)
         is_admin = sender_member.status in ['administrator', 'creator']
@@ -164,7 +166,7 @@ def handle_punishment(message):
         is_admin = False
     
     if not is_admin:
-        return bot.reply_to(message, f"🧙‍♂️ Kechirasiz {mention_sender}, siz hali oddiy o'quvchisiz! Bunday jiddiy sehrni faqat prefektlar yoki professorlar ishlata oladi! 🪄")
+        return bot.reply_to(message, f"🧙‍♂️ Kechirasiz {mention_sender}, siz hali oddiy o'quvchisiz! Bunday oliy darajali sehrlarni faqat professorlar ishlata oladi! 🪄")
 
     if not message.reply_to_message:
         return bot.reply_to(message, "⚠️ Afsun kuchga kirishi uchun uni biror sehrgarning xabariga (Reply) qaratishingiz kerak!")
@@ -189,22 +191,23 @@ def handle_punishment(message):
     bot_obj = bot.get_me()
 
     if is_target_admin or target.id == bot_obj.id:
-        return bot.reply_to(message, f"🧙‍♂️ {mention_sender}, boshqa bir prefekt yoki professorga qarshi duel e'lon qilish taqiqlangan! Hogwarts nizomiga amal qiling.")
+        return bot.reply_to(message, f"🧙‍♂️ {mention_sender}, boshqa bir professor yoki prefektga qarshi duel e'lon qilish taqiqlangan! Hogwarts nizomiga amal qiling.")
 
-    msg_text = message.text.split()
-    cmd = msg_text[0]
-    args = msg_text[1:]
+    args = message.text.split()[1:]
     
     try:
-        if cmd == "/ban":
+        # --- AVADA KEDAVRA (BAN) ---
+        if cmd == "/avadakedavra":
             bot.ban_chat_member(message.chat.id, target.id)
-            bot.send_message(message.chat.id, f"🚫 {mention_target} ⛓ Qora sehr va taqiqlangan joulardan foydalanganlikda ayblanib, <b>Azkaban qamoqxonasiga</b> ravona bo'ldi! Dementorlar uni nazorat qiladi.")
+            bot.send_message(message.chat.id, f"⚡️ <b>AVADA KEDAVRA!</b> \n\n{mention_target} yashil nur ichida g'oyib bo'ldi va Hogwarts guruhidan butunlay haydaldi! ⛓")
         
-        elif cmd == "/unban":
+        # --- REVIVE (UNBAN) ---
+        elif cmd == "/revive":
             bot.unban_chat_member(message.chat.id, target.id)
-            bot.send_message(message.chat.id, f"🕊 {mention_target} Azkaban mahbusligidan ozod etildi va Hogwarts darvozalari qayta ochildi!")
+            bot.send_message(message.chat.id, f"🕊 <b>REVIVE!</b> \n\n{mention_target} qayta tiriltirildi va guruh darvozalari unga yana ochildi!")
 
-        elif cmd == "/mute":
+        # --- SILENCIO (MUTE) ---
+        elif cmd == "/silencio":
             mute_time = 5
             reason = "Tartibni buzish"
             
@@ -219,12 +222,13 @@ def handle_punishment(message):
             until_date = int(time.time()) + (mute_time * 60)
             bot.restrict_chat_member(message.chat.id, target.id, until_date=until_date, 
                                      permissions=types.ChatPermissions(can_send_messages=False))
-            bot.send_message(message.chat.id, f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda sehr ishlata olmaydi (yaza olmaydi).\n📜 Sabab: {reason}")
+            bot.send_message(message.chat.id, f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}")
             
-        elif cmd == "/unmute":
+        # --- FINITE (UNMUTE) ---
+        elif cmd == "/finite":
             bot.restrict_chat_member(message.chat.id, target.id, 
                                      permissions=types.ChatPermissions(can_send_messages=True, can_send_audios=True, can_send_documents=True, can_send_photos=True, can_send_videos=True, can_send_video_notes=True, can_send_voice_notes=True, can_send_polls=True, can_send_other_messages=True, can_add_web_page_previews=True))
-            bot.send_message(message.chat.id, f"🔊 {mention_target} ustidagi <i>Silencio</i> afsuni yechildi. Endi gapirishi mumkin.")
+            bot.send_message(message.chat.id, f"🔊 <b>FINITE INCANTATEM!</b> \n\n{mention_target} ustidagi afsun yechildi. Shovqin solmasdan gapirishi mumkin.")
             
     except Exception as e:
         bot.reply_to(message, f"❌ Afsun amalga oshmadi, xatolik: {str(e)}")
