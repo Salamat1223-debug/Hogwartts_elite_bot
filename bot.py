@@ -188,7 +188,7 @@ def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("📚 Sehrli Kutubxona"), types.KeyboardButton("🎬 Kino Zali"))
     markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Ittifoqlar Saralashi"))
-    markup.add(types.KeyboardButton("🦄 Patronusni aniqlash"))
+    markup.add(types.KeyboardButton("🦄 Patronus aniqlash"))
     return markup
 
 def delete_after_delay(chat_id, message_id, delay=600):
@@ -857,8 +857,8 @@ def process_admin_and_text_replies(message):
         time.sleep(2.5)
         bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id, parse_mode="HTML")
 
-    # --- TASODIFIY PATRONUS CHIQARISH LOGIKASI (YANGILANDI) ---
-    elif text == "🦄 Patronusni aniqlash":
+    # --- TASODIFIY PATRONUS CHIQARISH LOGIKASI ---
+    elif text == "🦄 Patronus aniqlash":
         uid_str = str(message.from_user.id)
         p_data = load_data(PATRONUS_FILE)
         
