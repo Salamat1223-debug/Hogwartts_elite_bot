@@ -4,8 +4,8 @@ import os
 import random
 import time
 from threading import Thread
-import requests  # <-- O'z-o'zini uyg'otish so'rovlari uchun kerak
-from flask import Flask  # <-- Render o'chib qolmasligi uchun eng yengil veb-server
+import requests
+from flask import Flask
 import telebot
 from telebot import types
 
@@ -16,16 +16,21 @@ GROUP = "@SalamatPirjanov_chat"
 ADMIN_ID = 7821230725
 SHLYAPA_USER = "SalamatPirjanov"
 
-# Render sizga bergan havola (Bot o'zini o'zi uyg'otishi uchun)
 RENDER_URL = "https://hogwartts-elite-bot.onrender.com"
 
 logging.basicConfig(level=logging.INFO)
 bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
 
-# --- ADMIN STATUSLARI UCHUN ODDIY BAZA (FSM o'rniga) ---
 ADMIN_STATES = {}
 
-# --- MA'LUMOTLAR BAZASI ---
+# --- BAZA FAYLLARI ---
+HOUSES_FILE = "user_houses.json"
+GROUPS_FILE = "user_project_groups.json" # Loyiha guruhlari uchun yangi baza
+USERS_FILE = "users_list.json"
+WELCOME_FILE = "welcome_settings.json"
+BANNED_FILE = "banned_users.json"
+
+# --- KITOBLAR VA KINOLAR BAZASI ---
 ALL_IN_ONE_BOOK = {"name": "📚 Hammasi birda (1-7)", "file_id": "BQACAgIAAxkBAAIB62oRVNrnQW9Ia4hRFfc7SWea-3qyAAI0HwACIynpS2_wVwpElnx4OwQ", "caption": "📚 Garri Potter: Barcha qismlar (1-7) bitta faylda!\n\n📢 Kanal: @harry_potter_fans_uz"}
 
 BOOKS_UZ = [
@@ -90,13 +95,13 @@ HOUSES_DETAILS = {
     "Hufflepuff": {"emoji": "🦡", "kalit": "aql", "txt": "💭 E-eh, men ko'ryapman... \nSadoqat senda birinchi o'rinda. Mehnat qilishdan qo'rqmaysan, do'stlaring uchun joningni berishga tayyorsan."}
 }
 
-# --- BAZA FAYLLARI ---
-HOUSES_FILE = "user_houses.json"
-USERS_FILE = "users_list.json"
-WELCOME_FILE = "welcome_settings.json"
-BANNED_FILE = "banned_users.json"
-SCORES_FILE = "house_scores.json"  # <-- Fakultet ochkolari uchun yangi baza
+# --- LOYIHA GURUXLARI TAVSIFI ---
+PROJECT_GROUPS = {
+    "Feniks Jamiyati": {"emoji": "⚡️", "txt": "🕊 <b>Siz Feniks Jamiyatiga saralandingiz!</b>\nEzgulik va adolat yo'lida Albus Dumbledore boshchiligidagi yorug'lik kuchlari safiga qo'shildingiz. Loyihalarda yorqin kelajak uchun harakat qiling!"},
+    "Ajal Kasofatlari": {"emoji": "💀", "txt": "🔥 <b>Siz Ajal Kasofatlari safiga saralandingiz!</b>\nLord Voldemortning qora kuchlari va eng kuchli sehrgarlar ittifoqi. Buyuk maqsadlar va qudrat sening qo'lingda!"}
+}
 
+# --- METODLAR ---
 def load_data(file):
     if os.path.exists(file):
         try:
@@ -107,9 +112,8 @@ def load_data(file):
 def save_data(file, data):
     with open(file, "w") as f: json.dump(data, f, indent=4)
 
-# --- FUNKSIYALAR ---
-def get_mention(user):
-    return f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
+def get_mention(user_id, first_name):
+    return f"<a href='tg://user?id={user_id}'>{first_name}</a>"
 
 def check_sub(user_id):
     try:
@@ -117,45 +121,53 @@ def check_sub(user_id):
         m_gr = bot.get_chat_member(GROUP, user_id)
         valid = ['member', 'administrator', 'creator']
         return (m_ch.status in valid) and (m_gr.status in valid)
-    except Exception as e:
-        logging.error(f"Tekshiruvda xato: {e}")
+    except:
         return True
 
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("📚 Kitoblar"), types.KeyboardButton("🎬 Kinolar"))
-    markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"))
+    markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Saralash")) # Yangi menyu qo'shildi
     return markup
 
 def delete_after_delay(chat_id, message_id, delay=600):
     time.sleep(delay)
-    try:
-        bot.delete_message(chat_id, message_id)
-    except:
-        pass
+    try: bot.delete_message(chat_id, message_id)
+    except: pass
 
-# --- DUEL OCHKO FUNKSIYALARI ---
-def add_house_score(user_id, amount):
-    houses = load_data(HOUSES_FILE)
-    scores = load_data(SCORES_FILE)
+# --- 🎩 ADOLATLI FAKULTET TANLASH TIZIMI (BALANCED RANDOM) ---
+def get_balanced_house():
+    data = load_data(HOUSES_FILE)
     
-    # Fakultetlar dastlabki ochkolarini o'rnatish
-    for h in HOUSES_DETAILS.keys():
-        if h not in scores: scores[h] = 0
+    # Fakultetlardagi a'zolar sonini hisoblash
+    counts = {h: 0 for h in HOUSES_DETAILS.keys()}
+    for house in data.values():
+        if house in counts:
+            counts[house] += 1
             
-    user_house = houses.get(str(user_id))
-    if user_house and user_house in scores:
-        scores[user_house] += amount
-        if scores[user_house] < 0: scores[user_house] = 0  # Ochko minusga tushib ketmasligi uchun
-        save_data(SCORES_FILE, scores)
-        return user_house, scores[user_house]
-    return None, 0
+    # Eng kam a'zoga ega bo'lgan fakultetlarni aniqlash
+    min_count = min(counts.values())
+    candidates = [h for h, count in counts.items() if count == min_count]
+    
+    # Faqat kamchilik bor fakultetlar ichidan tasodifiy tanlaydi (Ravenclaw ko'payib ketmaydi)
+    return random.choice(candidates)
 
-# --- JAZO TIZIMI (HOGWARTS SEHRLI AFSUNLARI - VAZIRLIK USLUBIDA) ---
+# --- 🌀 ADOLATLI LOYIHA GURUHI TANLASH TIZIMI ---
+def get_balanced_project_group():
+    data = load_data(GROUPS_FILE)
+    counts = {g: 0 for g in PROJECT_GROUPS.keys()}
+    for group in data.values():
+        if group in counts:
+            counts[group] += 1
+    min_count = min(counts.values())
+    candidates = [g for g, count in counts.items() if count == min_count]
+    return random.choice(candidates)
+
+# --- PROFESSORLAR UCHUN BUYRUQLAR (SILENCIO, AVADAKEDAVRA) ---
 @bot.message_handler(commands=["silencio", "avadakedavra", "finite", "revive"])
 def handle_punishment(message):
     sender = message.from_user
-    mention_sender = get_mention(sender)
+    mention_sender = get_mention(sender.id, sender.first_name)
     cmd = message.text.split()[0].lower()
 
     if message.chat.type == 'private' and sender.id == ADMIN_ID:
@@ -165,388 +177,158 @@ def handle_punishment(message):
             if not isinstance(banned, list): banned = []
             banned.append(args)
             save_data(BANNED_FILE, list(set(banned)))
-            return bot.reply_to(message, f"🚫 <code>{args}</code> ID'li shaxs qora sehrgarlikda ayblanib, Avada Kedavra jodusi bilan botdan butunlay yo'q qilindi!")
+            return bot.reply_to(message, f"🚫 ID <code>{args}</code> Avada Kedavra bilan yo'q qilindi!")
         elif cmd == "/revive" and args:
             banned = load_data(BANNED_FILE)
             if args in banned:
                 banned.remove(args)
                 save_data(BANNED_FILE, banned)
-                return bot.reply_to(message, f"🕊 <code>{args}</code> tiriltirildi (Revive) va unga botdan qayta foydalanishga ruxsat berildi!")
+                return bot.reply_to(message, f"🕊 ID <code>{args}</code> tiriltirildi!")
 
     if message.chat.type == 'private': return
     
     try:
         sender_member = bot.get_chat_member(message.chat.id, sender.id)
         is_admin = sender_member.status in ['administrator', 'creator']
-    except:
-        is_admin = False
+    except: is_admin = False
     
     is_vazir = (sender.id == ADMIN_ID)
-    
-    if not is_admin and not is_vazir:
-        return bot.reply_to(message, f"🧙‍♂️ Kechirasiz {mention_sender}, siz hali oddiy o'quvchisiz! Bunday oliy darajali sehrlarni faqat professorlar ishlata oladi! 🪄")
+    if not is_admin and not is_vazir: return bot.reply_to(message, f"🧙‍♂️ Kechirasiz {mention_sender}, siz hali o'quvchisiz!")
 
-    if not message.reply_to_message:
-        return bot.reply_to(message, "⚠️ Afsun kuchga kirishi uchun uni biror sehrgarning xabariga (Reply) qaratishingiz kerak!")
+    if not message.reply_to_message: return bot.reply_to(message, "⚠️ Afsun uchun biror xabarga Reply qiling!")
 
     target = message.reply_to_message.from_user
-    mention_target = get_mention(target)
+    mention_target = get_mention(target.id, target.first_name)
     
     if target.id == ADMIN_ID:
-        return bot.reply_to(
-            message, 
-            f"🛡 <b>PROTEGO HORRIBILIS!</b> \n\n{mention_sender}, siz hozirgina <b>Jodu Vazirining</b> shaxsan o'ziga qarshi afsun ishlatishga urindingiz! "
-            f"Sizning ojiz afsuningiz vazirlikning qadimiy daxlsiz himoya qalqoniga urilib, dahshatli kuch bilan o'zingizga qaytdi! ⚡️"
-        )
+        return bot.reply_to(message, f"🛡 <b>PROTEGO HORRIBILIS!</b> \n\nJodu Vaziriga afsun qaytib ketdi! ⚡️")
 
     try:
         target_member = bot.get_chat_member(message.chat.id, target.id)
         is_target_admin = target_member.status in ['administrator', 'creator']
-    except:
-        is_target_admin = False
-        
-    bot_obj = bot.get_me()
+    except: is_target_admin = False
 
-    if (is_target_admin or target.id == bot_obj.id) and not is_vazir:
-        return bot.reply_to(message, f"🧙‍♂️ {mention_sender}, boshqa bir professor yoki prefektga qarshi duel e'lon qilish taqiqlangan! Hogwarts nizomiga amal qiling.")
+    if (is_target_admin or target.id == bot.get_me().id) and not is_vazir:
+        return bot.reply_to(message, f"🧙‍♂️ Professorga qarshi borib bo'lmaydi!")
 
     args = message.text.split()[1:]
-    
     try:
         if cmd == "/avadakedavra":
             bot.ban_chat_member(message.chat.id, target.id)
-            if is_vazir:
-                txt = f"⚖️ <b>SEHRGARLAR VAZIRLIGI OLIY FARMONI!</b>\n\n🦅 Shaxsan <b>Jodu Vazirining</b> muhrlangan buyrug'iga binoan, {mention_target} qora sehrgarlikda va tartibni buzishda ayblanib, daxshatli <b>AVADA KEDAVRA</b> afsuni ostida yashil nur ichida yo'q qilindi va Hogwarts guruhidan abadiy badarg'a etildi! ⛓⚡️"
-            else:
-                txt = f"⚡️ <b>AVADA KEDAVRA!</b> \n\n{mention_target} yashil nur ichida g'oyib bo'ldi va Hogwarts guruhidan butunlay haydaldi! ⛓"
-            bot.send_message(message.chat.id, txt)
-        
+            bot.send_message(message.chat.id, f"⚡️ <b>AVADA KEDAVRA!</b>\n\n{mention_target} guruhdan butunlay haydaldi! ⛓")
         elif cmd == "/revive":
             bot.unban_chat_member(message.chat.id, target.id)
-            if is_vazir:
-                txt = f"📜 <b>SEHRGARLAR VAZIRLIGI AFV ETISH BAYONOTI!</b>\n\n🕊 <b>Jodu Vazirining</b> daxlsiz rahm-shafqati bilan, {mention_target} ustidagi barcha qora sehrlar olib tashlandi! <b>REVIVE</b> afsuni kuchga kirdi va Hogwarts darvozalari u uchun qayta ochildi! ✨"
-            else:
-                txt = f"🕊 <b>REVIVE!</b> \n\n{mention_target} qayta tiriltirildi va guruh darvozalari unga yana ochildi!"
-            bot.send_message(message.chat.id, txt)
-
+            bot.send_message(message.chat.id, f"🕊 <b>REVIVE!</b>\n\n{mention_target} darvozalari qayta ochildi!")
         elif cmd == "/silencio":
             mute_time = 5
-            reason = "Tartibni buzish"
-            if args:
-                if args[0].isdigit():
-                    mute_time = int(args[0])
-                    if len(args) > 1: reason = " ".join(args[1:])
-                else: reason = " ".join(args)
-            
+            if args and args[0].isdigit(): mute_time = int(args[0])
             until_date = int(time.time()) + (mute_time * 60)
             bot.restrict_chat_member(message.chat.id, target.id, until_date=until_date, permissions=types.ChatPermissions(can_send_messages=False))
-            
-            if is_vazir:
-                txt = f"🤫 <b>VAZIRLIKNING MAXFIY SILENCIO BUYRUG'I!</b>\n\n🙊 Jodu Vazirining buyrug'iga asosan {mention_target}ning ovozi mutloq o'chirildi! U <b>{mute_time} daqiqa</b> davomida Sehrgarlar dunyosida og'iz ocha olmaydi!\n📜 <b>Vazir ko'rsatgan sabab:</b> <i>{reason}</i>"
-            else:
-                txt = f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}"
-            bot.send_message(message.chat.id, txt)
-            
+            bot.send_message(message.chat.id, f"🙊 <b>SILENCIO!</b>\n\n{mention_target} {mute_time} daqiqaga ovozsizlandi.")
         elif cmd == "/finite":
-            bot.restrict_chat_member(message.chat.id, target.id, permissions=types.ChatPermissions(can_send_messages=True, can_send_audios=True, can_send_documents=True, can_send_photos=True, can_send_videos=True, can_send_video_notes=True, can_send_voice_notes=True, can_send_polls=True, can_send_other_messages=True, can_add_web_page_previews=True))
-            if is_vazir:
-                txt = f"🔊 <b>FINITE INCANTATEM! (VAZIRLIK AFVI)</b>\n\n⚡️ Jodu Vazirining oliy irodasi bilan {mention_target} ustidagi cheklovlar bekor qilindi. Sadoqat bilan so'zlashga ruxsat berildi!"
-            else:
-                txt = f"🔊 <b>FINITE INCANTATEM!</b> \n\n{mention_target} ustidagi afsun yechildi. Shovqin solmasdan gapirishi mumkin."
-            bot.send_message(message.chat.id, txt)
-            
+            bot.restrict_chat_member(message.chat.id, target.id, permissions=types.ChatPermissions(can_send_messages=True, can_send_audios=True, can_send_documents=True, can_send_photos=True, can_send_videos=True, can_send_video_notes=True, can_send_voice_notes=True, can_send_polls=True, can_send_other_messages=True))
+            bot.send_message(message.chat.id, f"🔊 <b>FINITE INCANTATEM!</b>\n\n{mention_target} cheklovlari olib tashlandi.")
     except Exception as e:
-        bot.reply_to(message, f"❌ Afsun amalga oshmadi, xatolik: {str(e)}")
+        bot.reply_to(message, f"❌ Xato: {str(e)}")
 
-# --- ⚔️ HOGWARTS DUEL KLUBI (GURUH UCHUN MAXSUS O'YIN) ---
-@bot.message_handler(commands=["duel"])
-def initiate_duel(message):
-    if message.chat.type == 'private':
-        return bot.reply_to(message, "🏰 Yosh sehrgar, duellar faqat Hogwarts Katta Zalida (ya'ni guruhda) o'tkaziladi! Shaxsiy xonada duel taqiqlangan.")
-
-    sender = message.from_user
-    houses = load_data(HOUSES_FILE)
-
-    # Shlyapadan o'tganini tekshirish
-    if str(sender.id) not in houses:
-        return bot.reply_to(message, "⚠️ Duelga kirishdan oldin bot shaxsiyida 🎩 <b>Saralovchi shlyapa</b> orqali fakultetingizni aniqlashingiz shart!")
-
-    if not message.reply_to_message:
-        return bot.reply_to(message, "⚔️ Duelga chorlash uchun biror sehrgarning xabariga (Reply) qaratib <code>/duel</code> buyrug'ini yuboring!")
-
-    target = message.reply_to_message.from_user
-    
-    if target.id == sender.id:
-        return bot.reply_to(message, "🧙‍♂️ O'z-o'zingizga afsun yo'llay olmaysiz! Bu girt telbalik.")
-    
-    if target.is_bot:
-        return bot.reply_to(message, "🤖 Botlar sehrli tayoqchaga ega emas, ularga duel e'lon qilib bo'lmaydi!")
-
-    if str(target.id) not in houses:
-        return bot.reply_to(message, f"⚠️ {get_mention(target)} hali o'z fakultetini aniqlamagan! Uni duelga chorlab bo'lmaydi.")
-
-    s_house = houses[str(sender.id)]
-    t_house = houses[str(target.id)]
-    s_emoji = HOUSES_DETAILS[s_house]["emoji"]
-    t_emoji = HOUSES_DETAILS[t_house]["emoji"]
-
-    btn = types.InlineKeyboardMarkup().add(
-        types.InlineKeyboardButton("⚔️ Duelni Qabul Qilish", callback_data=f"accept_{sender.id}_{target.id}")
-    )
-    
-    txt = (
-        f"⚡️ <b>DUEL KLUBI CHAQIRIG'I!</b> ⚡️\n\n"
-        f"{s_emoji} <b>{s_house}</b> fakultetidan {get_mention(sender)} sehrli tayoqchasini chiqarib, "
-        f"{t_emoji} <b>{t_house}</b> fakulteti a'zosi {get_mention(target)}ga qarshi duel e'lon qildi!\n\n"
-        f"⏳ Raqib, tayoqchangni tayyorla va quyidagi tugmani bos!"
-    )
-    bot.send_message(message.chat.id, txt, reply_markup=btn)
-
-# --- DUEL JARAONI FUNKSIYASI (ALOHIDA OQIM) ---
-def execute_duel_rounds(chat_id, s_user, t_user):
-    houses = load_data(HOUSES_FILE)
-    s_house = houses[str(s_user.id)]
-    t_house = houses[str(t_user.id)]
-    s_emoji = HOUSES_DETAILS[s_house]["emoji"]
-    t_emoji = HOUSES_DETAILS[t_house]["emoji"]
-
-    msg = bot.send_message(chat_id, f"🪄 <b>Duelyantlar joylarini egallashdi. Duel boshlanmoqda...</b>")
-    time.sleep(2)
-
-    hujum_sehrlari = ["Expelliarmus", "Stupefy", "Sectumsempra", "Crucio", "Impedimenta"]
-    himoya_sehrlari = ["Protego", "Evanesco", "Avis"]
-
-    s_wins = 0
-    t_wins = 0
-
-    for round_num in range(1, 4):
-        bot.edit_message_text(f"⚔️ <b>{round_num}-RAUND BOSHLANDI!</b>\n\nTayyorlaning...", chat_id, msg.message_id)
-        time.sleep(2)
-
-        # Tasodifiy kim hujum qilishi
-        attacker = random.choice([s_user, t_user])
-        defender = t_user if attacker == s_user else s_user
-        
-        att_emoji = s_emoji if attacker == s_user else t_emoji
-        def_emoji = t_emoji if attacker == s_user else s_emoji
-
-        sehr = random.choice(hujum_sehrlari)
-        omad = random.choice(["hit", "blocked", "missed"])
-
-        if omad == "hit":
-            round_txt = f"🔴 <b>{round_num}-Raund natijasi:</b>\n\n{att_emoji} {get_mention(attacker)} shiddat bilan tayoqchasini siltadi va <b>\"{sehr}!\"</b> afsunini yo'lladi! {def_emoji} {get_mention(defender)} himoyalanishga ulgurmadi va daxshatli zarbaga uchradi! 🔥"
-            if attacker == s_user: s_wins += 1
-            else: t_wins += 1
-        elif omad == "blocked":
-            def_sehr = random.choice(himoya_sehrlari)
-            round_txt = f"🔵 <b>{round_num}-Raund natijasi:</b>\n\n{att_emoji} {get_mention(attacker)} raqibiga <b>\"{sehr}!\"</b> afsunini otdi! Biroq {def_emoji} {get_mention(defender)} daxshatli tezlikda <b>\"{def_sehr}!\"</b> himoya qalqonini qo'yib, zarbani qaytardi! 🛡️"
-        else:
-            round_txt = f"🟡 <b>{round_num}-Raund natijasi:</b>\n\n{att_emoji} {get_mention(attacker)} bor kuchi bilan <b>\"{sehr}!\"</b> deb baqirdi, ammo uning tayoqchasi sirg'alib afsun nishonga tegmasdan havoga uchib ketdi! 💨"
-
-        bot.edit_message_text(round_txt, chat_id, msg.message_id)
-        time.sleep(3.5)
-
-    # G'olibni aniqlash
-    if s_wins > t_wins:
-        winner, loser = s_user, t_user
-        w_house, l_house = s_house, t_house
-        w_emoji, l_emoji = s_emoji, t_emoji
-    elif t_wins > s_wins:
-        winner, loser = t_user, s_user
-        w_house, l_house = t_house, s_house
-        w_emoji, l_emoji = t_emoji, s_emoji
-    else:
-        # Durang bo'lsa tasodifiy g'olib (sehrgarlikda baribir kimdir yutadi)
-        winner, loser = random.choice([(s_user, t_user), (t_user, s_user)])
-        w_house = houses[str(winner.id)]
-        l_house = houses[str(loser.id)]
-        w_emoji = s_emoji if winner == s_user else t_emoji
-        l_emoji = t_emoji if winner == s_user else s_emoji
-
-    # Ochkolarni hisoblash
-    w_h_name, w_score = add_house_score(winner.id, 10)
-    l_h_name, l_score = add_house_score(loser.id, -5)
-
-    final_txt = (
-        f"🏆 <b>DUEL YAKUNLANDI!</b> 🏆\n\n"
-        f"Shafqatsiz jangda {w_emoji} <b>{get_mention(winner)}</b> g'olib chiqdi! Uning munosib harakatlari uchun {w_emoji} <b>{w_house}</b> fakultetiga <b>+10 ochko</b> taqdim etildi!\n\n"
-        f"Mag'lub: {l_emoji} {get_mention(loser)} ({l_house} <b>-5 ochko</b> yo'qotdi!)\n\n"
-        f"⛓ <i>Mag'lub bo'lgan sehrgarning tayoqchasi shikastlangani sababli, u 1 daqiqaga ovoz o'chirish (Silencio) afsuni ostida qoladi!</i>"
-    )
-    bot.send_message(chat_id, final_txt)
-    
-    # Yutqazgan odamni 1 daqiqaga mute qilish (Adolat tarozisi)
-    try:
-        until_date = int(time.time()) + 60
-        bot.restrict_chat_member(chat_id, loser.id, until_date=until_date, permissions=types.ChatPermissions(can_send_messages=False))
-    except:
-        pass
-
-# --- 📜 VAZIRLIK NIZOMI VA REYTING ---
-@bot.message_handler(commands=["nizom", "duel_nizomi"])
-def duel_rules(message):
-    txt = (
-        f"📜 <b>SEHRGARLAR VAZIRLIGI TOMONIDAN TASDIQLANGAN DUEL NIZOMI</b> 📜\n\n"
-        f"1. Guruhda istalgan a'zoning xabariga <b>Reply</b> qilib <code>/duel</code> yozish orqali uni jangga chorlash mumkin.\n"
-        f"2. Duelda ishtirok etish uchun ikkala sehrgar ham shaxsiy chatda 🎩 <b>Saralovchi shlyapa</b>dan o'tgan bo'lishi shart.\n"
-        f"3. Duel 3 ta tasodifiy raunddan iborat bo'ladi va har bir raund daxshatli afsunlar bilan kechadi.\n"
-        f"4. G'olib sehrgarning fakultetiga <b>+10 ochko</b> qo'shiladi, mag'lubdan esa <b>-5 ochko</b> chegiriladi.\n"
-        f"5. Mag'lub bo'lgan sehrgarning tayoqchasi singani sababli bot tomonidan 1 daqiqaga shovqin ko'tarmaslik (<b>Silencio</b>) jazosi beriladi.\n\n"
-        f"🏆 Amaldagi reytingni ko'rish buyrug'i: <code>/reyting</code>"
-    )
-    bot.reply_to(message, txt)
-
-@bot.message_handler(commands=["reyting"])
-def show_reyting(message):
-    scores = load_data(SCORES_FILE)
-    
-    # Bo'sh bo'lsa nollash
-    for h in HOUSES_DETAILS.keys():
-        if h not in scores: scores[h] = 0
-            
-    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    
-    txt = f"🏆 <b>HOGWARTS FAKULTETLAR KUBOGI REYTINGI</b> 🏆\n\n"
-    for idx, (house, score) in enumerate(sorted_scores, 1):
-        emoji = HOUSES_DETAILS[house]["emoji"]
-        txt += f"{idx}. {emoji} <b>{house}</b>: {score} ochko\n"
-        
-    txt += f"\n🪄 <i>Navbatdagi duel guruh va fakultetlar taqdirini o'zgartirishi mumkin! O'z fakultetingiz uchun kurashing!</i>"
-    bot.reply_to(message, txt)
-
-# --- START VA TEKSHIRISH ---
+# --- START VA KUTIB OLISH ---
 @bot.message_handler(commands=["start"])
 def start_cmd(message):
     user = message.from_user
-    
     if message.chat.type != 'private':
-        bot_info = bot.get_me()
-        btn = types.InlineKeyboardMarkup().add(
-            types.InlineKeyboardButton("🏰 Shaxsiy chatga o'tish", url=f"https://t.me/{bot_info.username}?start=start")
-        )
-        txt = (
-            f"Hurmatli yosh sehrgar {get_mention(user)}! ⚡\n\n"
-            "Sehrli menyulardan foydalanish uchun men bilan <b>shaxsiy chatda</b> suhbatlashishingizni so'rayman. "
-            "Katta Zalda shovqin ko'tarmaslik uchun shaxsiy xonaga o'tamiz! 🤫"
-        )
-        return bot.reply_to(message, txt, reply_markup=btn)
-
+        btn = types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("🏰 Shaxsiy chatga o'tish", url=f"https://t.me/{bot.get_me().username}?start=start"))
+        return bot.reply_to(message, f"Salom {get_mention(user.id, user.first_name)}! Shaxsiyga o'tamiz!", reply_markup=btn)
+    
     banned = load_data(BANNED_FILE)
-    if str(user.id) in str(banned):
-        return bot.send_message(message.chat.id, "Siz Azkabandagi mahbus kabi botdan chetlatilgansiz! Dementorlar yaqinlashmoqda... ⛓")
+    if str(user.id) in str(banned): return bot.send_message(message.chat.id, "Siz Azkabandasiz! ⛓")
 
     users = load_data(USERS_FILE)
     if str(user.id) not in users:
         users[str(user.id)] = user.first_name
         save_data(USERS_FILE, users)
 
-    is_subscribed = check_sub(user.id)
-    if not is_subscribed:
+    if not check_sub(user.id):
         btn = types.InlineKeyboardMarkup(row_width=1).add(
             types.InlineKeyboardButton("📢 Vazirlik Kanali", url=f"https://t.me/{CHANNEL[1:]}"),
             types.InlineKeyboardButton("👥 Hogwarts Guruhi", url=f"https://t.me/{GROUP[1:]}"),
             types.InlineKeyboardButton("✅ Aloqani tekshirish", callback_data="recheck_sub")
         )
-        txt = f"Xush kelibsan, yosh sehrgar {get_mention(user)}! ⚡\n\nHogwarts darvozalari ochilishi uchun avval quyidagi guruh va kanalda qayddan o'tishingiz kerak. Aks holda, Platforma 9 ¾ ga kira olmaysiz va poyezd ketib qoladi! 🚂"
-        return bot.send_message(message.chat.id, txt, reply_markup=btn)
+        return bot.send_message(message.chat.id, "🚂 Platforma 9 ¾ ga kirish uchun guruh va kanalga a'zo bo'ling!", reply_markup=btn)
     
-    welcome_txt = (
-        f"Salom, {get_mention(user)}! Hogwartsga xush kelibsiz! ✨\n\n"
-        "Men sizga eng nodir sehrli kitoblar va kinolarni topishda yordam beraman. "
-        "Agar hali qaysi fakultetda o'qishingizni bilmasangiz, Saralovchi shlyapa buyrug'ingizga muntazir! 🎩"
-    )
-    bot.send_message(message.chat.id, welcome_txt, reply_markup=main_menu())
+    bot.send_message(message.chat.id, "Hogwartsga xush kelibsiz! ✨", reply_markup=main_menu())
 
 @bot.callback_query_handler(func=lambda c: c.data == "recheck_sub")
 def recheck_callback(callback):
-    is_subscribed = check_sub(callback.from_user.id)
-    if is_subscribed:
+    if check_sub(callback.from_user.id):
         try: bot.delete_message(callback.message.chat.id, callback.message.message_id)
         except: pass
-        welcome_txt = f"Ajoyib! Sehrli olam eshiklari siz uchun ochildi, marhamat {get_mention(callback.from_user)}! ✨"
-        bot.send_message(callback.message.chat.id, welcome_txt, reply_markup=main_menu())
+        bot.send_message(callback.message.chat.id, "Sehrli olam eshiklari ochildi! ✨", reply_markup=main_menu())
     else:
-        bot.answer_callback_query(callback.id, "Siz hali ham barcha shartlarni bajarmadingiz! Shoshiling, poyezd yo'lga tushmoqda! 🚂", show_alert=True)
+        bot.answer_callback_query(callback.id, "Shartlarni bajarmadingiz! 🚂", show_alert=True)
 
-# --- ADMIN FUNKSIYALARI ---
+# --- ADMIN PANEL BUYRUQLARI ---
 @bot.message_handler(commands=["getid"])
 def get_file_id(message):
     if message.from_user.id != ADMIN_ID: return
-    bot.reply_to(message, "Sehrgar xo'jayin, menga istalgan artefaktni (fayl) yuboring, men uning yashirin kodini (FILE_ID) o'qib beraman:")
+    bot.reply_to(message, "Fayl yuboring, ID sini o'qib beraman:")
     ADMIN_STATES[message.from_user.id] = "waiting_for_file"
 
 @bot.message_handler(commands=["setwelcome"])
 def set_welcome_start(message):
     if message.from_user.id != ADMIN_ID: return
-    bot.reply_to(message, "Katta Zalda yangi talabalarni kutib olish uchun xabarnoma yuboring (Ism o'rniga {name} yozing):")
+    bot.reply_to(message, "Kutib olish matnini yuboring ({name} ism o'rniga):")
     ADMIN_STATES[message.from_user.id] = {"state": "waiting_for_welcome_text"}
-
-@bot.message_handler(commands=["admins"])
-def admin_panel(message):
-    if message.from_user.id != ADMIN_ID: return
-    txt = ("🧙‍♂️ <b>Jodu Vaziri Paneli:</b>\n\n/send - Barcha sehrgarlarga bayonot (reklama)\n/getid - Artefakt ID sini olish\n/setwelcome - Kutib olishni sozlash\n/ban [ID] - Botdan butunlay haydash")
-    bot.send_message(message.chat.id, txt)
 
 @bot.message_handler(commands=["send"])
 def ad_start(message):
     if message.from_user.id != ADMIN_ID: return
-    bot.reply_to(message, "Barcha talabalarga yuboriladigan sehrli xabarni kiriting:")
+    bot.reply_to(message, "Reklama xabarini yuboring:")
     ADMIN_STATES[message.from_user.id] = "waiting_for_ad"
 
-# --- MATNLAR VA MULTIMEDIA ISHLOVCHI ---
+# --- ASOSIY TEXT HANDLER (MULTIMEDIA + YANGI MENYU) ---
 @bot.message_handler(content_types=['text', 'photo', 'video', 'document', 'audio', 'voice'])
-def process_admin_and_text_replies(message):
+def process_text_replies(message):
     uid = message.from_user.id
     text = message.text
 
+    # Admin boshqaruv holatlari
     if uid == ADMIN_ID and uid in ADMIN_STATES:
         state_data = ADMIN_STATES[uid]
-        
         if state_data == "waiting_for_file":
             f_id = None
             if message.photo: f_id = message.photo[-1].file_id
             elif message.video: f_id = message.video.file_id
             elif message.document: f_id = message.document.file_id
             elif message.audio: f_id = message.audio.file_id
-            elif message.voice: f_id = message.voice.file_id
-            
             if f_id: bot.send_message(message.chat.id, f"<code>{f_id}</code>")
-            else: bot.send_message(message.chat.id, "Artefakt ichida kod topilmadi.")
             ADMIN_STATES.pop(uid, None)
             return
-
         elif state_data == "waiting_for_ad":
             users = load_data(USERS_FILE)
             count = 0
             for u in users:
-                try:
-                    bot.copy_message(u, message.chat.id, message.message_id)
-                    count += 1
+                try: bot.copy_message(u, message.chat.id, message.message_id); count += 1
                 except: pass
-            bot.send_message(message.chat.id, f"✅ Sehrli bayonot {count} ta sehrgarga yetkazildi.")
+            bot.send_message(message.chat.id, f"✅ Yuborildi: {count}")
             ADMIN_STATES.pop(uid, None)
             return
-
         elif isinstance(state_data, dict) and state_data.get("state") == "waiting_for_welcome_text":
             if message.text:
                 ADMIN_STATES[uid] = {"state": "waiting_for_welcome_media", "txt": message.text}
-                bot.reply_to(message, "Ajoyib! Endi kutib olish vizual ko'rinishi uchun media (rasm yoki video) yuboring yoki 'yo'q' deb yozing:")
+                bot.reply_to(message, "Endi rasm/video yuboring yoki 'yo'q' deb yozing:")
             return
-
         elif isinstance(state_data, dict) and state_data.get("state") == "waiting_for_welcome_media":
             welcome_db = load_data(WELCOME_FILE)
-            cid = str(message.chat.id)
             f_id, f_type = None, "text"
-            
             if message.photo: f_id, f_type = message.photo[-1].file_id, "photo"
             elif message.video: f_id, f_type = message.video.file_id, "video"
-
-            welcome_db[cid] = {"text": state_data['txt'], "f_id": f_id, "f_type": f_type}
+            welcome_db[str(message.chat.id)] = {"text": state_data['txt'], "f_id": f_id, "f_type": f_type}
             save_data(WELCOME_FILE, welcome_db)
-            bot.send_message(message.chat.id, "✅ Katta Zal uchun yangi talabalarni kutib olish tizimi sozlandi!")
+            bot.send_message(message.chat.id, "✅ Sozlandi!")
             ADMIN_STATES.pop(uid, None)
             return
 
+    # Multimedia tugmalari
     if text == "📚 Kitoblar":
         btn = types.InlineKeyboardMarkup(row_width=2).add(
             types.InlineKeyboardButton("📚 Hammasi birda (1-7)", callback_data="get_all_books"),
@@ -568,81 +350,74 @@ def process_admin_and_text_replies(message):
     elif text == "🎩 Saralovchi shlyapa":
         uid_str = str(message.from_user.id)
         data = load_data(HOUSES_FILE)
-        if uid_str not in data:
-            data[uid_str] = random.choice(list(HOUSES_DETAILS.keys()))
-            save_data(HOUSES_FILE, data)
         
-        h = HOUSES_DETAILS[data[uid_str]]
+        if uid_str not in data:
+            # Haqiqiy tasodifiy va muvozanatlashgan fakultet aniqlanadi
+            selected_house = get_balanced_house()
+            data[uid_str] = selected_house
+            save_data(HOUSES_FILE, data)
+            
+        chosen = data[uid_str]
+        h = HOUSES_DETAILS[chosen]
+        
         msg = bot.send_message(message.chat.id, "🧐 <b>Shlyapa ko'zlaringizga tikilib o'ylamoqda...</b>")
-        time.sleep(2)
+        time.sleep(1.2)
         
         final_text = (
             f"{h['txt']}\n\n✨ <b>Hamma narsa ayon!</b> ✨\n\n"
-            f"Siz munosib bo'lgan fakultet: {h['emoji']} <b>{data[uid_str]}</b>\n"
+            f"Siz munosib bo'lgan fakultet: {h['emoji']} <b>{chosen}</b>\n"
             f"🔑 Kirish afsuni (kalit so'z): <code>{h['kalit']}</code>\n\n"
             f"Fakultet guruhiga kirish uchun afsun so'zini Shlyapaga yuboring 👇"
         )
-        shlyapa_btn = types.InlineKeyboardMarkup().add(
-            types.InlineKeyboardButton("🎩 Shlyapaga borish", url=f"https://t.me/{SHLYAPA_USER}")
-        )
+        shlyapa_btn = types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("🎩 Shlyapaga borish", url=f"https://t.me/{SHLYAPA_USER}"))
         bot.edit_message_text(final_text, message.chat.id, msg.message_id, reply_markup=shlyapa_btn)
 
-# --- WELCOME (YANGI AZOLAR KELGANDA) ---
+    # --- 🌀 YANGI: SARALASH LOYIHA GURUHI TIZIMI ---
+    elif text == "🌀 Saralash":
+        uid_str = str(message.from_user.id)
+        g_data = load_data(GROUPS_FILE)
+        
+        # Foydalanuvchi allaqachon saralangan bo'lsa
+        if uid_str in g_data:
+            current_g = g_data[uid_str]
+            g_info = PROJECT_GROUPS[current_g]
+            return bot.reply_to(message, f"🧙‍♂️ Yosh sehrgar! Siz allaqachon loyiha guruhingizni tanlangansiz:\n\n{g_info['emoji']} <b>{current_g}</b>")
+        
+        # Yangi foydalanuvchini teng taqsimot bilan guruhga kiritish
+        selected_group = get_balanced_project_group()
+        g_data[uid_str] = selected_group
+        save_data(GROUPS_FILE, g_data)
+        
+        g_info = PROJECT_GROUPS[selected_group]
+        
+        msg = bot.send_message(message.chat.id, "🔮 <b>Kelajak ko'zgusi loyihalar uchun ittifoqlarni tahlil qilmoqda...</b>")
+        time.sleep(1.5)
+        
+        bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id)
+
+# --- NEW CHAT MEMBER ---
 @bot.message_handler(content_types=['new_chat_members'])
 def on_new_member(message):
     data = load_data(WELCOME_FILE)
     cid = str(message.chat.id)
-    bot_info = bot.get_me()
-    
     btn = types.InlineKeyboardMarkup(row_width=2).add(
         types.InlineKeyboardButton("📢 Vazirlik Kanali", url=f"https://t.me/{CHANNEL[1:]}"),
-        types.InlineKeyboardButton("🎩 Fakultetni aniqlash", url=f"https://t.me/{bot_info.username}?start=sorting")
+        types.InlineKeyboardButton("🎩 Fakultetni aniqlash", url=f"https://t.me/{bot.get_me().username}?start=sorting")
     )
-    
     for user in message.new_chat_members:
-        mention = get_mention(user)
+        mention = get_mention(user.id, user.first_name)
         if cid in data:
             conf = data[cid]
             cap = conf['text'].replace("{name}", mention)
-            if conf['f_type'] == "photo": 
-                m = bot.send_photo(cid, conf['f_id'], caption=cap, reply_markup=btn)
-            elif conf['f_type'] == "video": 
-                m = bot.send_video(cid, conf['f_id'], caption=cap, reply_markup=btn)
-            else: 
-                m = bot.send_message(cid, cap, reply_markup=btn)
-            
+            if conf['f_type'] == "photo": m = bot.send_photo(cid, conf['f_id'], caption=cap, reply_markup=btn)
+            elif conf['f_type'] == "video": m = bot.send_video(cid, conf['f_id'], caption=cap, reply_markup=btn)
+            else: m = bot.send_message(cid, cap, reply_markup=btn)
             Thread(target=delete_after_delay, args=(message.chat.id, m.message_id, 600)).start()
 
-# --- CALLBACK TUGMALARIGA ISHLOV BERISH ---
+# --- OTHER CALLBACK QUERIES ---
 @bot.callback_query_handler(func=lambda c: True)
-def handle_callbacks(callback):
+def handle_all_callbacks(callback):
     d = callback.data
-    
-    # ⚔️ DUELNI QABUL QILISH MANTIQI
-    if d.startswith("accept_"):
-        _, s_id, t_id = d.split("_")
-        s_id = int(s_id)
-        t_id = int(t_id)
-        
-        # Faqat chaqirilgan odam qabul qila olishi sharti
-        if callback.from_user.id != t_id:
-            return bot.answer_callback_query(callback.id, "🧙‍♂️ Sizni duelga chaqirishmagan! O'zgalar jangiga aralashmang.", show_alert=True)
-            
-        try:
-            bot.delete_message(callback.message.chat.id, callback.message.message_id)
-        except:
-            pass
-            
-        # Duelyantlar ob'ektini olish
-        try:
-            s_user = bot.get_chat_member(callback.message.chat.id, s_id).user
-            t_user = callback.from_user
-            
-            # Duelni alohida oqimda (Thread) boshlash (time.sleep guruhni qotirib qo'ymasligi uchun)
-            Thread(target=execute_duel_rounds, args=(callback.message.chat.id, s_user, t_user)).start()
-        except Exception as e:
-            bot.send_message(callback.message.chat.id, f"❌ Duelni boshlashda xatolik: {e}")
-        return
 
     if d == "get_all_books":
         bot.send_document(callback.message.chat.id, ALL_IN_ONE_BOOK["file_id"], caption=ALL_IN_ONE_BOOK["caption"])
@@ -669,7 +444,7 @@ def handle_callbacks(callback):
             for i, m in enumerate(MOVIES_EN): btn.add(types.InlineKeyboardButton(m["name"], callback_data=f"get_men_{i}"))
         
         btn.add(types.InlineKeyboardButton("⬅️ Orqaga", callback_data="home"))
-        bot.edit_message_text("Marhamat, o'zingizga kerakli tom (qism)ni tanlang:", chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=btn)
+        bot.edit_message_text("Marhamat, o'zingizga kerakli qismni tanlang:", chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=btn)
         return
 
     if d.startswith("get_"):
@@ -682,51 +457,32 @@ def handle_callbacks(callback):
         elif code == "mru": item = MOVIES_RU[idx]; f = bot.send_video
         elif code == "men": item = MOVIES_EN[idx]; f = bot.send_video
         
-        if not item["file_id"]:
-            bot.send_message(callback.message.chat.id, item["caption"])
-        else:
-            f(callback.message.chat.id, item["file_id"], caption=item["caption"])
-            
+        if not item["file_id"]: bot.send_message(callback.message.chat.id, item["caption"])
+        else: f(callback.message.chat.id, item["file_id"], caption=item["caption"])
         bot.answer_callback_query(callback.id)
 
-# --- RENDER PORTINI TINGLOVCHI FLASK SERVER ---
+# --- WEB SERVER VA RUNNER TIZIMI ---
 app = Flask('')
-
 @app.route('/')
-def home():
-    return "Hogwarts Bot muvaffaqiyatli ishlamoqda!"
+def home(): return "Hogwarts Bot Muvaffaqiyatli ishlamoqda!"
 
 def run_flask():
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
-# --- O'Z-O'ZINI UYG'OTISH (SELF-PING) TIZIMI ---
 def keep_alive():
     time.sleep(20)
-    logging.info("O'z-o'zini uyg'otish tizimi ishga tushdi.")
     while True:
-        try:
-            response = requests.get(RENDER_URL)
-            logging.info(f"⚡️ Uyg'otish signali muvaffaqiyatli yuborildi: {response.status_code}")
-        except Exception as e:
-            logging.error(f"⚠️ Uyg'otishda xatolik yuz berdi: {e}")
+        try: requests.get(RENDER_URL)
+        except: pass
         time.sleep(600)
 
 def run_bot():
-    logging.info("Bot polling oqimi alohida ishga tushmoqda...")
     while True:
-        try:
-            bot.infinity_polling(timeout=10, long_polling_timeout=5)
-        except Exception as e:
-            logging.error(f"Bot pollingda xatolik yuz berdi: {e}")
-            time.sleep(5)
+        try: bot.infinity_polling(timeout=10, long_polling_timeout=5)
+        except: time.sleep(5)
 
 if __name__ == '__main__':
-    t_bot = Thread(target=run_bot, daemon=True)
-    t_bot.start()
-    
-    t_ping = Thread(target=keep_alive, daemon=True)
-    t_ping.start()
-    
-    logging.info("Flask veb-server asosiy portda ishga tushdi.")
+    Thread(target=run_bot, daemon=True).start()
+    Thread(target=keep_alive, daemon=True).start()
     run_flask()
