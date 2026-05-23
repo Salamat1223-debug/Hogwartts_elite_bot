@@ -858,7 +858,7 @@ def process_admin_and_text_replies(message):
         bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id, parse_mode="HTML")
 
     # --- TASODIFIY PATRONUS CHIQARISH LOGIKASI (YANGILANDI) ---
-    elif text == "🦄 Patronus testi":
+    elif text == "🦄 Patronusni aniqlash":
         uid_str = str(message.from_user.id)
         p_data = load_data(PATRONUS_FILE)
         
