@@ -113,7 +113,7 @@ SHLYAPA_FRAZALARI = [
     "🌌 <i>Ajabo! Bu sehrgarning kelajagi shunchalar yorqin va chalkashki, hatto men ham adashib ketishim munosib!</i>",
     "🐍 <i>Makr va ambitsiyami yoki olijanoblik va mardlik? Qalbingizda ikki buyuk kuch to'qnashmoqda...</i>",
     "📜 <i>Hogwarts tarixida sizdek murakkab xarakterli sehrgarlar juda kam bo'lgan... Keling, taqdiringizni ochamiz!</i>",
-    "🔮 <i>Yuragingizning urishi menga aniq yo'lni ko'rsatmoqda, siz munosib bo'lgan maskan...</i>"
+    "🔮 <i>Yuragingizof urishi menga aniq yo'lni ko'rsatmoqda, siz munosib bo'lgan maskan...</i>"
 ]
 
 # 🧪 MA'JUN TAYYORLASH HAQIDA HAQIQIY MA'LUMOTLAR
@@ -140,7 +140,7 @@ ALL_INGREDIENTS = [
 # 🦄 PATRONUS TESTI SAVOLLARI VA XARAKTER BALLARI
 PATRONUS_TEST_QUESTIONS = [
     {
-        "q": "🌌 SIZ UCHUN ENGB AXTLI XOTIRA NIMA?",
+        "q": "🌌 SIZ UCHUN ENG BAXTLI XOTIRA NIMA?",
         "options": [
             {"t": "Do'stlar davrasida g'alaba qozonish", "b": {"jasorat": 3, "aql": 1}},
             {"t": "Yashirincha ulkan maqsadga erishish", "b": {"ilon": 3, "jasorat": 1}},
@@ -234,7 +234,7 @@ def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("📚 Sehrli Kutubxona"), types.KeyboardButton("🎬 Kino Zali"))
     markup.add(types.KeyboardButton("🎩 Saralovchi shlyapa"), types.KeyboardButton("🌀 Ittifoqlar Saralashi"))
-    markup.add(types.KeyboardButton("🦄 Patronus testi"), types.KeyboardButton("🧪 Ma'jun darsi (Qoida)"))
+    markup.add(types.KeyboardButton("🦄 Patronus testi"))
     return markup
 
 def delete_after_delay(chat_id, message_id, delay=600):
@@ -485,7 +485,7 @@ def handle_punishment(message):
             bot.send_message(
                 chat_id,
                 f"💥 <b>REVELIO!</b> 💥\n\n"
-                f"Daxshat! {get_mention(target)} haqiqatdan ham Azkabandan qochgan mahbus bo'lib chiqdi! "
+                f"Daxshat! {get_mention(target)} haqikatdan ham Azkabandan qochgan mahbus bo'lib chiqdi! "
                 f"Dementorlar uni o'rab olishdi va qayta zindonga bandi qilishdi. ✨\n"
                 f"Guruhda yana <b>{len(session['fugitives'])}</b> ta mahbus yashirinib yuribdi.",
                 parse_mode="HTML"
@@ -603,7 +603,7 @@ def handle_punishment(message):
                                      permissions=types.ChatPermissions(can_send_messages=False))
             
             if is_vazir:
-                txt = f"🤫 <b>VAZIRLIKNING MAXFIY SILENCIO BUYRUG'I!</b>\n\n🙊 Jodu Vazirining buyrug'iga asosan {mention_target}ning ovozi mutloq o'chirildi! U <b>{mute_time} daqiqa</b> davomida Sehrgarlar dunyosida og'iz ocha olmaydi!\n📜 <b>Vazir ko'rsatgan sabab:</b> <i>{reason}</i>"
+                txt = f"🤫 <b>VAZIRLIKNING MAXFIY SILENCIO BUYRUG'I!</b>\n\n🙊 Jodu Vazirining buyrug'iga asosan {mention_target}ning ovozi mutloq o'chirildi! U <b>{mute_time} daqiqa</b> davomida Sehrgarlar duniaosida og'iz ocha olmaydi!\n📜 <b>Vazir ko'rsatgan sabab:</b> <i>{reason}</i>"
             else:
                 txt = f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}"
             bot.send_message(message.chat.id, txt)
@@ -630,7 +630,6 @@ def start_group_potion(message):
     user = message.from_user
     potion = random.choice(POTIONS_DATA)
     
-    # 9 ta ingredientdan 3 tasi to'g'ri, qolgan 6 tasi tasodifiy aralash
     correct_ingredients = potion["ingredients"]
     pool = list(correct_ingredients)
     while len(pool) < 9:
@@ -879,7 +878,6 @@ def process_admin_and_text_replies(message):
             save_data(HOUSES_FILE, data)
         
         h = HOUSES_DETAILS[data[uid_str]]
-        # Tasodifiy fraza olish
         rand_phrase = random.choice(SHLYAPA_FRAZALARI)
         
         msg = bot.send_message(message.chat.id, f"🎩 <b>{rand_phrase}</b>")
@@ -905,7 +903,6 @@ def process_admin_and_text_replies(message):
         time.sleep(2.5)
         bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id, parse_mode="HTML")
 
-    # --- INLINE SAVOLLI PATRONUS TESTI (ANTI-CHEAT) ---
     elif text == "🦄 Patronus testi":
         uid_str = str(message.from_user.id)
         p_data = load_data(PATRONUS_FILE)
@@ -921,24 +918,18 @@ def process_admin_and_text_replies(message):
                 parse_mode="HTML"
             )
             
-        # Testni yangi boshlash, ballarni nollash
         PATRONUS_TEST_SESSIONS[uid] = {"current_q": 0, "scores": {"jasorat": 0, "ilon": 0, "burgut": 0, "aql": 0}}
-        send_patronus_question(chat_id, uid)
-
-    elif text == "🧪 Ma'jun darsi (Qoida)":
-        show_potion_rules(message)
+        send_patronus_question(message.chat.id, uid)
 
 def send_patronus_question(chat_id, user_id):
     session = PATRONUS_TEST_SESSIONS[user_id]
     q_idx = session["current_q"]
     
     if q_idx >= len(PATRONUS_TEST_QUESTIONS):
-        # Test tugadi, eng yuqori ballni hisoblash
         scores = session["scores"]
         max_type = max(scores, key=scores.get)
         result = PATRONUS_RESULTS[max_type]
         
-        # Bazaga saqlash (Anti-cheat)
         p_data = load_data(PATRONUS_FILE)
         p_data[str(user_id)] = result
         save_data(PATRONUS_FILE, p_data)
@@ -950,24 +941,22 @@ def send_patronus_question(chat_id, user_id):
             f"🦄 <b>{result['animal']}</b>\n"
             f"📜 <b>Xarakteringiz ta'rifi:</b> {result['desc']}"
         )
-        bot.send_message(user_id, txt, parse_mode="HTML")
+        bot.send_message(chat_id, txt, parse_mode="HTML")
         PATRONUS_TEST_SESSIONS.pop(user_id, None)
         return
 
     q_data = PATRONUS_TEST_QUESTIONS[q_idx]
     kb = types.InlineKeyboardMarkup(row_width=1)
     
-    # Variantlarni chalkashtirib chiqarish (Hamma akkauntda bir xil ko'rinmasligi uchun)
     opts = list(q_data["options"])
     random.shuffle(opts)
     
     for i, opt in enumerate(opts):
         kb.add(types.InlineKeyboardButton(opt["t"], callback_data=f"pat_ans_{user_id}_{i}"))
         
-    # Shaxsiy seansga tanlangan variantlar ballarini vaqtincha biriktirish
     session["current_options"] = opts
     
-    bot.send_message(user_id, f"🔮 <b>{q_data['q']}</b>", reply_markup=kb, parse_mode="HTML")
+    bot.send_message(chat_id, f"🔮 <b>{q_data['q']}</b>", reply_markup=kb, parse_mode="HTML")
 
 # --- WELCOME (YANGI AZOLAR KELGANDA) ---
 @bot.message_handler(content_types=['new_chat_members'])
@@ -1017,11 +1006,9 @@ def handle_callbacks(callback):
         game["selected"].append(chosen_item)
         current_step = len(game["selected"])
         
-        # Ketma-ketlikni tekshirish
         correct_needed = game["correct"][current_step - 1]
         
         if chosen_item != correct_needed:
-            # PORTLASH!
             bot.answer_callback_query(callback.id, "💥 XATO INGREDIENT!", show_alert=False)
             fail_text = (
                 f"💥 <b>BOOOOOOOOM!!!</b>\n\n"
@@ -1035,7 +1022,6 @@ def handle_callbacks(callback):
             return
             
         if current_step == 3:
-            # G'ALABA MUVAFFAQIYATLI TAYYORLANDI
             bot.answer_callback_query(callback.id, "✅ Muvaffaqiyatli bosqich!", show_alert=False)
             success_text = (
                 f"🧪 <b>MUVAFFAQIYATLI MA'JUN! DARS TUGADI!</b>\n\n"
@@ -1047,14 +1033,12 @@ def handle_callbacks(callback):
             bot.edit_message_text(success_text, g_id, callback.message.message_id, parse_mode="HTML")
             POTION_GAMES.pop(g_id, None)
         else:
-            # Keyingi bosqich so'rovi
             bot.answer_callback_query(callback.id, f"ingredient {current_step}/3 solindi", show_alert=False)
             txt = (
                 f"🧪 {get_mention(callback.from_user)} <b>dorini tayyorlashda davom etmoqda...</b>\n"
                 f"Hozirgi holat: Jami 3 tadan {current_step} ta masalliq to'g'ri solindi.\n"
                 f"Ketma-ketlikni buzmang, keyingi to'g'ri masalliqni tanlang!"
             )
-            # Inline klaviaturani qayta chiqarish (tanlanganlarni belgilash)
             kb = types.InlineKeyboardMarkup(row_width=3)
             for i, ing in enumerate(game["pool"]):
                 if ing in game["selected"]:
@@ -1079,17 +1063,16 @@ def handle_callbacks(callback):
         session = PATRONUS_TEST_SESSIONS[u_id]
         chosen_opt = session["current_options"][o_idx]
         
-        # Ballarni qo'shish
         for k, val in chosen_opt["b"].items():
             session["scores"][k] += val
             
         session["current_q"] += 1
         bot.answer_callback_query(callback.id)
         
-        try: bot.delete_message(u_id, callback.message.message_id)
+        try: bot.delete_message(chat_id, callback.message.message_id)
         except: pass
         
-        send_patronus_question(u_id, u_id)
+        send_patronus_question(chat_id, u_id)
         return
 
     if d == "get_all_books":
