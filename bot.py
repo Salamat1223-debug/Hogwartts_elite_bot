@@ -146,12 +146,184 @@ def delete_after_delay(chat_id, message_id, delay=600):
     except:
         pass
 
+# =====================================================================
+#  🏰 YANGI QO'SHILGAN QISM: AZKABAN QOCHQINI O'YINI MANTIQI VA BAZASI
+# =====================================================================
+AZKABAN_SESSIONS = {}
+
+def get_game_rules():
+    return (
+        "📜 <b>Azkaban Qochqini — O'yin Qoidalari</b>\n\n"
+        "Guruhda mahbuslarni aniqlash bo'yicha detektiv o'yin! O'yin boshlangach sehrgarlar tugma orqali ro'yxatdan o'tadilar.\n\n"
+        "👥 <b>Rollar va Balans:</b>\n"
+        "• 3-5 ta sehrgar: 1 ta mahbus | 2 ta fosh etish urinishi\n"
+        "• 6-10 ta sehrgar: 2 ta mahbus | 3 ta fosh etish urinishi\n"
+        "• 11-20 ta sehrgar: 3 ta mahbus | 4 ta fosh etish urinishi\n"
+        "• 21+ ta sehrgar: 4 ta mahbus | 5 ta fosh etish urinishi\n\n"
+        "🎯 <b>G'alaba shartlari:</b>\n"
+        "1️⃣ <b>Sehrgarlar Vazirligi (Guruh):</b> Qochqinlarni so'zlaridan tahlil qilib, hamma urinishlar tugashidan oldin ularni <code>/revelio @username</code> afsuni bilan fosh etishi kerak.\n"
+        "2️⃣ <b>Azkaban Mahbuslari:</b> Guruh a'zolarini chalg'itib, vazirlik urinishlarini tugatish yoki guruhda yashirincha o'zini bildirmasdan <b>7 ta ma'noli xabar</b> yozish (kamida 3 ta so'zdan iborat).\n\n"
+        "🎮 <b>Buyruqlar:</b>\n"
+        "• /start_azkaban — O'yinni guruhda boshlash\n"
+        "• /qoidalar — Ushbu qoidalarni ko'rish"
+    )
+
+@bot.message_handler(commands=["qoidalar"])
+def show_azkaban_rules(message):
+    bot.reply_to(message, get_game_rules(), parse_mode="HTML")
+
+@bot.message_handler(commands=["start_azkaban"])
+def start_azkaban_game(message):
+    chat_id = message.chat.id
+    if message.chat.type == "private":
+        return bot.reply_to(message, "🏰 Bu o'yinni faqat sehrgarlar guruhida boshlash mumkin!")
+    
+    if chat_id in AZKABAN_SESSIONS and AZKABAN_SESSIONS[chat_id]["status"] != "ended":
+        return bot.reply_to(message, "🕵️‍♂️ Hozirda guruhda Azkaban qidiruv operatsiyasi faol holatda!")
+
+    AZKABAN_SESSIONS[chat_id] = {
+        "status": "registration",
+        "players": {}, # {user_id: user_object}
+        "fugitives": [], # [user_id, user_id]
+        "escaped_fugitives": [], # Qochib qutulganlar
+        "attempts": 2,
+        "msg_counts": {} # {user_id: count}
+    }
+
+    kb = types.InlineKeyboardMarkup().add(
+        types.InlineKeyboardButton("🧙‍♂️ Safga qo'shilish", callback_data="join_azkaban")
+    )
+    
+    bot.send_message(
+        chat_id,
+        "🚨 <b>DIQQAT! AZKABANDAN MAHBUSLAR QOCHDI!</b> 🚨\n\n"
+        "Sehrgarlar Vazirligi tezkor qidiruv guruhini tuzmoqda. O'yinga qo'shilish va qidiruvda qatnashish uchun quyidagi tugmani bosing.\n"
+        "⏳ Ro'yxatdan o'tish uchun 45 soniya vaqt bor!",
+        reply_markup=kb,
+        parse_mode="HTML"
+    )
+    
+    Thread(target=process_registration_countdown, args=(chat_id,)).start()
+
+def process_registration_countdown(chat_id):
+    time.sleep(45)
+    if chat_id not in AZKABAN_SESSIONS or AZKABAN_SESSIONS[chat_id]["status"] != "registration":
+        return
+
+    session = AZKABAN_SESSIONS[chat_id]
+    p_count = len(session["players"])
+
+    if p_count < 3:
+        bot.send_message(chat_id, "❌ Qidiruv guruhiga yetarli sehrgar yig'ilmadi (Kamida 3 kishi kerak). Operatsiya bekor qilindi.")
+        AZKABAN_SESSIONS.pop(chat_id, None)
+        return
+
+    # Odam soniga ko'ra muvozanatni hisoblash
+    if p_count <= 5:
+        f_count, attempts = 1, 2
+    elif p_count <= 10:
+        f_count, attempts = 2, 3
+    elif p_count <= 20:
+        f_count, attempts = 3, 4
+    else:
+        f_count, attempts = 4, 5
+
+    session["attempts"] = attempts
+    p_ids = list(session["players"].keys())
+    
+    # Qochqinlarni tasodifiy saralash
+    chosen_fugitives = random.sample(p_ids, min(f_count, len(p_ids)))
+    session["fugitives"] = chosen_fugitives
+    session["status"] = "playing"
+
+    # Mahbuslarga shaxsiy xabar yuborish
+    for f_id in chosen_fugitives:
+        session["msg_counts"][f_id] = 0
+        try:
+            bot.send_message(
+                f_id,
+                "👁‍局 <b>Siz Azkaban qochqinisiz!</b>\n\n"
+                "Guruhda o'zingizni aslo bildirmang. Maqsadingiz guruh suhbatiga aralashib, "
+                "kamida 3 ta so'zdan iborat bo'lgan <b>7 ta xabar</b> yozish yoki Vazirlik adashib imkoniyatlarini tugatishini kutish! 🤫"
+            )
+        except:
+            pass
+
+    bot.send_message(
+        chat_id,
+        f"🕵️‍♂️ <b>Qidiruv boshlandi!</b>\n\n"
+        f"Guruhda jami {p_count} ta sehrgar ro'yxatdan o'tdi. Ichingizda <b>{len(chosen_fugitives)} ta yashirin mahbus</b> bor.\n"
+        f"Ularni fosh etish uchun guruhda xabarga javoban (Reply) <code>/revelio</code> yozing.\n\n"
+        f"⚠️ Vazirlikda jami <b>{attempts} ta xato qilish</b> imkoniyati (afsun urinishi) bor!",
+        parse_mode="HTML"
+    )
+
+# =====================================================================
+
+
 # --- JAZO TIZIMI (HOGWARTS SEHRLI AFSUNLARI - VAZIRLIK USLUBIDA) ---
-@bot.message_handler(commands=["silencio", "avadakedavra", "finite", "revive"])
+@bot.message_handler(commands=["silencio", "avadakedavra", "finite", "revive", "revelio"]) # <-- REVELIO QO'SHILDI
 def handle_punishment(message):
     sender = message.from_user
     mention_sender = get_mention(sender)
     cmd = message.text.split()[0].lower()
+
+    # --- REVELIO AFSUNI LOGIKASI (YANGI O'YIN UCHUN) ---
+    if cmd == "/revelio":
+        chat_id = message.chat.id
+        if message.chat.type == 'private':
+            return bot.reply_to(message, "Bu afsunni faqat guruhda ishlatish mumkin!")
+        
+        if chat_id not in AZKABAN_SESSIONS or AZKABAN_SESSIONS[chat_id]["status"] != "playing":
+            return bot.reply_to(message, "Hozirda hech qanday qidiruv o'yini ketmayapti. Boshlash uchun: /start_azkaban")
+            
+        if not message.reply_to_message:
+            return bot.reply_to(message, "⚠️ Afsunni yo'naltirish uchun gumonlanayotgan sehrgarning xabariga (Reply) javob yozing!")
+
+        target = message.reply_to_message.from_user
+        session = AZKABAN_SESSIONS[chat_id]
+
+        if target.id not in session["players"]:
+            return bot.reply_to(message, "❌ Bu shaxs o'yin ro'yxatidan o'tmagan, u oddiy Hogwarts mehmoni!")
+
+        if target.id in session["escaped_fugitives"]:
+            return bot.reply_to(message, "🏃‍♂️ Bu mahbus allaqachon tunda ko'rinmaslik jomshorini kiyib qochib ketgan!")
+
+        if target.id in session["fugitives"]:
+            session["fugitives"].remove(target.id)
+            bot.send_message(
+                chat_id,
+                f"💥 <b>REVELIO!</b> 💥\n\n"
+                f"Daxshat! {get_mention(target)} haqiqatdan ham Azkabandan qochgan mahbus bo'lib chiqdi! "
+                f"Dementorlar uni o'rab olishdi va qayta zindonga bandi qilishdi. ✨\n"
+                f"Guruhda yana <b>{len(session['fugitives'])}</b> ta mahbus yashirinib yuribdi.",
+                parse_mode="HTML"
+            )
+            
+            if not session["fugitives"]:
+                bot.send_message(chat_id, "🎉 <b>G'ALABA!</b> Sehrgarlar Vazirligi xodimlari barcha mahbuslarni muvaffaqiyatli fosh etdi va Hogwarts xavfsizligini ta'minladi!")
+                AZKABAN_SESSIONS.pop(chat_id, None)
+        else:
+            session["attempts"] -= 1
+            if session["attempts"] <= 0:
+                all_f_mentions = ", ".join([get_mention(session["players"][f_id]) for f_id in session["fugitives"] if f_id in session["players"]])
+                bot.send_message(
+                    chat_id,
+                    f"💀 <b>Vazirlik mag'lub bo'ldi!</b> 💀\n\n"
+                    f"Siz begunoh sehrgarlarni ta'qib qilib, afsun kuchini tugatdingiz. "
+                    f"Haqiqiy mahbuslar: {all_f_mentions} tunda guruhni tark etib, butunlay g'oyib bo'lishdi!",
+                    parse_mode="HTML"
+                )
+                AZKABAN_SESSIONS.pop(chat_id, None)
+            else:
+                bot.reply_to(
+                    message,
+                    f"❌ {get_mention(target)} shunchaki begunoh talaba! Vazirlik yanglishdi.\n"
+                    f"⚠️ Qidiruv guruhida yana <b>{session['attempts']} ta</b> imkoniyat qoldi!",
+                    parse_mode="HTML"
+                )
+        return
+    # --- REVELIO TUGADI ---
 
     if message.chat.type == 'private' and sender.id == ADMIN_ID:
         args = message.text.replace(message.text.split()[0], "").strip()
@@ -311,7 +483,7 @@ def recheck_callback(callback):
         welcome_txt = f"Ajoyib! Sehrli olam eshiklari siz uchun ochildi, marhamat {get_mention(callback.from_user)}! ✨"
         bot.send_message(callback.message.chat.id, welcome_txt, reply_markup=main_menu())
     else:
-        bot.answer_callback_query(callback.id, "Siz hali ham barcha shartlarni bajarmadingiz! Shoshiling, poyezd yo'lga tushmoqda! 🚂", show_alert=True)
+        bot.answer_callback_query(callback.id, "Siz hali am barcha shartlarni bajarmadingiz! Shoshiling, poyezd yo'lga tushmoqda! 🚂", show_alert=True)
 
 # --- ADMIN FUNKSIYALARI ---
 @bot.message_handler(commands=["getid"])
@@ -343,6 +515,29 @@ def ad_start(message):
 def process_admin_and_text_replies(message):
     uid = message.from_user.id
     text = message.text
+    chat_id = message.chat.id
+
+    # --- O'YIN ICHIDAGI MAHBUSLAR XABARLARINI HISOBLASH TIZIMI ---
+    if message.chat.type != 'private' and chat_id in AZKABAN_SESSIONS:
+        session = AZKABAN_SESSIONS[chat_id]
+        if session["status"] == "playing" and uid in session["fugitives"]:
+            if text and len(text.split()) >= 3: # Kamida 3 ta so'z bo'lishi shart chalg'itish uchun
+                session["msg_counts"][uid] += 1
+                if session["msg_counts"][uid] >= 7:
+                    session["fugitives"].remove(uid)
+                    session["escaped_fugitives"].append(uid)
+                    bot.send_message(
+                        chat_id,
+                        f"🏃‍♂️ <b>MAHBUS QOCHIB KETDI!</b>\n\n"
+                        f"Ayyor mahbus {get_mention(message.from_user)} suhbat orasida izini butunlay yashirdi, "
+                        f"ko'rinmaslik jomshorini kiyib guruhni tark etdi! 🌌\n"
+                        f"Qolgan yashirin mahbuslar soni: <b>{len(session['fugitives'])}</b>",
+                        parse_mode="HTML"
+                    )
+                    if not session["fugitives"]:
+                        bot.send_message(chat_id, "💀 <b>QOCHQINLAR G'ALABASI!</b> Guruhdagi barcha yashirin qochqinlar Vazirlik ko'zi ostidan muvaffaqiyatli qochib qutulishdi!")
+                        AZKABAN_SESSIONS.pop(chat_id, None)
+    # --- HISOBLASH TUGADI ---
 
     if uid == ADMIN_ID and uid in ADMIN_STATES:
         state_data = ADMIN_STATES[uid]
@@ -482,6 +677,25 @@ def on_new_member(message):
 @bot.callback_query_handler(func=lambda c: True)
 def handle_callbacks(callback):
     d = callback.data
+    chat_id = callback.message.chat.id
+
+    # --- CALLBACK: O'YINGA QO'SHILISH LOGIKASI ---
+    if d == "join_azkaban":
+        if chat_id not in AZKABAN_SESSIONS or AZKABAN_SESSIONS[chat_id]["status"] != "registration":
+            bot.answer_callback_query(callback.id, "O'yinga ro'yxatdan o'tish yakunlangan!", show_alert=True)
+            return
+            
+        u_id = callback.from_user.id
+        session = AZKABAN_SESSIONS[chat_id]
+        
+        if u_id in session["players"]:
+            bot.answer_callback_query(callback.id, "Siz allaqachon ro'yxatdan o'tgansiz!", show_alert=True)
+            return
+            
+        session["players"][u_id] = callback.from_user
+        bot.answer_callback_query(callback.id, "Siz muvaffaqiyatli qo'shildingiz! Shaxsiy xatingizni (Lichka) tekshiring.", show_alert=False)
+        return
+    # --- QO'SHILISH TUGADI ---
     
     if d == "get_all_books":
         bot.send_document(callback.message.chat.id, ALL_IN_ONE_BOOK["file_id"], caption=ALL_IN_ONE_BOOK["caption"])
