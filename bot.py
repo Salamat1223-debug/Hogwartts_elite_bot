@@ -200,18 +200,21 @@ def delete_after_delay(chat_id, message_id, delay=600):
     except:
         pass
 
+
 # =====================================================================
-#  ♟ SHAXMAT O'YINI LOGIKASI (TAYMER TIZIMI BILAN MUTLAQ YANGILANDI)
+#  ♟ SHAXMAT O'YINI LOGIKASI (GURUH VA DUEL TIZIMI BILAN TUZATILDI)
 # =====================================================================
+CHESS_GAMES = {}  # Guruhlardagi faol o'yinlarni saqlash
+
 @bot.message_handler(commands=["chess"])
 def send_chess_game(message):
     chat_id = message.chat.id
     user = message.from_user
     mention_user = get_mention(user)
     
-    # Buyruq argumentlarini tekshirish (Masalan: /chess yoki /chess 15)
+    # Buyruq argumentlarini tekshirish
     args = message.text.split()
-    game_time = 10  # Standart holda 10 daqiqa
+    game_time = 10  # Standart vaqt
     
     if len(args) > 1:
         try:
@@ -226,17 +229,54 @@ def send_chess_game(message):
         except ValueError:
             return bot.reply_to(message, "❌ Iltimos vaqtni daqiqada faqat raqam bilan kiriting! (Masalan: <code>/chess 15</code>)", parse_mode="HTML")
 
+    if message.chat.type == "private":
+        # Shaxsiy chatda o'zi bilan o'zi o'ynamasligi uchun kompyuterga qarshi ekanligini link orqali bildiramiz
+        kb = types.InlineKeyboardMarkup()
+        game_web_url = f"{GAME_URL}?time={game_time}&mode=ai&user_id={user.id}"
+        kb.add(types.InlineKeyboardButton(text="♟ Kompyuterga qarshi oʻynash", web_app=types.WebAppInfo(url=game_web_url)))
+        
+        txt = (
+            f"♟ <b>Sehrgarlar Shaxmati (Mashgʻulot xonasi)!</b>\n\n"
+            f"Hurmatli {mention_user}, shaxsiy xonada siz Sun'iy Intellekt (Bot)ga qarshi oʻynaysiz! 🧙‍♂️🏰\n\n"
+            f"⏱ <b>O'yin vaqti:</b> {game_time} daqiqa"
+        )
+        return bot.send_message(chat_id, txt, reply_markup=kb, parse_mode="HTML")
+
+    # Guruhda esa duel tizimini yoqamiz
+    if chat_id in CHESS_GAMES:
+        return bot.reply_to(message, "❌ Ushbu zalda allaqachon sehrgarlar shaxmati ketyapti! O'yinni yakunlash uchun /stop_chess yozing.", parse_mode="HTML")
+
+    CHESS_GAMES[chat_id] = {
+        "white_player": user.id,
+        "white_name": user.first_name,
+        "black_player": None,
+        "black_name": None,
+        "time": game_time,
+        "status": "waiting"
+    }
+
     kb = types.InlineKeyboardMarkup()
-    # WebApp URL'ga vaqtni ham parametr sifatida uzatsangiz dasturingizda taymer ishlashi uchun qulay bo'ladi
-    game_web_url = f"{GAME_URL}?time={game_time}"
-    kb.add(types.InlineKeyboardButton(text="♟ Shaxmat taxtasini ochish", web_app=types.WebAppInfo(url=game_web_url)))
+    kb.add(types.InlineKeyboardButton(text="⚔️ Duelga qoʻshilish (Qoralar)", callback_data=f"join_chess_{chat_id}"))
 
     txt = (
-        f"♟ <b>Sehrgarlar Shaxmati Dueli!</b>\n\n"
-        f"Hurmatli {mention_user}, ruhan va aqlan tayyor bo'lsangiz, quyidagi tugmani bosib interaktiv shaxmat taxtasini oching va o'yinni boshlang! ⚔️🏰\n\n"
-        f"⏱ <b>O'yin vaqti (Har bir ishtirokchiga):</b> {game_time} daqiqa"
+        f"♟ <b>Sehrgarlar Shaxmati Dueli e'lon qilindi!</b>\n\n"
+        f"⚪️ <b>Oq donalar:</b> {mention_user}\n"
+        f"⚫️ <b>Qora donalar:</b> ... raqib kutilmoqda ...\n\n"
+        f"⏱ <b>O'yin vaqti:</b> {game_time} daqiqa\n\n"
+        f"<i>Raqib oqlar taklifini qabul qilib jang boshlashi uchun pastdagi tugmani bossin!</i>"
     )
     bot.send_message(chat_id, txt, reply_markup=kb, parse_mode="HTML")
+
+@bot.message_handler(commands=["stop_chess"])
+def stop_chess_game(message):
+    chat_id = message.chat.id
+    if message.chat.type == "private": return
+    
+    if chat_id in CHESS_GAMES:
+        CHESS_GAMES.pop(chat_id)
+        bot.reply_to(message, "🧹 Sehrli shaxmat taxtasi yigʻishtirildi va oʻyin bekor qilindi.", parse_mode="HTML")
+    else:
+        bot.reply_to(message, "❌ Bu yerda faol oʻyin topilmadi.", parse_mode="HTML")
 
 
 # =====================================================================
@@ -424,7 +464,7 @@ def process_registration_countdown(chat_id):
         f"📋 <b>Tergovda qatnashayotgan sehrgarlar ro'yxati:</b>\n{participants_list}\n\n"
         f"Guruhda jami {p_count} ta sehrgardan <b>{len(chosen_fugitives)} ta yashirin mahbus</b> bor.\n"
         f"Ularni fosh etish uchun guruhda xabarga javoban (Reply) <code>/revelio</code> yozing.\n\n"
-        f"⚠️ Vazirlikda jami <b>{attempts} ta xato qilish</b> imkoniyati bor!\n"
+        f"⚠️ Vazirlikda jami <b>{attempts} ta xato quilting</b> imkoniyati bor!\n"
         f"⏳ Mahbuslarni fosh etish uchun sizga <b>10 daqiqa</b> vaqt berildi!",
         parse_mode="HTML"
     )
@@ -498,7 +538,7 @@ def handle_punishment(message):
                     chat_id,
                     f"💀 <b>Vazirlik mag'lub bo'ldi!</b> 💀\n\n"
                     f"Siz begunoh sehrgarlarni ta'qib qilib, afsun kuchini tugatdingiz. "
-                    f"Haqiqiy mahbuslar: {all_f_mentions} tunda guruhni tark etib, butunlay g'oyib bo'lishdi!",
+                    f"Haqiqiy mahbuslar: {all_f_mentions} tunda guruhni tark etib, butunlay g'oyib bo'lsen!",
                     parse_mode="HTML"
                 )
                 AZKABAN_SESSIONS.pop(chat_id, None)
@@ -963,6 +1003,48 @@ def handle_callbacks(callback):
     d = callback.data
     chat_id = callback.message.chat.id
     
+    # --- SHAXMAT GURUH DUELIGA QO'SHILISH LOGIKASI ---
+    if d.startswith("join_chess_"):
+        g_id = int(d.replace("join_chess_", ""))
+        user = callback.from_user
+        
+        if g_id not in CHESS_GAMES:
+            return bot.answer_callback_query(callback.id, "❌ Bu duel muddati tugagan yoki o'yin yopilgan!", show_alert=True)
+            
+        game = CHESS_GAMES[g_id]
+        
+        if game["white_player"] == user.id:
+            return bot.answer_callback_query(callback.id, "🧙‍♂️ Oʻzingiz ochgan duelga oʻzingiz raqib boʻla olmaysiz! Severus Sneyp buni ma'qullamaydi.", show_alert=True)
+            
+        if game["black_player"] is not None:
+            return bot.answer_callback_query(callback.id, "🚫 Duelga allaqachon raqib qo'shilgan!", show_alert=True)
+            
+        # Raqibni ro'yxatga olamiz va o'yinni faollashtiramiz
+        game["black_player"] = user.id
+        game["black_name"] = user.first_name
+        game["status"] = "playing"
+        
+        bot.answer_callback_query(callback.id, "⚔️ Duelni qabul qildingiz!", show_alert=False)
+        
+        # Endi har ikkala o'yinchi uchun WebApp havolasini tayyorlaymiz (Parametrlar orqali kim oq, kim qoraligini uzatamiz)
+        white_url = f"{GAME_URL}?time={game['time']}&mode=pvp&role=white&game_id={g_id}&white={game['white_player']}&black={user.id}"
+        black_url = f"{GAME_URL}?time={game['time']}&mode=pvp&role=black&game_id={g_id}&white={game['white_player']}&black={user.id}"
+        
+        kb = types.InlineKeyboardMarkup(row_width=2)
+        kb.add(
+            types.InlineKeyboardButton(text="⚪️ Oqlar Taxtasi", web_app=types.WebAppInfo(url=white_url)),
+            types.InlineKeyboardButton(text="⚫️ Qoralar Taxtasi", web_app=types.WebAppInfo(url=black_url))
+        )
+        
+        txt = (
+            f"⚔️ <b>Sehrli Shaxmat Duelingiz Boshlandi!</b>\n\n"
+            f"⚪️ <b>Oqlar:</b> <a href='tg://user?id={game['white_player']}'>{game['white_name']}</a>\n"
+            f"⚫️ <b>Qoralar:</b> {get_mention(user)}\n\n"
+            f"🪄 <i>Oʻz rangizga mos keladigan tugmani bosing, interaktiv taxtani oching va yuring! Ron Uizli kabi strategiyangiz mukammal boʻlsin!</i>"
+        )
+        bot.edit_message_text(txt, g_id, callback.message.message_id, reply_markup=kb, parse_mode="HTML")
+        return
+
     # --- MA'JUN TAYYORLASH GURUH LOGIKASI ---
     if d.startswith("pot_"):
         _, g_id_str, idx_str = d.split("_")
