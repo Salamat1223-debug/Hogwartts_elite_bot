@@ -201,22 +201,40 @@ def delete_after_delay(chat_id, message_id, delay=600):
         pass
 
 # =====================================================================
-#  ♟ SHAXMAT O'YINI LOGIKASI (GURUHDA HAM, SHAXSIYDA HAM ISHLAYDI)
+#  ♟ SHAXMAT O'YINI LOGIKASI (TAYMER TIZIMI BILAN MUTLAQ YANGILANDI)
 # =====================================================================
 @bot.message_handler(commands=["chess"])
 def send_chess_game(message):
     chat_id = message.chat.id
     user = message.from_user
     mention_user = get_mention(user)
+    
+    # Buyruq argumentlarini tekshirish (Masalan: /chess yoki /chess 15)
+    args = message.text.split()
+    game_time = 10  # Standart holda 10 daqiqa
+    
+    if len(args) > 1:
+        try:
+            custom_time = int(args[1])
+            if custom_time < 3 or custom_time > 90:
+                return bot.reply_to(
+                    message, 
+                    "❌ <b>Sehrli Shaxmat vaqt cheklovi:</b>\nMinimal vaqt <b>3 daqiqa</b>, maksimal vaqt esa <b>90 daqiqa</b> bo'lishi mumkin!", 
+                    parse_mode="HTML"
+                )
+            game_time = custom_time
+        except ValueError:
+            return bot.reply_to(message, "❌ Iltimos vaqtni daqiqada faqat raqam bilan kiriting! (Masalan: <code>/chess 15</code>)", parse_mode="HTML")
 
-    # Shaxmat taxtasi Telegram o'yin platformasi/WebApp sifatida ochilishi uchun maxsus inline tugma
     kb = types.InlineKeyboardMarkup()
-    # WebApp URL guruhlarda ham, shaxsiyda ham o'yin oynasini ochishni ta'minlaydi
-    kb.add(types.InlineKeyboardButton(text="♟ Shaxmat taxtasini ochish", web_app=types.WebAppInfo(url=GAME_URL)))
+    # WebApp URL'ga vaqtni ham parametr sifatida uzatsangiz dasturingizda taymer ishlashi uchun qulay bo'ladi
+    game_web_url = f"{GAME_URL}?time={game_time}"
+    kb.add(types.InlineKeyboardButton(text="♟ Shaxmat taxtasini ochish", web_app=types.WebAppInfo(url=game_web_url)))
 
     txt = (
         f"♟ <b>Sehrgarlar Shaxmati Dueli!</b>\n\n"
-        f"Hurmatli {mention_user}, ruhan va aqlan tayyor bo'lsangiz, quyidagi tugmani bosib interaktiv shaxmat taxtasini oching va o'yinni boshlang! ⚔️🏰"
+        f"Hurmatli {mention_user}, ruhan va aqlan tayyor bo'lsangiz, quyidagi tugmani bosib interaktiv shaxmat taxtasini oching va o'yinni boshlang! ⚔️🏰\n\n"
+        f"⏱ <b>O'yin vaqti (Har bir ishtirokchiga):</b> {game_time} daqiqa"
     )
     bot.send_message(chat_id, txt, reply_markup=kb, parse_mode="HTML")
 
@@ -995,7 +1013,7 @@ def handle_callbacks(callback):
             bot.answer_callback_query(callback.id, f"ingredient {current_step}/3 solindi", show_alert=False)
             txt = (
                 f"🧪 {get_mention(callback.from_user)} <b>dorini tayyorlashda davom etmoqda...</b>\n"
-                f"Hozirgi holat: Jami 3 tadan {current_step} ta masalliq to'g'ri solindi.\n"
+                f"Hoghorsi holat: Jami 3 tadan {current_step} ta masalliq to'g'ri solindi.\n"
                 f"Ketma-ketlikni buzmang, keyingi to'g'ri masalliqni tanlang!"
             )
             kb = types.InlineKeyboardMarkup(row_width=3)
