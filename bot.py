@@ -18,7 +18,6 @@ SHLYAPA_USER = "SalamatPirjanov"
 
 # Render sizga bergan havola (Bot o'zini o'zi uyg'otishi uchun)
 RENDER_URL = "https://hogwartts-elite-bot.onrender.com"
-GAME_URL = "https://salamat1223-debug.github.io/Hogwartts_elite_bot/"
 
 logging.basicConfig(level=logging.INFO)
 bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
@@ -145,7 +144,7 @@ RANDOM_PATRONUS_LIST = [
     {"animal": "Yashirin Kurashchi — Boʻri (Wolf) 🐺", "desc": "Erkinlikni sevuvchi, yolgʻiz va ayni paytda oʻz toʻdasiga oʻta sadoqatli sehrgarlarning yoʻldoshi. Boʻri nihoyatda kuchli instinktlarga ega boʻlib, xavfni ancha uzoqdan his qiladi va kutilmagan zarba bera oladi."},
     {"animal": "Donishmand Boyqush (Owl) 🦉", "desc": "Kuch faqat mushaklarda emas, aqldadir! Bu Patronus chuqur bilimga intiluvchi, strategik fikrlaydigan va sirli tabiatga ega sehrgarlarni tanlaydi. U Dementorlarning ruhan ezish xususiyatiga qarshi eng mustahkam aqliy qalqondir."},
     {"animal": "Afsonaviy Feniks (Phoenix) 🦅", "desc": "Nihoyatda noyob va sehrli Patronus. Har qanday qiyinchilikdan soʻng qayta tugʻila oladigan, umidini hech qachon uzmaydigan insonlar timsoli. Feniks nuri Dementorlarni shunchaki haydamaydi, balki atrofga qaynoq hayotiy energiya tarqatadi."},
-    {"animal": "Chaqqon Tulki (Fox) 🦊", "desc": "Uddabronlik, ayyorlik va oʻtkir zehn belgisi. Tulki Patronusi anʼanaviy usullar ish bermagan join-da har doim noodatiy va aqlli yechim topa oladigan sehrgarlarning eng yaqin yordamchisidir."},
+    {"animal": "Chaqqon Tulki (Fox) 🦊", "desc": "Uddabronlik, ayyorlik va oʻtkir zehn belgisi. Tulki Patronusi anʼanaviy usullar ish bermagan joyda har doim noodatiy va aqlli yechim topa oladigan sehrgarlarning eng yaqin yordamchisidir."},
     {"animal": "Ajdaho (Dragon) 🐉", "desc": "Cheksiz qudrat, ehtiros va asov tabiat belgisi. Bu Patronus juda kuchli va mag'rur sehrgarlarda namoyon bo'ladi. Uning kumushrang alandasi Dementorlar guruhini bir lahzada yo'q qilib yuborishga qodir!"},
     {"animal": "Sodiq Olmaxon (Squirrel) 🐿", "desc": "Uddabronlik, harakatchanlik va ajoyib xotira ramzi. Kichkina bo'lishiga qaramay, u o'z tezligi va kutilmagan manyovrlari bilan dushmanning har qanday rejasini chippakka chiqara oladi."}
 ]
@@ -173,7 +172,6 @@ def save_data(file, data):
 
 # --- FUNKSIYALAR ---
 def get_mention(user):
-    # Ismlarga bosganda har doim profilga o'tadigan mukammal HTML URL havola
     return f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
 
 def check_sub(user_id):
@@ -199,85 +197,6 @@ def delete_after_delay(chat_id, message_id, delay=600):
         bot.delete_message(chat_id, message_id)
     except:
         pass
-
-
-# =====================================================================
-#  ♟ SHAXMAT O'YINI LOGIKASI (GURUH VA DUEL TIZIMI BILAN TUZATILDI)
-# =====================================================================
-CHESS_GAMES = {}  # Guruhlardagi faol o'yinlarni saqlash
-
-@bot.message_handler(commands=["chess"])
-def send_chess_game(message):
-    chat_id = message.chat.id
-    user = message.from_user
-    mention_user = get_mention(user)
-    
-    # Buyruq argumentlarini tekshirish
-    args = message.text.split()
-    game_time = 10  # Standart vaqt
-    
-    if len(args) > 1:
-        try:
-            custom_time = int(args[1])
-            if custom_time < 3 or custom_time > 90:
-                return bot.reply_to(
-                    message, 
-                    "❌ <b>Sehrli Shaxmat vaqt cheklovi:</b>\nMinimal vaqt <b>3 daqiqa</b>, maksimal vaqt esa <b>90 daqiqa</b> bo'lishi mumkin!", 
-                    parse_mode="HTML"
-                )
-            game_time = custom_time
-        except ValueError:
-            return bot.reply_to(message, "❌ Iltimos vaqtni daqiqada faqat raqam bilan kiriting! (Masalan: <code>/chess 15</code>)", parse_mode="HTML")
-
-    if message.chat.type == "private":
-        # Shaxsiy chatda o'zi bilan o'zi o'ynamasligi uchun kompyuterga qarshi ekanligini link orqali bildiramiz
-        kb = types.InlineKeyboardMarkup()
-        game_web_url = f"{GAME_URL}?time={game_time}&mode=ai&user_id={user.id}"
-        kb.add(types.InlineKeyboardButton(text="♟ Kompyuterga qarshi oʻynash", web_app=types.WebAppInfo(url=game_web_url)))
-        
-        txt = (
-            f"♟ <b>Sehrgarlar Shaxmati (Mashgʻulot xonasi)!</b>\n\n"
-            f"Hurmatli {mention_user}, shaxsiy xonada siz Sun'iy Intellekt (Bot)ga qarshi oʻynaysiz! 🧙‍♂️🏰\n\n"
-            f"⏱ <b>O'yin vaqti:</b> {game_time} daqiqa"
-        )
-        return bot.send_message(chat_id, txt, reply_markup=kb, parse_mode="HTML")
-
-    # Guruhda esa duel tizimini yoqamiz
-    if chat_id in CHESS_GAMES:
-        return bot.reply_to(message, "❌ Ushbu zalda allaqachon sehrgarlar shaxmati ketyapti! O'yinni yakunlash uchun /stop_chess yozing.", parse_mode="HTML")
-
-    CHESS_GAMES[chat_id] = {
-        "white_player": user.id,
-        "white_name": user.first_name,
-        "black_player": None,
-        "black_name": None,
-        "time": game_time,
-        "status": "waiting"
-    }
-
-    kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton(text="⚔️ Duelga qoʻshilish (Qoralar)", callback_data=f"join_chess_{chat_id}"))
-
-    txt = (
-        f"♟ <b>Sehrgarlar Shaxmati Dueli e'lon qilindi!</b>\n\n"
-        f"⚪️ <b>Oq donalar:</b> {mention_user}\n"
-        f"⚫️ <b>Qora donalar:</b> ... raqib kutilmoqda ...\n\n"
-        f"⏱ <b>O'yin vaqti:</b> {game_time} daqiqa\n\n"
-        f"<i>Raqib oqlar taklifini qabul qilib jang boshlashi uchun pastdagi tugmani bossin!</i>"
-    )
-    bot.send_message(chat_id, txt, reply_markup=kb, parse_mode="HTML")
-
-@bot.message_handler(commands=["stop_chess"])
-def stop_chess_game(message):
-    chat_id = message.chat.id
-    if message.chat.type == "private": return
-    
-    if chat_id in CHESS_GAMES:
-        CHESS_GAMES.pop(chat_id)
-        bot.reply_to(message, "🧹 Sehrli shaxmat taxtasi yigʻishtirildi va oʻyin bekor qilindi.", parse_mode="HTML")
-    else:
-        bot.reply_to(message, "❌ Bu yerda faol oʻyin topilmadi.", parse_mode="HTML")
-
 
 # =====================================================================
 #  🏰 AZKABAN QOCHQINI O'YINI MANTIQI VA TAKOMILLASHTIRILGAN BAZASI
@@ -312,7 +231,7 @@ def show_azkaban_rules(message):
 def show_game_status(message):
     chat_id = message.chat.id
     if chat_id not in AZKABAN_SESSIONS or AZKABAN_SESSIONS[chat_id]["status"] != "playing":
-        return bot.reply_to(message, "❌ Hozirda guruhda faol qidiruv operatsiyasi ketmayapti.", parse_mode="HTML")
+        return bot.reply_to(message, "❌ Hozirda guruhda faol qidiruv operatsiyasi ketmayapti.")
         
     session = AZKABAN_SESSIONS[chat_id]
     
@@ -343,22 +262,22 @@ def extend_registration_time(message):
         is_admin = False
 
     if not is_admin:
-        return bot.reply_to(message, "🧙‍♂️ Kechirasiz, taymer sehrini boshqarish uchun sizda yetarli huquq yo'q!", parse_mode="HTML")
+        return bot.reply_to(message, "🧙‍♂️ Kechirasiz, taymer sehrini boshqarish uchun sizda yetarli huquq yo'q!")
 
     if chat_id not in AZKABAN_SESSIONS or AZKABAN_SESSIONS[chat_id]["status"] != "registration":
-        return bot.reply_to(message, "❌ Hozirda ro'yxatdan o'tish jarayoni ketmayapti, vaqtni uzaytirib bo'lmaydi.", parse_mode="HTML")
+        return bot.reply_to(message, "❌ Hozirda ro'yxatdan o'tish jarayoni ketmayapti, vaqtni uzaytirib bo'lmaydi.")
 
     AZKABAN_SESSIONS[chat_id]["countdown"] += 30
-    bot.send_message(chat_id, f"⏳ <b>Afsun kuchi bilan taymer uzaytirildi!</b> \nRo'yxatdan o'tish uchun yana <b>30 soniya</b> qo'shildi!", parse_mode="HTML")
+    bot.send_message(chat_id, f"⏳ <b>Afsun kuchi bilan taymer uzaytirildi!</b> \nRo'yxatdan o'tish uchun yana <b>30 soniya</b> qo'shildi!")
 
 @bot.message_handler(commands=["start_azkaban"])
 def start_azkaban_game(message):
     chat_id = message.chat.id
     if message.chat.type == "private":
-        return bot.reply_to(message, "🏰 Bu o'yinni faqat sehrgarlar guruhida boshlash mumkin!", parse_mode="HTML")
+        return bot.reply_to(message, "🏰 Bu o'yinni faqat sehrgarlar guruhida boshlash mumkin!")
     
     if chat_id in AZKABAN_SESSIONS and AZKABAN_SESSIONS[chat_id]["status"] != "ended":
-        return bot.reply_to(message, "🕵️‍♂️ Hozirda guruhda Azkaban qidiruv operatsiyasi faol holatda!", parse_mode="HTML")
+        return bot.reply_to(message, "🕵️‍♂️ Hozirda guruhda Azkaban qidiruv operatsiyasi faol holatda!")
 
     AZKABAN_SESSIONS[chat_id] = {
         "status": "registration",
@@ -402,7 +321,7 @@ def process_registration_countdown(chat_id):
     p_count = len(session["players"])
 
     if p_count < 3:
-        bot.send_message(chat_id, "❌ Qidiruv guruhiga yetarli sehrgar yig'ilmadi (Kamida 3 kishi kerak). Operatsiya bekor qilindi.", parse_mode="HTML")
+        bot.send_message(chat_id, "❌ Qidiruv guruhiga yetarli sehrgar yig'ilmadi (Kamida 3 kishi kerak). Operatsiya bekor qilindi.")
         AZKABAN_SESSIONS.pop(chat_id, None)
         return
 
@@ -432,12 +351,11 @@ def process_registration_countdown(chat_id):
 
     for p_id, p_obj in session["players"].items():
         try:
-            mention_p = get_mention(p_obj)
             if p_id in chosen_fugitives:
                 session["msg_counts"][p_id] = 0
                 bot.send_message(
                     p_id,  
-                    f"👁‍🗨 <b>{mention_p}</b>, Qora Lord sizga yashirin topshiriq berdi!\n\n"
+                    f"👁‍🗨 <b>{p_obj.first_name}</b>, Qora Lord sizga yashirin topshiriq berdi!\n\n"
                     f"Siz <b>Azkaban qochqinisiz!</b> Guruhda o'zingizni aslo bildirmang. "
                     f"Maqsadingiz guruh suhbatiga aralashib, kamida 3 ta so'zdan iborat bo'lgan <b>7 ta xabar</b> yozish "
                     f"yoki Sehrgarlar Vazirligi xodimlarini chalg'itib adashtirish! 🤫",
@@ -447,7 +365,7 @@ def process_registration_countdown(chat_id):
             else:
                 bot.send_message(
                     p_id,
-                    f"🧙‍♂️ <b>{mention_p}</b>, siz Sehrgarlar Vazirligi tarkibiga qabul qilindingiz!\n\n"
+                    f"🧙‍♂️ <b>{p_obj.first_name}</b>, siz Sehrgarlar Vazirligi tarkibiga qabul qilindingiz!\n\n"
                     f"Sizning vazifangiz — <b>Vazirlik tergovchisisiz!</b> Guruhdagi har bir xabarni diqqat bilan kuzating. "
                     f"Mahbuslarni so'zlaridan tahlil qilib, fosh eting! Adashmang, afsun imkoniyatlari cheklangan. ⚖️",
                     reply_markup=group_kb,
@@ -498,22 +416,22 @@ def handle_punishment(message):
     if cmd == "/revelio":
         chat_id = message.chat.id
         if message.chat.type == 'private':
-            return bot.reply_to(message, "Bu afsunni faqat guruhda ishlatish mumkin!", parse_mode="HTML")
+            return bot.reply_to(message, "Bu afsunni faqat guruhda ishlatish mumkin!")
         
         if chat_id not in AZKABAN_SESSIONS or AZKABAN_SESSIONS[chat_id]["status"] != "playing":
-            return bot.reply_to(message, "Hozirda hech qanday qidiruv o'yini ketmayapti. Boshlash uchun: /start_azkaban", parse_mode="HTML")
+            return bot.reply_to(message, "Hozirda hech qanday qidiruv o'yini ketmayapti. Boshlash uchun: /start_azkaban")
             
         if not message.reply_to_message:
-            return bot.reply_to(message, "⚠️ Afsunni yo'naltirish uchun gumonlanayotgan sehrgarning xabariga (Reply) javob yozing!", parse_mode="HTML")
+            return bot.reply_to(message, "⚠️ Afsunni yo'naltirish uchun gumonlanayotgan sehrgarning xabariga (Reply) javob yozing!")
 
         target = message.reply_to_message.from_user
         session = AZKABAN_SESSIONS[chat_id]
 
         if target.id not in session["players"]:
-            return bot.reply_to(message, "❌ Bu shaxs o'yin ro'yxatidan o'tmagan, u oddiy Hogwarts mehmoni!", parse_mode="HTML")
+            return bot.reply_to(message, "❌ Bu shaxs o'yin ro'yxatidan o'tmagan, u oddiy Hogwarts mehmoni!")
 
         if target.id in session["escaped_fugitives"]:
-            return bot.reply_to(message, "🏃‍♂️ Bu mahbus allaqachon tunda ko'rinmaslik jomshorini kiyib qochib ketgan!", parse_mode="HTML")
+            return bot.reply_to(message, "🏃‍♂️ Bu mahbus allaqachon tunda ko'rinmaslik jomshorini kiyib qochib ketgan!")
 
         if target.id in session["fugitives"]:
             session["fugitives"].remove(target.id)
@@ -528,7 +446,7 @@ def handle_punishment(message):
             )
             
             if not session["fugitives"]:
-                bot.send_message(chat_id, "🎉 <b>G'ALABA!</b> Sehrgarlar Vazirligi xodimlari barcha mahbuslarni muvaffaqiyatli fosh etdi va Hogwarts xavfsizligini ta'minladi!", parse_mode="HTML")
+                bot.send_message(chat_id, "🎉 <b>G'ALABA!</b> Sehrgarlar Vazirligi xodimlari barcha mahbuslarni muvaffaqiyatli fosh etdi va Hogwarts xavfsizligini ta'minladi!")
                 AZKABAN_SESSIONS.pop(chat_id, None)
         else:
             session["attempts"] -= 1
@@ -538,7 +456,7 @@ def handle_punishment(message):
                     chat_id,
                     f"💀 <b>Vazirlik mag'lub bo'ldi!</b> 💀\n\n"
                     f"Siz begunoh sehrgarlarni ta'qib qilib, afsun kuchini tugatdingiz. "
-                    f"Haqiqiy mahbuslar: {all_f_mentions} tunda guruhni tark etib, butunlay g'oyib bo'lsen!",
+                    f"Haqiqiy mahbuslar: {all_f_mentions} tunda guruhni tark etib, butunlay g'oyib bo'lishdi!",
                     parse_mode="HTML"
                 )
                 AZKABAN_SESSIONS.pop(chat_id, None)
@@ -558,13 +476,13 @@ def handle_punishment(message):
             if not isinstance(banned, list): banned = []
             banned.append(args)
             save_data(BANNED_FILE, list(set(banned)))
-            return bot.reply_to(message, f"🚫 <code>{args}</code> ID'li shaxs qora sehrgarlikda ayblanib, Avada Kedavra jodusi bilan botdan butunlay yo'q qilindi!", parse_mode="HTML")
+            return bot.reply_to(message, f"🚫 <code>{args}</code> ID'li shaxs qora sehrgarlikda ayblanib, Avada Kedavra jodusi bilan botdan butunlay yo'q qilindi!")
         elif cmd == "/revive" and args:
             banned = load_data(BANNED_FILE)
             if args in banned:
                 banned.remove(args)
                 save_data(BANNED_FILE, banned)
-                return bot.reply_to(message, f"🕊 <code>{args}</code> tiriltirildi (Revive) va unga botdan qayta foydalanishga ruxsat berildi!", parse_mode="HTML")
+                return bot.reply_to(message, f"🕊 <code>{args}</code> tiriltirildi (Revive) va unga botdan qayta foydalanishga ruxsat berildi!")
 
     if message.chat.type == 'private': return
     
@@ -577,10 +495,10 @@ def handle_punishment(message):
     is_vazir = (sender.id == ADMIN_ID)
     
     if not is_admin and not is_vazir:
-        return bot.reply_to(message, f"🧙‍♂️ Kechirasiz {mention_sender}, siz hali oddiy o'quvchisiz! Bunday oliy darajali sehrlarni faqat professorlar ishlata oladi! 🪄", parse_mode="HTML")
+        return bot.reply_to(message, f"🧙‍♂️ Kechirasiz {mention_sender}, siz hali oddiy o'quvchisiz! Bunday oliy darajali sehrlarni faqat professorlar ishlata oladi! 🪄")
 
     if not message.reply_to_message:
-        return bot.reply_to(message, "⚠️ Afsun kuchga kirishi uchun uni biror sehrgarning xabariga (Reply) qaratishingiz kerak!", parse_mode="HTML")
+        return bot.reply_to(message, "⚠️ Afsun kuchga kirishi uchun uni biror sehrgarning xabariga (Reply) qaratishingiz kerak!")
 
     target = message.reply_to_message.from_user
     mention_target = get_mention(target)
@@ -589,8 +507,7 @@ def handle_punishment(message):
         return bot.reply_to(
             message, 
             f"🛡 <b>PROTEGO HORRIBILIS!</b> \n\n{mention_sender}, siz hozirgina <b>Jodu Vazirining</b> shaxsan o'ziga qarshi afsun ishlatishga urindingiz! "
-            f"Sizning ojiz afsuningiz vazirlikning qadimiy daxlsiz himoya qalqoniga urilib, dahshatli kuch bilan o'zingizga qaytdi! ⚡️",
-            parse_mode="HTML"
+            f"Sizning ojiz afsuningiz vazirlikning qadimiy daxlsiz himoya qalqoniga urilib, dahshatli kuch bilan o'zingizga qaytdi! ⚡️"
         )
 
     try:
@@ -602,7 +519,7 @@ def handle_punishment(message):
     bot_obj = bot.get_me()
 
     if (is_target_admin or target.id == bot_obj.id) and not is_vazir:
-        return bot.reply_to(message, f"🧙‍♂️ {mention_sender}, boshqa bir professor yoki prefektga qarshi duel e'lon qilish taqiqlangan! Hogwarts nizomiga amal qiling.", parse_mode="HTML")
+        return bot.reply_to(message, f"🧙‍♂️ {mention_sender}, boshqa bir professor yoki prefektga qarshi duel e'lon qilish taqiqlangan! Hogwarts nizomiga amal qiling.")
 
     args = message.text.split()[1:]
     
@@ -613,7 +530,7 @@ def handle_punishment(message):
                 txt = f"⚖️ <b>SEHRGARLAR VAZIRLIGI OLIY FARMONI!</b>\n\n🦅 Shaxsan <b>Jodu Vazirining</b> muhrlangan buyrug'iga binoan, {mention_target} qora sehrgarlikda va tartibni buzishda ayblanib, daxshatli <b>AVADA KEDAVRA</b> afsuni ostida yashil nur ichida yo'q qilindi va Hogwarts guruhidan abadiy badarg'a etildi! ⛓⚡️"
             else:
                 txt = f"⚡️ <b>AVADA KEDAVRA!</b> \n\n{mention_target} yashil nur ichida g'oyib bo'ldi va Hogwarts guruhidan butunlay haydaldi! ⛓"
-            bot.send_message(message.chat.id, txt, parse_mode="HTML")
+            bot.send_message(message.chat.id, txt)
         
         elif cmd == "/revive":
             bot.unban_chat_member(message.chat.id, target.id)
@@ -621,7 +538,7 @@ def handle_punishment(message):
                 txt = f"📜 <b>SEHRGARLAR VAZIRLIGI AFV ETISH BAYONOTI!</b>\n\n🕊 <b>Jodu Vazirining</b> daxlsiz rahm-shafqati bilan, {mention_target} ustidagi barcha qora sehrlar olib tashlandi! <b>REVIVE</b> afsuni kuchga kirdi va Hogwarts darvozalari u uchun qayta ochildi! ✨"
             else:
                 txt = f"🕊 <b>REVIVE!</b> \n\n{mention_target} qayta tiriltirildi va guruh darvozalari unga yana ochildi!"
-            bot.send_message(message.chat.id, txt, parse_mode="HTML")
+            bot.send_message(message.chat.id, txt)
 
         elif cmd == "/silencio":
             mute_time = 5
@@ -643,7 +560,7 @@ def handle_punishment(message):
                 txt = f"🤫 <b>VAZIRLIKNING MAXFIY SILENCIO BUYRUG'I!</b>\n\n🙊 Jodu Vazirining buyrug'iga asosan {mention_target}ning ovozi mutloq o'chirildi! U <b>{mute_time} daqiqa</b> davomida Sehrgarlar duniaosida og'iz ocha olmaydi!\n📜 <b>Vazir ko'rsatgan sabab:</b> <i>{reason}</i>"
             else:
                 txt = f"🙊 <b>SILENCIO!</b> \n\n{mention_target} ovoz o'chirish afsuni ostida qoldi! U {mute_time} daqiqa davomida guruhda gapira olmaydi.\n📜 Sabab: {reason}"
-            bot.send_message(message.chat.id, txt, parse_mode="HTML")
+            bot.send_message(message.chat.id, txt)
             
         elif cmd == "/finite":
             bot.restrict_chat_member(message.chat.id, target.id, 
@@ -652,10 +569,10 @@ def handle_punishment(message):
                 txt = f"🔊 <b>FINITE INCANTATEM! (VAZIRLIK AFVI)</b>\n\n⚡️ Jodu Vazirining oliy irodasi bilan {mention_target} ustidagi cheklovlar bekor qilindi. Sadoqat bilan so'zlashga ruxsat berildi!"
             else:
                 txt = f"🔊 <b>FINITE INCANTATEM!</b> \n\n{mention_target} ustidagi afsun yechildi. Shovqin solmasdan gapirishi mumkin."
-            bot.send_message(message.chat.id, txt, parse_mode="HTML")
+            bot.send_message(message.chat.id, txt)
             
     except Exception as e:
-        bot.reply_to(message, f"❌ Afsun amalga oshmadi, xatolik: {str(e)}", parse_mode="HTML")
+        bot.reply_to(message, f"❌ Afsun amalga oshmadi, xatolik: {str(e)}")
 
 # --- MA'JUN O'YINI UCHUN GURUH BUYRUQLARI ---
 @bot.message_handler(commands=["potion"])
@@ -727,19 +644,18 @@ def start_cmd(message):
         if g_id and g_id in AZKABAN_SESSIONS and AZKABAN_SESSIONS[g_id]["status"] == "registration":
             session = AZKABAN_SESSIONS[g_id]
             if user.id in session["players"]:
-                return bot.send_message(message.chat.id, f"⚡️ Xavotir olmang, {mention_user}, siz allaqachon qidiruv ro'yxatidasiz!", parse_mode="HTML")
+                return bot.send_message(message.chat.id, f"⚡️ Xavotir olmang, {mention_user}, siz allaqachon qidiruv ro'yxatidasiz!")
             
             session["players"][user.id] = user
             bot.send_message(
                 message.chat.id, 
                 f"🏰 <b>Muvaffaqiyatli qo'shildingiz!</b>\n\nHurmatli yosh sehrgar {mention_user}, siz Azkaban mahbuslarini qidirish bo'yicha maxsus guruh tarkibiga qo'shildingiz! "
-                f"Yaqin soniyalarda sizga maxfiy vazifangiz (rolingiz) yuboriladi. Tayyor turing! 🪄✨",
-                parse_mode="HTML"
+                f"Yaqin soniyalarda sizga maxfiy vazifangiz (rolingiz) yuboriladi. Tayyor turing! 🪄✨"
             )
-            bot.send_message(g_id, f"🧙‍♂️ {mention_user} qidiruv guruhiga muvaffaqiyatli safarbar etildi!", parse_mode="HTML")
+            bot.send_message(g_id, f"🧙‍♂️ {mention_user} qidiruv guruhiga muvaffaqiyatli safarbar etildi!")
             return
         else:
-            return bot.send_message(message.chat.id, "❌ Afsuski, bu o'yinga ro'yxatdan o'tish muddati tugagan yoki o'yin topilmadi.", parse_mode="HTML")
+            return bot.send_message(message.chat.id, "❌ Afsuski, bu o'yinga ro'yxatdan o'tish muddati tugagan yoki o'yin topilmadi.")
 
     if message.chat.type != 'private':
         bot_info = bot.get_me()
@@ -755,7 +671,7 @@ def start_cmd(message):
 
     banned = load_data(BANNED_FILE)
     if str(user.id) in str(banned):
-        return bot.send_message(message.chat.id, "Siz Azkabandagi mahbus kabi botdan chetlatilgansiz!", parse_mode="HTML")
+        return bot.send_message(message.chat.id, "Siz Azkabandagi mahbus kabi botdan chetlatilgansiz!")
 
     users = load_data(USERS_FILE)
     if str(user.id) not in users:
@@ -798,25 +714,25 @@ def recheck_callback(callback):
 @bot.message_handler(commands=["getid"])
 def get_file_id(message):
     if message.from_user.id != ADMIN_ID: return
-    bot.reply_to(message, "Menga istalgan artefaktni (fayl) yuboring, uning FILE_ID sini o'qib beraman:", parse_mode="HTML")
+    bot.reply_to(message, "Menga istalgan artefaktni (fayl) yuboring, uning FILE_ID sini o'qib beraman:")
     ADMIN_STATES[message.from_user.id] = "waiting_for_file"
 
 @bot.message_handler(commands=["setwelcome"])
 def set_welcome_start(message):
     if message.from_user.id != ADMIN_ID: return
-    bot.reply_to(message, "Katta Zalda yangi talabalarni kutib olish uchun xabarnoma yuboring ({name} ism o'rniga):", parse_mode="HTML")
+    bot.reply_to(message, "Katta Zalda yangi talabalarni kutib olish uchun xabarnoma yuboring ({name} ism o'rniga):")
     ADMIN_STATES[message.from_user.id] = {"state": "waiting_for_welcome_text"}
 
 @bot.message_handler(commands=["admins"])
 def admin_panel(message):
     if message.from_user.id != ADMIN_ID: return
     txt = ("🧙‍♂️ <b>Jodu Vaziri Paneli:</b>\n\n/send - Reklama\n/getid - ID olish\n/setwelcome - Kutib olishni sozlash")
-    bot.send_message(message.chat.id, txt, parse_mode="HTML")
+    bot.send_message(message.chat.id, txt)
 
 @bot.message_handler(commands=["send"])
 def ad_start(message):
     if message.from_user.id != ADMIN_ID: return
-    bot.reply_to(message, "Barcha talabalarga yuboriladigan xabarni kiriting:", parse_mode="HTML")
+    bot.reply_to(message, "Barcha talabalarga yuboriladigan xabarni kiriting:")
     ADMIN_STATES[message.from_user.id] = "waiting_for_ad"
 
 # --- MATNLAR VA MULTIMEDIA ISHLOVCHI ---
@@ -842,7 +758,7 @@ def process_admin_and_text_replies(message):
                         parse_mode="HTML"
                     )
                     if not session["fugitives"]:
-                        bot.send_message(chat_id, "💀 <b>QOCHQINLAR G'ALABASI!</b> Guruhdagi barcha yashirin qochqinlar muvaffaqiyatli qochib qutulishdi!", parse_mode="HTML")
+                        bot.send_message(chat_id, "💀 <b>QOCHQINLAR G'ALABASI!</b> Guruhdagi barcha yashirin qochqinlar muvaffaqiyatli qochib qutulishdi!")
                         AZKABAN_SESSIONS.pop(chat_id, None)
 
     if uid == ADMIN_ID and uid in ADMIN_STATES:
@@ -854,7 +770,7 @@ def process_admin_and_text_replies(message):
             elif message.video: f_id = message.video.file_id
             elif message.document: f_id = message.document.file_id
             
-            if f_id: bot.send_message(message.chat.id, f"<code>{f_id}</code>", parse_mode="HTML")
+            if f_id: bot.send_message(message.chat.id, f"<code>{f_id}</code>")
             ADMIN_STATES.pop(uid, None)
             return
 
@@ -866,14 +782,14 @@ def process_admin_and_text_replies(message):
                     bot.copy_message(u, message.chat.id, message.message_id)
                     count += 1
                 except: pass
-            bot.send_message(message.chat.id, f"✅ Xabar {count} ta sehrgarga yetkazildi.", parse_mode="HTML")
+            bot.send_message(message.chat.id, f"✅ Xabar {count} ta sehrgarga yetkazildi.")
             ADMIN_STATES.pop(uid, None)
             return
 
         elif isinstance(state_data, dict) and state_data.get("state") == "waiting_for_welcome_text":
             if message.text:
                 ADMIN_STATES[uid] = {"state": "waiting_for_welcome_media", "txt": message.text}
-                bot.reply_to(message, "Endi media (rasm yoki video) yuboring:", parse_mode="HTML")
+                bot.reply_to(message, "Endi media (rasm yoki video) yuboring:")
             return
 
         elif isinstance(state_data, dict) and state_data.get("state") == "waiting_for_welcome_media":
@@ -886,7 +802,7 @@ def process_admin_and_text_replies(message):
 
             welcome_db[cid] = {"text": state_data['txt'], "f_id": f_id, "f_type": f_type}
             save_data(WELCOME_FILE, welcome_db)
-            bot.send_message(message.chat.id, "✅ Kutib olish tizimi sozlandi!", parse_mode="HTML")
+            bot.send_message(message.chat.id, "✅ Kutib olish tizimi sozlandi!")
             ADMIN_STATES.pop(uid, None)
             return
 
@@ -918,7 +834,7 @@ def process_admin_and_text_replies(message):
         h = HOUSES_DETAILS[data[uid_str]]
         rand_phrase = random.choice(SHLYAPA_FRAZALARI)
         
-        msg = bot.send_message(message.chat.id, f"🎩 <b>{rand_phrase}</b>", parse_mode="HTML")
+        msg = bot.send_message(message.chat.id, f"🎩 <b>{rand_phrase}</b>")
         time.sleep(2.5)
         
         final_text = f"{h['txt']}\n\nSiz munosib bo'lgan fakultet: {h['emoji']} <b>{data[uid_str]}</b>\n🔑 Kirish afsuni: <code>{h['kalit']}</code>"
@@ -937,7 +853,7 @@ def process_admin_and_text_replies(message):
         save_data(GROUPS_FILE, g_data)
         
         g_info = PROJECT_GROUPS[selected_group]
-        msg = bot.send_message(message.chat.id, "🔮 <b>Sehrli Ko'zgu porlab, sizning ichki qon hislatlaringizni tahlil qilmoqda...</b>", parse_mode="HTML")
+        msg = bot.send_message(message.chat.id, "🔮 <b>Sehrli Ko'zgu porlab, sizning ichki qon hislatlaringizni tahlil qilmoqda...</b>")
         time.sleep(2.5)
         bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id, parse_mode="HTML")
 
@@ -964,7 +880,7 @@ def process_admin_and_text_replies(message):
         p_data[uid_str] = chosen
         save_data(PATRONUS_FILE, p_data)
         
-        msg = bot.send_message(message.chat.id, "✨ <b>Sehrli tayoqchani silkitamiz...</b> ✨\n<i>Qani, diqqat qiling, kumushrang nur ichidan qanday jonivor chiqarkon...</i>", parse_mode="HTML")
+        msg = bot.send_message(message.chat.id, "✨ <b>Sehrli tayoqchani silkitamiz...</b> ✨\n<i>Qani, diqqat qiling, kumushrang nur ichidan qanday jonivor chiqarkon...</i>")
         time.sleep(2.5)
         
         txt = (
@@ -992,9 +908,9 @@ def on_new_member(message):
         if cid in data:
             conf = data[cid]
             cap = conf['text'].replace("{name}", mention)
-            if conf['f_type'] == "photo": m = bot.send_photo(cid, conf['f_id'], caption=cap, reply_markup=btn, parse_mode="HTML")
-            elif conf['f_type'] == "video": m = bot.send_video(cid, conf['f_id'], caption=cap, reply_markup=btn, parse_mode="HTML")
-            else: m = bot.send_message(cid, cap, reply_markup=btn, parse_mode="HTML")
+            if conf['f_type'] == "photo": m = bot.send_photo(cid, conf['f_id'], caption=cap, reply_markup=btn)
+            elif conf['f_type'] == "video": m = bot.send_video(cid, conf['f_id'], caption=cap, reply_markup=btn)
+            else: m = bot.send_message(cid, cap, reply_markup=btn)
             Thread(target=delete_after_delay, args=(message.chat.id, m.message_id, 600)).start()
 
 # --- CALLBACK TUGMALARIGA ISHLOV BERISH ---
@@ -1003,48 +919,6 @@ def handle_callbacks(callback):
     d = callback.data
     chat_id = callback.message.chat.id
     
-    # --- SHAXMAT GURUH DUELIGA QO'SHILISH LOGIKASI ---
-    if d.startswith("join_chess_"):
-        g_id = int(d.replace("join_chess_", ""))
-        user = callback.from_user
-        
-        if g_id not in CHESS_GAMES:
-            return bot.answer_callback_query(callback.id, "❌ Bu duel muddati tugagan yoki o'yin yopilgan!", show_alert=True)
-            
-        game = CHESS_GAMES[g_id]
-        
-        if game["white_player"] == user.id:
-            return bot.answer_callback_query(callback.id, "🧙‍♂️ Oʻzingiz ochgan duelga oʻzingiz raqib boʻla olmaysiz! Severus Sneyp buni ma'qullamaydi.", show_alert=True)
-            
-        if game["black_player"] is not None:
-            return bot.answer_callback_query(callback.id, "🚫 Duelga allaqachon raqib qo'shilgan!", show_alert=True)
-            
-        # Raqibni ro'yxatga olamiz va o'yinni faollashtiramiz
-        game["black_player"] = user.id
-        game["black_name"] = user.first_name
-        game["status"] = "playing"
-        
-        bot.answer_callback_query(callback.id, "⚔️ Duelni qabul qildingiz!", show_alert=False)
-        
-        # Endi har ikkala o'yinchi uchun WebApp havolasini tayyorlaymiz (Parametrlar orqali kim oq, kim qoraligini uzatamiz)
-        white_url = f"{GAME_URL}?time={game['time']}&mode=pvp&role=white&game_id={g_id}&white={game['white_player']}&black={user.id}"
-        black_url = f"{GAME_URL}?time={game['time']}&mode=pvp&role=black&game_id={g_id}&white={game['white_player']}&black={user.id}"
-        
-        kb = types.InlineKeyboardMarkup(row_width=2)
-        kb.add(
-            types.InlineKeyboardButton(text="⚪️ Oqlar Taxtasi", web_app=types.WebAppInfo(url=white_url)),
-            types.InlineKeyboardButton(text="⚫️ Qoralar Taxtasi", web_app=types.WebAppInfo(url=black_url))
-        )
-        
-        txt = (
-            f"⚔️ <b>Sehrli Shaxmat Duelingiz Boshlandi!</b>\n\n"
-            f"⚪️ <b>Oqlar:</b> <a href='tg://user?id={game['white_player']}'>{game['white_name']}</a>\n"
-            f"⚫️ <b>Qoralar:</b> {get_mention(user)}\n\n"
-            f"🪄 <i>Oʻz rangizga mos keladigan tugmani bosing, interaktiv taxtani oching va yuring! Ron Uizli kabi strategiyangiz mukammal boʻlsin!</i>"
-        )
-        bot.edit_message_text(txt, g_id, callback.message.message_id, reply_markup=kb, parse_mode="HTML")
-        return
-
     # --- MA'JUN TAYYORLASH GURUH LOGIKASI ---
     if d.startswith("pot_"):
         _, g_id_str, idx_str = d.split("_")
@@ -1095,7 +969,7 @@ def handle_callbacks(callback):
             bot.answer_callback_query(callback.id, f"ingredient {current_step}/3 solindi", show_alert=False)
             txt = (
                 f"🧪 {get_mention(callback.from_user)} <b>dorini tayyorlashda davom etmoqda...</b>\n"
-                f"Hoghorsi holat: Jami 3 tadan {current_step} ta masalliq to'g'ri solindi.\n"
+                f"Hozirgi holat: Jami 3 tadan {current_step} ta masalliq to'g'ri solindi.\n"
                 f"Ketma-ketlikni buzmang, keyingi to'g'ri masalliqni tanlang!"
             )
             kb = types.InlineKeyboardMarkup(row_width=3)
@@ -1143,7 +1017,7 @@ def handle_callbacks(callback):
         elif code == "mru": item = MOVIES_RU[idx]; f = bot.send_video
         elif code == "men": item = MOVIES_EN[idx]; f = bot.send_video
         
-        if not item["file_id"]: bot.send_message(callback.message.chat.id, item["caption"], parse_mode="HTML")
+        if not item["file_id"]: bot.send_message(callback.message.chat.id, item["caption"])
         else: f(callback.message.chat.id, item["file_id"], caption=item["caption"])
         bot.answer_callback_query(callback.id)
 
