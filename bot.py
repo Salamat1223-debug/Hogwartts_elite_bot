@@ -4,8 +4,8 @@ import os
 import random
 import time
 from threading import Thread
-import requests  # <-- O'z-o'zini uyg'otish so'rovlari uchun kerak
-from flask import Flask  # <-- Render o'chib qolmasligi uchun eng yengil veb-server
+import requests  
+from flask import Flask  
 import telebot
 from telebot import types
 
@@ -16,13 +16,11 @@ GROUP = "@hogwarts_elite"
 ADMIN_ID = 7821230725
 SHLYAPA_USER = "SalamatPirjanov"
 
-# Render sizga bergan havola (Bot o'zini o'zi uyg'otishi uchun)
 RENDER_URL = "https://hogwartts-elite-bot.onrender.com"
 
 logging.basicConfig(level=logging.INFO)
 bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
 
-# --- ADMIN STATUSLARI UCHUN ODDIY BAZA (FSM o'rniga) ---
 ADMIN_STATES = {}
 
 # --- MA'LUMOTLAR BAZASI ---
@@ -90,7 +88,6 @@ HOUSES_DETAILS = {
     "Hufflepuff": {"emoji": "🦡", "kalit": "aql", "txt": "🦡 <b>Saralovchi Shlyapa pichirlamoqda:</b>\n\n<i>«E-eh, men senda eng buyuk fazilatni ko'ryapman... Sadoqat, mehnatsevarlik va tenglik senda birinchi o'rinda. Mehnat qilishdan aslo qo'rqmaysan, do'stlaring va yaqinlaring uchun chin dildan qayg'urasan!»</i>"}
 }
 
-# 🔮 SEHRLI ITTIFOQLAR BAZASI (FENIKS JAMIYATI VA AJAL KASOFATLARI)
 PROJECT_GROUPS = {
     "Feniks Jamiyati": {
         "emoji": "⚡️",
@@ -102,7 +99,6 @@ PROJECT_GROUPS = {
     }
 }
 
-# 🔮 SHLYAPA FRAZALARI (RANG-BARANGLIK UCHUN KENGAYTIRILDI)
 SHLYAPA_FRAZALARI = [
     "🧐 <i>Hmm... juda qiziq... Qalbingiz tubida chuqur yashiringan sirlarni ko'rmoqdaman...</i>",
     "🧠 <i>Xotiralaringiz qatlamida ulkan salohiyat yotibdi! Qaysi burilish sizni buyuklikka olib borami?</i>",
@@ -116,7 +112,6 @@ SHLYAPA_FRAZALARI = [
     "🔮 <i>Yuragingizning urishi menga aniq yo'lni ko'rsatmoqda, siz munosib bo'lgan maskan...</i>"
 ]
 
-# 🧪 MA'JUN TAYYORLASH HAQIDA HAQIQIY MA'LUMOTLAR
 POTIONS_DATA = [
     {"name": "Felix Felicis (Omad Sharbati)", "emoji": "🧪✨", "ingredients": ["Oltin kukuni", "Zuluk sharbati", "Feniks ko'zyoshi"], "desc": "Sizga 24 soat davomida mutloq omad taqdim etadi!"},
     {"name": "Amortentia (Sevgi ma'juni)", "emoji": "🧪💖", "ingredients": ["Marvarid kukuni", "Yalpiz ekstrakti", "Yal tirgich suv"], "desc": "Dunyodagi eng kuchli va xavfli sevgi ma'juni!"},
@@ -130,14 +125,12 @@ POTIONS_DATA = [
     {"name": "Wolfsbane Potion (Bo'ri dori)", "emoji": "🧪🐺", "ingredients": ["Ko'k bo'ri guli", "Kumush eritmasi", "Tun guli ekstrakti"], "desc": "Bo'ri-odamlarga to'lin oyda o'z aqlini saqlab qolishga yordam beradi!"}
 ]
 
-# ALL INGREDIENTS LIST (9 DISTINCT ITEMS)
 ALL_INGREDIENTS = [
     "Oltin kukuni", "Zuluk sharbati", "Feniks ko'zyoshi", 
     "Marvarid kukuni", "Yalpiz ekstrakti", "Alrauna ildizi",
     "Ikki shoxli kiyik shoxi", "Haqiqat guli", "Lavanda guli"
 ]
 
-# 🦄 TASODIFIY PATRONUSLAR RO'YXATI (YANGI LOGIKA)
 RANDOM_PATRONUS_LIST = [
     {"animal": "Baxmal Quyon (Hare) 🐇", "desc": "Bu Patronus juda chaqqon, sezgir va kutilmagan qarorlar qabul qila oladigan sehrgarlarga xosdir. Dushman koʻziga u kichik va zararsiz koʻrinishi mumkin, ammo uning tezligi, manyovrlari va aqlli harakatlari har qanday Dementorni sarosimaga solib qoʻyadi."},
     {"animal": "Aslanzahr Quyosh Sheri (Lion) 🦁", "desc": "Jasorat, sadoqat va bamisoli olovli qalb timsoli. Bu Patronus oʻz egasining ichki kuchidan darak beradi. Sher Patronusi chiqqan sehrgarlar doʻstlarini himoya qilish uchun oxirigacha kurashadi va har qanday zulmatni parchalab tashlaydi."},
@@ -149,10 +142,45 @@ RANDOM_PATRONUS_LIST = [
     {"animal": "Sodiq Olmaxon (Squirrel) 🐿", "desc": "Uddabronlik, harakatchanlik va ajoyib xotira ramzi. Kichkina bo'lishiga qaramay, u o'z tezligi va kutilmagan manyovrlari bilan dushmanning har qanday rejasini chippakka chiqara oladi."}
 ]
 
-# Guruhdagi majun o'yinlari seanslari bazasi
+# --- SNEYP GAPLARI POOL'I (Rang-barang va takrorlanmas tizim) ---
+SNAPE_FAILS = [
+    "🧹 <i>Professor Sneyp ko'zlarini qisib sizga qaradi: '{name}', sizning bu layoqatsizligingiz tufayli Gryffindordan ball chegiraman. Tozalash ishlari sizni kutmoqda!</i>",
+    "🧪 <i>'Ahmoqlik!' — Sneyp tayog'ini siltadi. '{name}', darslikni teskari o'qidingizmi?! Qozoningiz daxshatli ravishda kul bo'ldi. Splinlar darsi tugadi!</i>",
+    "🔥 <i>Sneyp sovuq ohangda pichirladi: '{name}', siz hatto oddiy suvni ham portlatib yuboradigan darajada 'iste'dodli' ekansiz. Yo'qoling ko'zimdan!</i>",
+    "💀 <i>'Ko'ryapmanki, yana bir bor o'z savodsizligingizni namoyish etdingiz, {name}!' — Sneyp zaharxanda qildi. Qozon bo'laklari xonaga sochildi.</i>",
+    "🤨 <i>Sneyp qora mantiyasini silkitib yaqinlashdi: '{name}', ma'jun tayyorlash siz uchun o'yinchoq emas! Bu safargi xatongiz evaziga jazo xonasiga borasiz!</i>"
+]
+
+SNAPE_SUCCESSES = [
+    "✨ <i>Professor Sneyp deyarli sezilmas ohangda bosh irg'adi: 'Yomon emas, {name}. To'g'ri ketma-ketlik. Fakultetingizga +20 ball yozildi.'</i>",
+    "🧪 <i>'Hayratlanarli... {name}, nihoyat miyangizni ishlatishni o'rgangan ko'rinasiz,' — Sneyp pichirladi. Ma'jun mukammal darajada yaltiramoqda!</i>",
+    "📜 <i>Sneyp daftarni ochib qayd etdi: '{name}, bu safar omadingiz keldi yoki haqiqatdan ham darsga tayyorlangansiz. Ma'jun muvaffaqiyatli tayyor!'</i>",
+    "🔮 <i>Sneyp qat'iy ovozda aytdi: 'Mana, ko'rib qo'yinglar. {name} eng murakkab formulani to'g'ri bajardi. Albatta, bu sizdan bunday natijani kutmagandim.'</i>",
+    "🧪✨ <i>Sneyp qozondagi sharbat rangiga qarab sekin dedi: 'Sifatli ish, {name}. Sneyp darsida kamchilik topish qiyin bo'lgan sanoqli damlamalardan biri bo'ldi.'</i>"
+]
+
+USED_SNAPE_FAILS = {}
+USED_SNAPE_SUCCESSES = {}
+
+def get_snape_phrase(user_id, name, is_success=True):
+    global SNAPE_FAILS, SNAPE_SUCCESSES, USED_SNAPE_FAILS, USED_SNAPE_SUCCESSES
+    
+    if is_success:
+        if user_id not in USED_SNAPE_SUCCESSES or not USED_SNAPE_SUCCESSES[user_id]:
+            USED_SNAPE_SUCCESSES[user_id] = list(SNAPE_SUCCESSES)
+            random.shuffle(USED_SNAPE_SUCCESSES[user_id])
+        phrase = USED_SNAPE_SUCCESSES[user_id].pop()
+    else:
+        if user_id not in USED_SNAPE_FAILS or not USED_SNAPE_FAILS[user_id]:
+            USED_SNAPE_FAILS[user_id] = list(SNAPE_FAILS)
+            random.shuffle(USED_SNAPE_FAILS[user_id])
+        phrase = USED_SNAPE_FAILS[user_id].pop()
+        
+    return phrase.format(name=name)
+
+# Multiplayer Ma'jun o'yinlari bazasi
 POTION_GAMES = {}
 
-# --- BAZA FAYLLARI ---
 HOUSES_FILE = "user_houses.json"
 GROUPS_FILE = "user_project_groups.json"
 USERS_FILE = "users_list.json"
@@ -170,7 +198,6 @@ def load_data(file):
 def save_data(file, data):
     with open(file, "w") as f: json.dump(data, f, indent=4)
 
-# --- FUNKSIYALAR ---
 def get_mention(user):
     return f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
 
@@ -251,7 +278,6 @@ def show_game_status(message):
             
     bot.send_message(chat_id, txt, parse_mode="HTML")
 
-# --- VAQTNI UZAYTIRISH BUYRUG'I ---
 @bot.message_handler(commands=["extend_azkaban"])
 def extend_registration_time(message):
     chat_id = message.chat.id
@@ -350,12 +376,14 @@ def process_registration_countdown(chat_id):
     )
 
     for p_id, p_obj in session["players"].items():
+        # Profilga link ko'rinishida {name} ishlatilishi uchun get_mention qo'shildi
+        mention_p = get_mention(p_obj)
         try:
             if p_id in chosen_fugitives:
                 session["msg_counts"][p_id] = 0
                 bot.send_message(
                     p_id,  
-                    f"👁‍🗨 <b>{p_obj.first_name}</b>, Qora Lord sizga yashirin topshiriq berdi!\n\n"
+                    f"👁‍🗨 Hurmatli <b>{mention_p}</b>, Qora Lord sizga yashirin topshiriq berdi!\n\n"
                     f"Siz <b>Azkaban qochqinisiz!</b> Guruhda o'zingizni aslo bildirmang. "
                     f"Maqsadingiz guruh suhbatiga aralashib, kamida 3 ta so'zdan iborat bo'lgan <b>7 ta xabar</b> yozish "
                     f"yoki Sehrgarlar Vazirligi xodimlarini chalg'itib adashtirish! 🤫",
@@ -365,7 +393,7 @@ def process_registration_countdown(chat_id):
             else:
                 bot.send_message(
                     p_id,
-                    f"🧙‍♂️ <b>{p_obj.first_name}</b>, siz Sehrgarlar Vazirligi tarkibiga qabul qilindingiz!\n\n"
+                    f"🧙‍♂️ Hurmatli <b>{mention_p}</b>, siz Sehrgarlar Vazirligi tarkibiga qabul qilindingiz!\n\n"
                     f"Sizning vazifangiz — <b>Vazirlik tergovchisisiz!</b> Guruhdagi har bir xabarni diqqat bilan kuzating. "
                     f"Mahbuslarni so'zlaridan tahlil qilib, fosh eting! Adashmang, afsun imkoniyatlari cheklangan. ⚖️",
                     reply_markup=group_kb,
@@ -376,14 +404,20 @@ def process_registration_countdown(chat_id):
 
     participants_list = "\n".join([f"• {get_mention(obj)}" for obj in session["players"].values()])
 
+    # Rolni inline tugma orqali faqat bosgan foydalanuvchiga ko'rsatish funksiyasi qo'shildi
+    role_kb = types.InlineKeyboardMarkup().add(
+        types.InlineKeyboardButton("👁‍🗨 Rolni ko'rish", callback_data=f"view_role_{chat_id}")
+    )
+
     bot.send_message(
         chat_id,
         f"🕵️‍♂️ <b>Qidiruv boshlandi! Rollar tarqatildi!</b>\n\n"
         f"📋 <b>Tergovda qatnashayotgan sehrgarlar ro'yxati:</b>\n{participants_list}\n\n"
         f"Guruhda jami {p_count} ta sehrgardan <b>{len(chosen_fugitives)} ta yashirin mahbus</b> bor.\n"
         f"Ularni fosh etish uchun guruhda xabarga javoban (Reply) <code>/revelio</code> yozing.\n\n"
-        f"⚠️ Vazirlikda jami <b>{attempts} ta xato quilting</b> imkoniyati bor!\n"
+        f"⚠️ Vazirlikda jami <b>{attempts} ta xato qilish</b> imkoniyat bor!\n"
         f"⏳ Mahbuslarni fosh etish uchun sizga <b>10 daqiqa</b> vaqt berildi!",
+        reply_markup=role_kb,
         parse_mode="HTML"
     )
     
@@ -406,7 +440,6 @@ def game_time_limit_timer(chat_id):
 
 # =====================================================================
 
-# --- JAZO TIZIMI (HOGWARTS SEHRLI AFSUNLARI - VAZIRLIK USLUBIDA) ---
 @bot.message_handler(commands=["silencio", "avadakedavra", "finite", "revive", "revelio"])
 def handle_punishment(message):
     sender = message.from_user
@@ -574,6 +607,54 @@ def handle_punishment(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Afsun amalga oshmadi, xatolik: {str(e)}")
 
+
+# --- MA'JUN O'YINI TAYMER VAZIFALARI ---
+def potion_action_timer(chat_id, user_id, msg_id):
+    """2 daqiqa davomida o'yinchi hech qanday masalliq tanlamasa yoki harakat qilmasa qozon portlaydi"""
+    time.sleep(120)
+    if chat_id in POTION_GAMES and user_id in POTION_GAMES[chat_id]:
+        game = POTION_GAMES[chat_id][user_id]
+        if game.get("msg_id") == msg_id and not game.get("ended", False):
+            game["ended"] = True
+            try:
+                user_obj = bot.get_chat_member(chat_id, user_id).user
+                m_name = get_mention(user_obj)
+            except:
+                m_name = "Sehrgar"
+                
+            sneyp_word = get_mention(user_obj) # name uchun oddiy ism yoki mention beramiz
+            fail_text = (
+                f"💥 <b>BOOOOOOOOM!!!</b>\n\n"
+                f"{m_name} 2 daqiqa davomida o'ylanib turaverganligi sababli, qozondagi harorat me'yordan oshib ketdi va dahshatli portlash sodir bo'ldi! 🪂\n\n"
+                f"{get_snape_phrase(user_id, m_name, is_success=False)}"
+            )
+            try: bot.edit_message_text(fail_text, chat_id, msg_id, parse_mode="HTML")
+            except: pass
+            POTION_GAMES[chat_id].pop(user_id, None)
+
+def potion_absolute_timer(chat_id, user_id, msg_id):
+    """3 daqiqa ichida o'yin to'liq tugallanmasa (boshlanishdan boshlab jami vaqt) qozon qaynab portlaydi"""
+    time.sleep(180)
+    if chat_id in POTION_GAMES and user_id in POTION_GAMES[chat_id]:
+        game = POTION_GAMES[chat_id][user_id]
+        if game.get("msg_id") == msg_id and not game.get("ended", False):
+            game["ended"] = True
+            try:
+                user_obj = bot.get_chat_member(chat_id, user_id).user
+                m_name = get_mention(user_obj)
+            except:
+                m_name = "Sehrgar"
+                
+            fail_text = (
+                f"💥 <b>BOOOOOOOOM!!!</b>\n\n"
+                f"Jami 3 daqiqalik vaqt tugadi! {m_name} ma'junni vaqtida pishirib ulgurmadi, qozon qaynab, toshib portlab ketdi! 🔥\n\n"
+                f"{get_snape_phrase(user_id, m_name, is_success=False)}"
+            )
+            try: bot.edit_message_text(fail_text, chat_id, msg_id, parse_mode="HTML")
+            except: pass
+            POTION_GAMES[chat_id].pop(user_id, None)
+
+
 # --- MA'JUN O'YINI UCHUN GURUH BUYRUQLARI ---
 @bot.message_handler(commands=["potion"])
 def start_group_potion(message):
@@ -592,27 +673,38 @@ def start_group_potion(message):
             pool.append(fake)
     random.shuffle(pool)
     
-    POTION_GAMES[chat_id] = {
+    if chat_id not in POTION_GAMES:
+        POTION_GAMES[chat_id] = {}
+        
+    # multiplayer tizim: POTION_GAMES[chat_id][user.id] ga yoziladi, endi hamma o'zi uchun alohida o'ynaydi!
+    POTION_GAMES[chat_id][user.id] = {
         "user_id": user.id,
         "potion_name": potion["name"],
         "emoji": potion["emoji"],
         "correct": correct_ingredients,
         "selected": [],
         "pool": pool,
-        "desc": potion["desc"]
+        "desc": potion["desc"],
+        "ended": False,
+        "last_action": time.time()
     }
     
     kb = types.InlineKeyboardMarkup(row_width=3)
     for i, ing in enumerate(pool):
-        kb.add(types.InlineKeyboardButton(ing, callback_data=f"pot_{chat_id}_{i}"))
+        kb.add(types.InlineKeyboardButton(ing, callback_data=f"pot_{chat_id}_{user.id}_{i}"))
         
     txt = (
         f"🧪 {get_mention(user)} <b>Professor Sneypning Ma'junlar darsida yangi vazifa oldi!</b>\n\n"
         f"Tayyorlanishi kerak bo'lgan sehrli dori: <b>{potion['name']}</b> {potion['emoji']}\n"
-        f"⚠️ <b>Vazifa:</b> Quyidagi ingredientlar ichidan <b>to'g'ri 3 tasini to'g'ri tartibda</b> ketma-ket tanlang. "
-        f"Aks holda qozon portlab ketadi! 🔥"
+        f"⚠️ <b>Vazifa:</b> Quyidagi ingredientlar ichidan <b>to'g'ri 3 tasini to'g'ri tartibda</b> ketma-ket tanlang.\n"
+        f"⏳ Har bir harakatga <b>2 daqiqa</b>, umumiy darsga <b>3 daqiqa</b> beriladi! Aks holda qozon portlaydi! 🔥"
     )
-    bot.send_message(chat_id, txt, reply_markup=kb, parse_mode="HTML")
+    sent_msg = bot.send_message(chat_id, txt, reply_markup=kb, parse_mode="HTML")
+    POTION_GAMES[chat_id][user.id]["msg_id"] = sent_msg.message_id
+    
+    # Taymerlarni ishga tushirish
+    Thread(target=potion_action_timer, args=(chat_id, user.id, sent_msg.message_id), daemon=True).start()
+    Thread(target=potion_absolute_timer, args=(chat_id, user.id, sent_msg.message_id), daemon=True).start()
 
 @bot.message_handler(commands=["potion_rules"])
 def show_potion_rules(message):
@@ -624,9 +716,11 @@ def show_potion_rules(message):
         "2️⃣ Pastda <b>9 ta inline tugma</b> orqali masalliqlar chalkashtirib ko'rsatiladi.\n"
         "3️⃣ O'yinchi damlamaning asliga mos ravishda <b>3 ta to'g'ri masalliqni ketma-ket</b> solishi shart.\n"
         "4️⃣ Agar ketma-ketlik buzilsa yoki xato masalliq qo'shilsa — qozon dahshatli olov bilan portlaydi!\n"
-        "5️⃣ To'g'ri tayyorlangan har bir ma'jun uchun fakultetingizga faxriy ballar yoziladi. ✨"
+        "5️⃣ Har bir foydalanuvchi alohida o'ynaydi va bir-biriga xalaqit bermaydi.\n"
+        "6️⃣ Qadamlar orasidagi taymer 2 daqiqa, umumiy portlash vaqti esa 3 daqiqadir! ✨"
     )
     bot.reply_to(message, txt, parse_mode="HTML")
+
 
 # --- START VA TEKSHIRISH ---
 @bot.message_handler(commands=["start"])
@@ -710,6 +804,7 @@ def recheck_callback(callback):
     else:
         bot.answer_callback_query(callback.id, "🚫 Tilsim kuchga kirmadi! Guruh va kanalga to'liq a'zo bo'ling!", show_alert=True)
 
+
 # --- ADMIN FUNKSIYALARI ---
 @bot.message_handler(commands=["getid"])
 def get_file_id(message):
@@ -734,6 +829,7 @@ def ad_start(message):
     if message.from_user.id != ADMIN_ID: return
     bot.reply_to(message, "Barcha talabalarga yuboriladigan xabarni kiriting:")
     ADMIN_STATES[message.from_user.id] = "waiting_for_ad"
+
 
 # --- MATNLAR VA MULTIMEDIA ISHLOVCHI ---
 @bot.message_handler(content_types=['text', 'photo', 'video', 'document', 'audio', 'voice'])
@@ -857,12 +953,10 @@ def process_admin_and_text_replies(message):
         time.sleep(2.5)
         bot.edit_message_text(g_info["txt"], message.chat.id, msg.message_id, parse_mode="HTML")
 
-    # --- TASODIFIY PATRONUS CHIQARISH LOGIKASI ---
     elif text == "🦄 Patronus aniqlash":
         uid_str = str(message.from_user.id)
         p_data = load_data(PATRONUS_FILE)
         
-        # Agar foydalanuvchi oldin aniqlagan bo'lsa, o'sha patronusini qaytaramiz
         if uid_str in p_data:
             saved = p_data[uid_str]
             return bot.send_message(
@@ -875,7 +969,6 @@ def process_admin_and_text_replies(message):
                 parse_mode="HTML"
             )
             
-        # Agar yangi bo'lsa, tayoqchani silkitish effekti bilan tasodifiy bittasini tanlaymiz
         chosen = random.choice(RANDOM_PATRONUS_LIST)
         p_data[uid_str] = chosen
         save_data(PATRONUS_FILE, p_data)
@@ -891,7 +984,8 @@ def process_admin_and_text_replies(message):
         )
         bot.edit_message_text(txt, message.chat.id, msg.message_id, parse_mode="HTML")
 
-# --- WELCOME (YANGI AZOLAR KELGANDA) ---
+
+# --- WELCOME ---
 @bot.message_handler(content_types=['new_chat_members'])
 def on_new_member(message):
     data = load_data(WELCOME_FILE)
@@ -913,62 +1007,104 @@ def on_new_member(message):
             else: m = bot.send_message(cid, cap, reply_markup=btn)
             Thread(target=delete_after_delay, args=(message.chat.id, m.message_id, 600)).start()
 
+
 # --- CALLBACK TUGMALARIGA ISHLOV BERISH ---
 @bot.callback_query_handler(func=lambda c: True)
 def handle_callbacks(callback):
+    global POTION_GAMES
     d = callback.data
     chat_id = callback.message.chat.id
     
+    # --- AZKABAN RO'YXATIDAGILAR UCHUN ROLNI KO'RISH TUGMASI ---
+    if d.startswith("view_role_"):
+        g_id = int(d.replace("view_role_", ""))
+        if g_id not in AZKABAN_SESSIONS or AZKABAN_SESSIONS[g_id]["status"] != "playing":
+            return bot.answer_callback_query(callback.id, "❌ Faol qidiruv operatsiyasi topilmadi!", show_alert=True)
+            
+        session = AZKABAN_SESSIONS[g_id]
+        u_id = callback.from_user.id
+        
+        if u_id not in session["players"]:
+            return bot.answer_callback_query(callback.id, "❌ Siz ushbu qidiruv operatsiyasi ro'yxatida yo'qsiz!", show_alert=True)
+            
+        if u_id in session["fugitives"]:
+            bot.answer_callback_query(
+                callback.id, 
+                "👁‍عون Siz — AZKABAN MAHBUSISIZ! 💀\n\nGuruhda bildirmasdan kamida 3 ta so'zdan iborat 7 ta xabar yozing yoki vazirlikni chalg'iting!", 
+                show_alert=True
+            )
+        else:
+            bot.answer_callback_query(
+                callback.id, 
+                "🧙‍♂️ Siz — VAZIRLIK TERGOVCHISISIZ! ⚖️\n\nGuruhdagi gumonlanuvchilar xabariga javoban /revelio afsunini yuborib mahbuslarni tuting!", 
+                show_alert=True
+            )
+        return
+
     # --- MA'JUN TAYYORLASH GURUH LOGIKASI ---
     if d.startswith("pot_"):
-        _, g_id_str, idx_str = d.split("_")
+        _, g_id_str, u_id_str, idx_str = d.split("_")
         g_id = int(g_id_str)
+        u_id = int(u_id_str)
         idx = int(idx_str)
         
-        if g_id not in POTION_GAMES:
+        if g_id not in POTION_GAMES or u_id not in POTION_GAMES[g_id]:
             return bot.answer_callback_query(callback.id, "❌ Bu ma'jun darsi muddati o'tgan yoki yakunlangan!", show_alert=True)
             
-        game = POTION_GAMES[g_id]
+        game = POTION_GAMES[g_id][u_id]
+        
         if callback.from_user.id != game["user_id"]:
-            return bot.answer_callback_query(callback.id, "🧙‍♂️ Bu darslik faqat /potion buyrug'ini bergan sehrgarga tegishli!", show_alert=True)
+            return bot.answer_callback_query(callback.id, "🧙‍♂️ Bu darslik faqat /potion buyrug'ini bergan sehrgarning o'zigagina tegishli! O'zingiz uchun /potion buyrug'ini bering.", show_alert=True)
+            
+        if game.get("ended", False):
+            return bot.answer_callback_query(callback.id, "💥 Qozon allaqachon portlagan yoki dars tugagan!", show_alert=True)
             
         chosen_item = game["pool"][idx]
         if chosen_item in game["selected"]:
             return bot.answer_callback_query(callback.id, "⚠️ Bu ingredient qozonga solingan!", show_alert=True)
             
+        # Harakat sodir bo'ldi, taymer uchun vaqtni yangilaymiz
+        game["last_action"] = time.time()
         game["selected"].append(chosen_item)
         current_step = len(game["selected"])
         
         correct_needed = game["correct"][current_step - 1]
+        m_name = get_mention(callback.from_user)
         
         if chosen_item != correct_needed:
+            game["ended"] = True
             bot.answer_callback_query(callback.id, "💥 XATO INGREDIENT!", show_alert=False)
+            
+            # Sneypning rang-barang xato gaplaridan biri olinadi ({name} ichida ishlaydi)
+            sneyp_phrase = get_mention(callback.from_user)
             fail_text = (
                 f"💥 <b>BOOOOOOOOM!!!</b>\n\n"
-                f"{get_mention(callback.from_user)} qozonga noto'g'ri masalliq yoki ketma-ketlikni aralashtirib yubordi! "
-                f"Qozon dahshatli yashil nur bilan portlab ketdi! 🪂\n\n"
-                f"🧪 <b>Aslida nima solish kerak edi:</b> {', '.join(game['correct'])}\n"
-                f"🧹 <i>Professor Sneyp sizga g'azab bilan qaramoqda. Fakultetingizdan 15 ball chegirildi!</i>"
+                f"{m_name} qozonga noto'g'ri masalliq yoki ketma-ketlikni aralashtirib yubordi! "
+                f"Qozon dahshatli nur bilan portlab ketdi! 🪂\n\n"
+                f"🧪 <b>Aslida nima solish kerak edi:</b> {', '.join(game['correct'])}\n\n"
+                f"{get_snape_phrase(u_id, m_name, is_success=False)}"
             )
             bot.edit_message_text(fail_text, g_id, callback.message.message_id, parse_mode="HTML")
-            POTION_GAMES.pop(g_id, None)
+            POTION_GAMES[g_id].pop(u_id, None)
             return
             
         if current_step == 3:
-            bot.answer_callback_query(callback.id, "✅ Muvaffaqiyatli bosqich!", show_alert=False)
+            game["ended"] = True
+            bot.answer_callback_query(callback.id, "✅ Muvaffaqiyatli!", show_alert=False)
+            
             success_text = (
                 f"🧪 <b>MUVAFFAQIYATLI MA'JUN! DARS TUGADI!</b>\n\n"
-                f"{get_mention(callback.from_user)} qat'iy qoidalarga rioya qilib, eng yuqori aniqlikda "
+                f"{m_name} qat'iy qoidalarga rioya qilib, eng yuqori aniqlikda "
                 f"<b>{game['potion_name']}</b> {game['emoji']} tayyorlashga erishdi!\n\n"
-                f"📜 <b>Xususiyati:</b> {game['desc']}\n"
-                f"✨ <i>Professor Sneyp daftarga yozib qo'ydi: Fakultetingizga mukammal tayyorlov uchun +20 ball!</i>"
+                f"📜 <b>Xususiyati:</b> {game['desc']}\n\n"
+                f"{get_snape_phrase(u_id, m_name, is_success=True)}"
             )
             bot.edit_message_text(success_text, g_id, callback.message.message_id, parse_mode="HTML")
-            POTION_GAMES.pop(g_id, None)
+            POTION_GAMES[g_id].pop(u_id, None)
         else:
             bot.answer_callback_query(callback.id, f"ingredient {current_step}/3 solindi", show_alert=False)
             txt = (
-                f"🧪 {get_mention(callback.from_user)} <b>dorini tayyorlashda davom etmoqda...</b>\n"
+                f"🧪 {m_name} <b>dorini tayyorlashda davom etmoqda...</b>\n"
                 f"Hozirgi holat: Jami 3 tadan {current_step} ta masalliq to'g'ri solindi.\n"
                 f"Ketma-ketlikni buzmang, keyingi to'g'ri masalliqni tanlang!"
             )
@@ -977,7 +1113,7 @@ def handle_callbacks(callback):
                 if ing in game["selected"]:
                     kb.add(types.InlineKeyboardButton(f"📥 {ing}", callback_data="dummy"))
                 else:
-                    kb.add(types.InlineKeyboardButton(ing, callback_data=f"pot_{g_id}_{i}"))
+                    kb.add(types.InlineKeyboardButton(ing, callback_data=f"pot_{g_id}_{u_id}_{i}"))
             bot.edit_message_text(txt, g_id, callback.message.message_id, reply_markup=kb, parse_mode="HTML")
         return
 
@@ -1020,6 +1156,7 @@ def handle_callbacks(callback):
         if not item["file_id"]: bot.send_message(callback.message.chat.id, item["caption"])
         else: f(callback.message.chat.id, item["file_id"], caption=item["caption"])
         bot.answer_callback_query(callback.id)
+
 
 # --- RENDER PORTINI TINGLOVCHI FLASK SERVER ---
 app = Flask('')
