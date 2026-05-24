@@ -18,6 +18,7 @@ SHLYAPA_USER = "SalamatPirjanov"
 
 # Render sizga bergan havola (Bot o'zini o'zi uyg'otishi uchun)
 RENDER_URL = "https://hogwartts-elite-bot.onrender.com"
+GAME_URL = "https://salamat1223-debug.github.io/Hogwartts_elite_bot/"
 
 logging.basicConfig(level=logging.INFO)
 bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
@@ -144,7 +145,7 @@ RANDOM_PATRONUS_LIST = [
     {"animal": "Yashirin Kurashchi — Boʻri (Wolf) 🐺", "desc": "Erkinlikni sevuvchi, yolgʻiz va ayni paytda oʻz toʻdasiga oʻta sadoqatli sehrgarlarning yoʻldoshi. Boʻri nihoyatda kuchli instinktlarga ega boʻlib, xavfni ancha uzoqdan his qiladi va kutilmagan zarba bera oladi."},
     {"animal": "Donishmand Boyqush (Owl) 🦉", "desc": "Kuch faqat mushaklarda emas, aqldadir! Bu Patronus chuqur bilimga intiluvchi, strategik fikrlaydigan va sirli tabiatga ega sehrgarlarni tanlaydi. U Dementorlarning ruhan ezish xususiyatiga qarshi eng mustahkam aqliy qalqondir."},
     {"animal": "Afsonaviy Feniks (Phoenix) 🦅", "desc": "Nihoyatda noyob va sehrli Patronus. Har qanday qiyinchilikdan soʻng qayta tugʻila oladigan, umidini hech qachon uzmaydigan insonlar timsoli. Feniks nuri Dementorlarni shunchaki haydamaydi, balki atrofga qaynoq hayotiy energiya tarqatadi."},
-    {"animal": "Chaqqon Tulki (Fox) 🦊", "desc": "Uddabronlik, ayyorlik va oʻtkir zehn belgisi. Tulki Patronusi anʼanaviy usullar ish bermagan joyda har doim noodatiy va aqlli yechim topa oladigan sehrgarlarning eng yaqin yordamchisidir."},
+    {"animal": "Chaqqon Tulki (Fox) 🦊", "desc": "Uddabronlik, ayyorlik va oʻtkir zehn belgisi. Tulki Patronusi anʼanaviy usullar ish bermagan join-da har doim noodatiy va aqlli yechim topa oladigan sehrgarlarning eng yaqin yordamchisidir."},
     {"animal": "Ajdaho (Dragon) 🐉", "desc": "Cheksiz qudrat, ehtiros va asov tabiat belgisi. Bu Patronus juda kuchli va mag'rur sehrgarlarda namoyon bo'ladi. Uning kumushrang alandasi Dementorlar guruhini bir lahzada yo'q qilib yuborishga qodir!"},
     {"animal": "Sodiq Olmaxon (Squirrel) 🐿", "desc": "Uddabronlik, harakatchanlik va ajoyib xotira ramzi. Kichkina bo'lishiga qaramay, u o'z tezligi va kutilmagan manyovrlari bilan dushmanning har qanday rejasini chippakka chiqara oladi."}
 ]
